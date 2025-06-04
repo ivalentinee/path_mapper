@@ -33,7 +33,15 @@ defmodule PathMapper.ORAReader.Layers do
          {:ok, {parsed_name, index, tags}} <- parse_name(name),
          {:ok, {x, y}} <- Geometry.get_position(layer_xml_element) do
       if index,
-        do: %{name: parsed_name, type: :layer, src: src_file, x: x, y: y, index: index, tags: tags},
+        do: %{
+          name: parsed_name,
+          type: :layer,
+          src: src_file,
+          x: x,
+          y: y,
+          index: index,
+          tags: tags
+        },
         else: %{name: parsed_name, type: :additional_layer, src: src_file, x: x, y: y}
     else
       error -> error

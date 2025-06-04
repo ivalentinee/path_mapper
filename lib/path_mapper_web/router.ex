@@ -18,5 +18,6 @@ defmodule PathMapperWeb.Router do
     pipe_through :browser
 
     live "/", PlayLive
+    live "/master", MasterLive
   end
 end

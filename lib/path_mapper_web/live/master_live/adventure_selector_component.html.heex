@@ -1,0 +1,12 @@
+<div id="adventure-selector" class="adventure-selector">
+  <%= for item <- @list do %>
+    <button
+      phx-click="select_adventure"
+      phx-target={@myself}
+      phx-value-name={item}
+      class={"pure-button item #{select_button_extra_classes(item, @loaded)}"}
+    >
+      {item}
+    </button>
+  <% end %>
+</div>

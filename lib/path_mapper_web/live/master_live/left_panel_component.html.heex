@@ -1,0 +1,35 @@
+<div class="left-panel">
+  <div class="panel-selector">
+    <button
+      id="adventure-selector-button"
+      class="left-panel-button pure-button"
+      phx-click="select_panel"
+      phx-target={@myself}
+      phx-value-name="adventure-selector"
+    >
+      Adventures
+    </button>
+    <%= if @adventures.loaded do %>
+      <button
+        id="scene-selector-button"
+        class="left-panel-button pure-button"
+        phx-click="select_panel"
+        phx-target={@myself}
+        phx-value-name="scene-selector"
+      >
+        Scenes
+      </button>
+    <% end %>
+  </div>
+
+  <%= if @ui_state == "adventure-selector" do %>
+    <div class="left-panel-content">
+      <.live_component
+        module={PathMapperWeb.MasterLive.AdventureSelectorComponent}
+        id="adventure-selector"
+        list={@adventures.list}
+        loaded={@adventures.loaded}
+      />
+    </div>
+  <% end %>
+</div>

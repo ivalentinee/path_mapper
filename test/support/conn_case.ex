@@ -28,6 +28,7 @@ defmodule PathMapperWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import PathMapperWeb.ConnCase
+      import PathMapperWeb.TestHelpers
     end
   end
 

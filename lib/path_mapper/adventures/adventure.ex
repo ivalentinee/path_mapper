@@ -13,8 +13,8 @@ defmodule PathMapper.Adventures.Adventure do
     embeds_many(:scenes, __MODULE__.Scene)
   end
 
-  def read(filename) when is_binary(filename) do
-    with {:ok, adventure_zip} <- Zip.read(filename),
+  def read(full_path, filename) when is_binary(full_path) and is_binary(filename) do
+    with {:ok, adventure_zip} <- Zip.read(full_path),
          {:ok, adventure_manifest_file} <- Zip.get_file(adventure_zip, "manifest.toml"),
          {:ok, adventure_manifest} <- :tomerl.parse(adventure_manifest_file),
          %Ecto.Changeset{} = changeset <-
@@ -30,7 +30,10 @@ defmodule PathMapper.Adventures.Adventure do
     struct
     |> cast(params, [:title, :file])
     |> cast_embed(:urls)
-    |> cast_embed(:scenes, required: true, with: &__MODULE__.Scene.changeset(&1, &2, adventure_zip))
+    |> cast_embed(:scenes,
+      required: true,
+      with: &__MODULE__.Scene.changeset(&1, &2, adventure_zip)
+    )
     |> validate_required([:title, :file])
   end
 end
