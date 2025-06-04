@@ -35,3 +35,4 @@ path_battler-*.tar
 npm-debug.log
 /assets/node_modules/
 
+/adventures

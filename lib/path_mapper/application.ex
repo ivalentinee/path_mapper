@@ -14,6 +14,7 @@ defmodule PathMapper.Application do
       # Start a worker by calling: PathMapper.Worker.start_link(arg)
       # {PathMapper.Worker, arg},
       # Start to serve requests, typically the last entry
+      PathMapper.Adventures,
       PathMapperWeb.Endpoint
     ]
 
