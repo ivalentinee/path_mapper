@@ -44,7 +44,9 @@ defmodule PathMapper.MixProject do
       {:gettext, "~> 0.26"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+      {:tomerl, "~> 0.5.0"},
+      {:credo, "~> 1.7.12", only: [:dev, :test], runtime: false}
     ]
   end
 

@@ -1,9 +1,7 @@
-defmodule PathMapper.Adventures.Adventure.Scene.Map.ORAReader.Layers do
-  alias PathMapper.Adventures.Adventure.Scene.Map.AdditionalLayer
-  alias PathMapper.Adventures.Adventure.Scene.Map.Layer
-  alias PathMapper.Adventures.Adventure.Scene.Map.ORAReader
-  alias PathMapper.Adventures.Adventure.Scene.Map.ORAReader.Geometry
-  alias PathMapper.Adventures.Adventure.Scene.Map.ORAReader.XML
+defmodule PathMapper.ORAReader.Layers do
+  alias PathMapper.ORAReader
+  alias PathMapper.ORAReader.Geometry
+  alias PathMapper.ORAReader.XML
 
   @name_regex ~r/([0-9]+) - ([^\[]+) *(\[.+\])?/
   @tag_trim_regex ~r/[ \[\]]+/
@@ -17,16 +15,13 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map.ORAReader.Layers do
 
   def find_layers(all_layers) do
     all_layers
-    |> Enum.filter(fn
-      %Layer{} -> true
-      _ -> false
-    end)
-    |> Enum.sort_by(fn %Layer{index: index} -> index end)
+    |> Enum.filter(fn %{type: type} -> type == :layer end)
+    |> Enum.sort_by(fn %{index: index} -> index end)
   end
 
   def find_additional_layer(all_layers, name) do
     Enum.find(all_layers, fn
-      %AdditionalLayer{name: layer_name} -> layer_name == name
+      %{name: layer_name, type: type} -> type == :additional_layer && layer_name == name
       _ -> false
     end)
   end
@@ -38,8 +33,8 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map.ORAReader.Layers do
          {:ok, {parsed_name, index, tags}} <- parse_name(name),
          {:ok, {x, y}} <- Geometry.get_position(layer_xml_element) do
       if index,
-        do: %Layer{name: parsed_name, src: src_file, x: x, y: y, index: index, tags: tags},
-        else: %AdditionalLayer{name: parsed_name, src: src_file, x: x, y: y}
+        do: %{name: parsed_name, type: :layer, src: src_file, x: x, y: y, index: index, tags: tags},
+        else: %{name: parsed_name, type: :additional_layer, src: src_file, x: x, y: y}
     else
       error -> error
     end

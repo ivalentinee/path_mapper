@@ -1,4 +1,4 @@
-defmodule PathMapper.Adventures.Adventure.Scene.Map.ORAReader.XML do
+defmodule PathMapper.ORAReader.XML do
   require Record
   Record.defrecord(:xmlElement, Record.extract(:xmlElement, from_lib: "xmerl/include/xmerl.hrl"))
 

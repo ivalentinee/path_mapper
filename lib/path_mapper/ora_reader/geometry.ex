@@ -1,5 +1,5 @@
-defmodule PathMapper.Adventures.Adventure.Scene.Map.ORAReader.Geometry do
-  alias PathMapper.Adventures.Adventure.Scene.Map.ORAReader.XML
+defmodule PathMapper.ORAReader.Geometry do
+  alias PathMapper.ORAReader.XML
 
   def get_dimensions(element) do
     with {:ok, width_string} <- XML.get_attribute_value(element, :w),

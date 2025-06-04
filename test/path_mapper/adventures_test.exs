@@ -1,9 +1,9 @@
 defmodule PathMapper.ScenesTest do
   use ExUnit.Case
 
-  alias PathMapper.Adventures.Adventure.Scene.Map
+  alias PathMapper.Adventures.Adventure
 
   test "loads an adventure" do
-    {:ok, %Map{}} = PathMapper.Adventures.load_adventure("sample.ora")
+    {:ok, %Adventure{}} = PathMapper.Adventures.load_adventure("adventure.zip")
   end
 end
