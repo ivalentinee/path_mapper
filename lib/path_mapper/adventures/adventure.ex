@@ -8,6 +8,7 @@ defmodule PathMapper.Adventures.Adventure do
 
   embedded_schema do
     field(:title, :string)
+    field(:file, :string)
     embeds_many(:urls, __MODULE__.URL)
     embeds_many(:scenes, __MODULE__.Scene)
   end
@@ -17,7 +18,7 @@ defmodule PathMapper.Adventures.Adventure do
          {:ok, adventure_manifest_file} <- Zip.get_file(adventure_zip, "manifest.toml"),
          {:ok, adventure_manifest} <- :tomerl.parse(adventure_manifest_file),
          %Ecto.Changeset{} = changeset <-
-           changeset(%__MODULE__{}, adventure_manifest, adventure_zip),
+           changeset(%__MODULE__{}, Map.put(adventure_manifest, "file", filename), adventure_zip),
          {:ok, adventure} <- apply_action(changeset, :insert) do
       {:ok, adventure}
     else
@@ -27,9 +28,9 @@ defmodule PathMapper.Adventures.Adventure do
 
   def changeset(struct, params, adventure_zip) do
     struct
-    |> cast(params, [:title])
+    |> cast(params, [:title, :file])
     |> cast_embed(:urls)
     |> cast_embed(:scenes, required: true, with: &__MODULE__.Scene.changeset(&1, &2, adventure_zip))
-    |> validate_required([:title])
+    |> validate_required([:title, :file])
   end
 end
