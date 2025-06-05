@@ -20,6 +20,17 @@
 }
 
 .adventure-selector .item {
-  padding: 10px;
+  text-align: start;
+  padding: 20px;
   width: 100%;
+}
+
+.adventure-selector .item .index {
+  font-size: 150%;
+  opacity: 0;
+}
+
+.highlight .item .index {
+  opacity: 100%;
+  color: rgb(255, 200, 50);
 }

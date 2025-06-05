@@ -19,6 +19,12 @@ defmodule PathMapper.Adventures do
     end
   end
 
+  def load_adventure(index) when is_number(index) do
+    filenames = Agent.get(__MODULE__, & &1).list
+    filename = Enum.at(filenames, index)
+    load_adventure(filename)
+  end
+
   def load_adventure(filename) when is_binary(filename) do
     filenames = Agent.get(__MODULE__, & &1).list
 

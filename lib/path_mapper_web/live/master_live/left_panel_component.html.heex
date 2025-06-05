@@ -2,7 +2,7 @@
   <div class={"panel-selector #{highlight_class(@ui_state)}"}>
     <button
       id="adventure-selector-button"
-      class="left-panel-button pure-button"
+      class={"left-panel-button pure-button #{select_button_extra_classes(@ui_state, "adventure-selector")}"}
       phx-click="select_panel"
       phx-target={@myself}
       phx-value-name="adventure-selector"
@@ -23,7 +23,7 @@
   </div>
 
   <%= if @ui_state.left_panel == "adventure-selector" do %>
-    <div class="panel-content">
+    <div class={"panel-content #{highlight_content_class(@ui_state)}"}>
       <.live_component
         module={PathMapperWeb.MasterLive.AdventureSelectorComponent}
         id="adventure-selector"

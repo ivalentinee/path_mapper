@@ -1,12 +1,12 @@
 <div id="adventure-selector" class="adventure-selector">
-  <%= for item <- @list do %>
+  <%= for {item, index} <- Enum.with_index(@list, 1) do %>
     <button
       phx-click="select_adventure"
       phx-target={@myself}
       phx-value-name={item}
       class={"pure-button item #{select_button_extra_classes(item, @loaded)}"}
     >
-      {item}
+      <span class="index">{index}</span> {item}
     </button>
   <% end %>
 </div>
