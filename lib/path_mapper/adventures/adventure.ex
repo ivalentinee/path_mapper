@@ -8,6 +8,7 @@ defmodule PathMapper.Adventures.Adventure do
 
   embedded_schema do
     field(:title, :string)
+    field(:wallpaper, :binary)
     field(:file, :string)
     embeds_many(:urls, __MODULE__.URL)
     embeds_many(:scenes, __MODULE__.Scene)
@@ -28,12 +29,21 @@ defmodule PathMapper.Adventures.Adventure do
 
   def changeset(struct, params, adventure_zip) do
     struct
-    |> cast(params, [:title, :file])
+    |> cast(read_manifest_files(params, adventure_zip), [:title, :wallpaper, :file])
     |> cast_embed(:urls)
     |> cast_embed(:scenes,
       required: true,
       with: &__MODULE__.Scene.changeset(&1, &2, adventure_zip)
     )
     |> validate_required([:title, :file])
+  end
+
+  defp read_manifest_files(params, adventure_zip) when is_map(params) do
+    with filename when is_binary(filename) <- params["wallpaper"],
+         {:ok, wallpaper} <- Zip.get_file(adventure_zip, filename) do
+      Map.put(params, "wallpaper", wallpaper)
+    else
+      _ -> params
+    end
   end
 end
