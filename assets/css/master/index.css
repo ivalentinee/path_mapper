@@ -1,0 +1,8 @@
+.master-container {
+  width: 100vw;
+  height: 100vh;
+}
+
+.selected {
+  background: rgb(66, 184, 221);
+}

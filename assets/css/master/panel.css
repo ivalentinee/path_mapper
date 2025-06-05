@@ -1,0 +1,19 @@
+.side-panel {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.panel-content {
+  background-color: #aaaaaa;
+  border-right: 1px solid;
+  border-left: 1px solid;
+}
+
+.panel-selector {
+  background-color: #aaaaaa;
+  width: 50px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}

@@ -1,0 +1,25 @@
+.left-panel {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.left-panel-button {
+  height: 50%;
+  writing-mode: sideways-lr;
+}
+
+.left-panel-content {
+  width: 15vw;
+  height: 100%;
+}
+
+.adventure-selector {
+  width: 100%;
+  height: 100%;
+}
+
+.adventure-selector .item {
+  padding: 10px;
+  width: 100%;
+}
