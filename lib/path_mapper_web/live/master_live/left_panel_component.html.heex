@@ -1,5 +1,5 @@
 <div class="left-panel">
-  <div class="panel-selector">
+  <div class={"panel-selector #{highlight_class(@ui_state)}"}>
     <button
       id="adventure-selector-button"
       class="left-panel-button pure-button"
@@ -22,7 +22,7 @@
     <% end %>
   </div>
 
-  <%= if @ui_state == "adventure-selector" do %>
+  <%= if @ui_state.left_panel == "adventure-selector" do %>
     <div class="left-panel-content">
       <.live_component
         module={PathMapperWeb.MasterLive.AdventureSelectorComponent}

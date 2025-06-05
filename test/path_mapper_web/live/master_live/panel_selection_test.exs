@@ -15,4 +15,17 @@ defmodule PathMapperWeb.MasterLive.PanelSelectionTest do
 
     assert find_html_element(render(view), "#adventure-selector")
   end
+
+  test "opens and closes 'adventure selector' with a keystroke", %{conn: conn} do
+    conn = get(conn, "/master")
+    assert html_response(conn, 200)
+    {:ok, view, html} = live(conn)
+
+    assert !find_html_element(html, "#adventure-selector")
+
+    render_keydown(view, "navigate", %{"key" => "p"})
+    render_keydown(view, "navigate", %{"key" => "a"})
+
+    assert find_html_element(render(view), "#adventure-selector")
+  end
 end

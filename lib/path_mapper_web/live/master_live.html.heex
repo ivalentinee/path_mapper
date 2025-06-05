@@ -1,8 +1,10 @@
 <div class="master-container">
+  <div phx-window-keydown="navigate"></div>
+
   <.live_component
     module={PathMapperWeb.MasterLive.LeftPanelComponent}
     id="left-panel"
     adventures={@adventures}
-    ui_state={@ui_state.left_panel}
+    ui_state={@ui_state}
   />
 </div>

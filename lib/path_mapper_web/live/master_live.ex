@@ -19,6 +19,11 @@ defmodule PathMapperWeb.MasterLive do
   end
 
   @impl true
+  def handle_event("navigate", %{"key" => key}, socket) do
+    {:noreply, assign(socket, :ui_state, UIState.run_key(socket.assigns.ui_state, key))}
+  end
+
+  @impl true
   def handle_info(%{adventure_loaded: adventures}, socket) do
     {:noreply, assign(socket, :adventures, adventures)}
   end
