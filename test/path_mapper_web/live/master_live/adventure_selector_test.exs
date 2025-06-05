@@ -1,4 +1,4 @@
-defmodule PathMapperWeb.MasterLive.PanelSelectionTest do
+defmodule PathMapperWeb.MasterLive.AdventureSelectorTest do
   use PathMapperWeb.ConnCase, async: true
   import Phoenix.LiveViewTest
 
@@ -36,7 +36,7 @@ defmodule PathMapperWeb.MasterLive.PanelSelectionTest do
     assert html_response(conn, 200)
     {:ok, view, _html} = live(conn)
 
-    first_adventure_name = List.first(Adventures.get_adventures().list)
+    first_adventure_name = List.first(Adventures.get().list)
 
     view |> element("#adventure-selector-button") |> render_click()
     assert find_html_element(render(view), "#adventure-selector")

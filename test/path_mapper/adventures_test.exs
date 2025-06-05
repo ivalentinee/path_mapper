@@ -6,6 +6,6 @@ defmodule PathMapper.ScenesTest do
 
   test "loads an adventure" do
     {:ok, %Adventure{}} = Adventures.load_adventure("adventure.zip")
-    %Adventure{} = Adventures.get_adventures().loaded
+    %Adventure{} = Adventures.get().loaded
   end
 end

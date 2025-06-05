@@ -8,11 +8,7 @@ defmodule PathMapperWeb.MasterLive.AdventureSelectorComponent do
     {:noreply, socket}
   end
 
-  def select_button_extra_classes(file, loaded_adventure) do
-    if is_a_selected_adventure(file, loaded_adventure), do: "selected", else: ""
-  end
-
-  def is_a_selected_adventure(file, loaded_adventure) do
-    loaded_adventure && file == loaded_adventure.file
+  def select_button_extra_classes(adventure_filename, loaded_adventure) do
+    if loaded_adventure && adventure_filename == loaded_adventure.file, do: "selected", else: ""
   end
 end

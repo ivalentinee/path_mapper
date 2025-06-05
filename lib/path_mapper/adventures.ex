@@ -4,6 +4,7 @@ defmodule PathMapper.Adventures do
   defstruct [:list, :loaded]
 
   alias PathMapper.Adventures.Adventure
+  alias PathMapper.Game
   alias Phoenix.PubSub
 
   @update_pubsub_topic "adventures"
@@ -35,12 +36,23 @@ defmodule PathMapper.Adventures do
     end
   end
 
-  def get_adventures do
+  def get do
     Agent.get(__MODULE__, & &1)
+  end
+
+  def get_loaded_adventure do
+    case Agent.get(__MODULE__, & &1) do
+      %{loaded: %Adventure{} = adventure} -> {:ok, adventure}
+      _ -> {:error, :no_adventure_loaded}
+    end
   end
 
   def subscribe do
     PubSub.subscribe(PathMapper.PubSub, @update_pubsub_topic)
+  end
+
+  def broadcast(event) do
+    PubSub.broadcast(PathMapper.PubSub, @update_pubsub_topic, event)
   end
 
   defp load_adventure_from_file(filename) do
@@ -48,18 +60,16 @@ defmodule PathMapper.Adventures do
     full_path = Path.join(dir_path, filename)
 
     case Adventure.read(full_path, filename) do
-      {:ok, adventure} ->
-        Agent.update(__MODULE__, &Map.put(&1, :loaded, adventure))
-
-        PubSub.broadcast(PathMapper.PubSub, @update_pubsub_topic, %{
-          @adventure_loaded_event => get_adventures()
-        })
-
-        {:ok, adventure}
-
-      error ->
-        error
+      {:ok, adventure} -> set_loaded_adventure(adventure)
+      error -> error
     end
+  end
+
+  defp set_loaded_adventure(%Adventure{} = adventure) do
+    Game.reset()
+    Agent.update(__MODULE__, &Map.put(&1, :loaded, adventure))
+    broadcast(%{@adventure_loaded_event => get()})
+    {:ok, adventure}
   end
 
   defp read_adventure_directory do

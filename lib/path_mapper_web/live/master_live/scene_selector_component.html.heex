@@ -1,0 +1,12 @@
+<div id="scene-selector" class="scene-selector">
+  <%= for {item, index} <- Enum.with_index(@adventure.scenes, 1) do %>
+    <button
+      phx-click="select_scene"
+      phx-target={@myself}
+      phx-value-name={item.name}
+      class={"pure-button item #{select_button_extra_classes(item.name, @game.scene)}"}
+    >
+      <span class="index">{index}</span> {item.name}
+    </button>
+  <% end %>
+</div>

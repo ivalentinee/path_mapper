@@ -7,13 +7,16 @@ defmodule PathMapperWeb.MasterLive.UIState.Keystrokes do
   def run_keystroke(%{keystroke: ["p", "a"]} = ui_state),
     do: ui_state |> Actions.select_left_panel("adventure-selector") |> reset_keystroke()
 
+  def run_keystroke(%{keystroke: ["p", "s"]} = ui_state),
+    do: ui_state |> Actions.select_left_panel("scene-selector") |> reset_keystroke()
+
   def run_keystroke(%{keystroke: ["p", "q"]} = ui_state),
     do: ui_state |> Actions.select_left_panel(nil) |> reset_keystroke()
 
   def run_keystroke(%{keystroke: ["l"]} = ui_state) when not is_nil(ui_state.left_panel),
     do: keystroke_highlight(ui_state, :left_panel_content)
 
-  def run_keystroke(%{keystroke: ["l", index], left_panel: "adventure-selector"} = ui_state),
+  def run_keystroke(%{keystroke: ["l", index]} = ui_state),
     do: ui_state |> Actions.select_left_panel_item(index) |> reset_keystroke()
 
   def run_keystroke(ui_state),

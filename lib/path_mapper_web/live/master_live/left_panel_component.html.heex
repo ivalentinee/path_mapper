@@ -32,4 +32,15 @@
       />
     </div>
   <% end %>
+
+  <%= if @adventures.loaded && @ui_state.left_panel == "scene-selector" do %>
+    <div class={"panel-content #{highlight_content_class(@ui_state)}"}>
+      <.live_component
+        module={PathMapperWeb.MasterLive.SceneSelectorComponent}
+        id="scene-selector"
+        adventure={@adventures.loaded}
+        game={@game}
+      />
+    </div>
+  <% end %>
 </div>
