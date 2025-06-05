@@ -6,7 +6,7 @@ defmodule PathMapperWeb.MasterLive.UIState do
 
   def run_event(ui_state, %{left_panel_select: panel_name}) do
     ui_state
-    |> Actions.select_left_panel(panel_name)
+    |> Actions.toggle_left_panel(panel_name)
     |> Keystrokes.reset_keystroke()
   end
 

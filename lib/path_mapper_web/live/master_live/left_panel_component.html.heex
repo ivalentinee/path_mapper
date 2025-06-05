@@ -23,7 +23,7 @@
   </div>
 
   <%= if @ui_state.left_panel == "adventure-selector" do %>
-    <div class={"panel-content #{highlight_content_class(@ui_state)}"}>
+    <div class="panel-content">
       <.live_component
         module={PathMapperWeb.MasterLive.AdventureSelectorComponent}
         id="adventure-selector"
@@ -34,10 +34,11 @@
   <% end %>
 
   <%= if @adventures.loaded && @ui_state.left_panel == "scene-selector" do %>
-    <div class={"panel-content #{highlight_content_class(@ui_state)}"}>
+    <div class="panel-content">
       <.live_component
         module={PathMapperWeb.MasterLive.SceneSelectorComponent}
         id="scene-selector"
+        ui_state={@ui_state}
         adventure={@adventures.loaded}
         game={@game}
       />

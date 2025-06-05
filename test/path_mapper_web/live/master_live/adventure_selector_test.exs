@@ -4,7 +4,7 @@ defmodule PathMapperWeb.MasterLive.AdventureSelectorTest do
 
   alias PathMapper.Adventures
 
-  test "opens and closes 'adventure selector' with a click", %{conn: conn} do
+  test "opens 'adventure selector' with a click", %{conn: conn} do
     conn = get(conn, "/master")
     assert html_response(conn, 200)
     {:ok, view, html} = live(conn)
@@ -14,19 +14,6 @@ defmodule PathMapperWeb.MasterLive.AdventureSelectorTest do
     view
     |> element("#adventure-selector-button")
     |> render_click()
-
-    assert find_html_element(render(view), "#adventure-selector")
-  end
-
-  test "opens and closes 'adventure selector' with a keystroke", %{conn: conn} do
-    conn = get(conn, "/master")
-    assert html_response(conn, 200)
-    {:ok, view, html} = live(conn)
-
-    assert !find_html_element(html, "#adventure-selector")
-
-    render_keydown(view, "navigate", %{"key" => "p"})
-    render_keydown(view, "navigate", %{"key" => "a"})
 
     assert find_html_element(render(view), "#adventure-selector")
   end
@@ -46,19 +33,5 @@ defmodule PathMapperWeb.MasterLive.AdventureSelectorTest do
     |> render_click()
 
     assert find_html_element(render(view), "button.item.selected")
-  end
-
-  test "selects 'adventure selector' item with a keystroke", %{conn: conn} do
-    conn = get(conn, "/master")
-    assert html_response(conn, 200)
-    {:ok, view, _html} = live(conn)
-
-    view |> element("#adventure-selector-button") |> render_click()
-    assert find_html_element(render(view), "#adventure-selector")
-
-    render_keydown(view, "navigate", %{"key" => "l"})
-    render_keydown(view, "navigate", %{"key" => "1"})
-
-    assert find_html_element(render(view), "#adventure-selector .item.selected")
   end
 end

@@ -4,23 +4,19 @@ defmodule PathMapperWeb.MasterLive.UIState.Keystrokes do
   def run_keystroke(%{keystroke: ["p"]} = ui_state),
     do: keystroke_highlight(ui_state, :left_panel)
 
-  def run_keystroke(%{keystroke: ["p", "a"]} = ui_state),
-    do: ui_state |> Actions.select_left_panel("adventure-selector") |> reset_keystroke()
-
   def run_keystroke(%{keystroke: ["p", "s"]} = ui_state),
-    do: ui_state |> Actions.select_left_panel("scene-selector") |> reset_keystroke()
+    do:
+      ui_state
+      |> Actions.select_left_panel("scene-selector")
+      |> keystroke_highlight(:scene_selector)
+
+  def run_keystroke(%{keystroke: ["p", "s", index]} = ui_state),
+    do: ui_state |> Actions.select_scene_selector_item(index) |> reset_keystroke()
 
   def run_keystroke(%{keystroke: ["p", "q"]} = ui_state),
     do: ui_state |> Actions.select_left_panel(nil) |> reset_keystroke()
 
-  def run_keystroke(%{keystroke: ["l"]} = ui_state) when not is_nil(ui_state.left_panel),
-    do: keystroke_highlight(ui_state, :left_panel_content)
-
-  def run_keystroke(%{keystroke: ["l", index]} = ui_state),
-    do: ui_state |> Actions.select_left_panel_item(index) |> reset_keystroke()
-
-  def run_keystroke(ui_state),
-    do: reset_keystroke(ui_state)
+  def run_keystroke(ui_state), do: reset_keystroke(ui_state)
 
   def keystroke_highlight(ui_state, element) when is_atom(element) do
     Map.put(ui_state, :keystroke_highlight, element)

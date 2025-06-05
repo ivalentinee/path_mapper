@@ -20,7 +20,7 @@ defmodule PathMapperWeb.MasterLive.SceneSelectorTest do
     assert !find_html_element(render(view), "#scene-selector")
   end
 
-  test "opens and closes 'scene selector' with a keystroke", %{conn: conn} do
+  test "opens 'scene selector' with a keystroke", %{conn: conn} do
     load_an_adventure()
 
     conn = get(conn, "/master")
@@ -32,10 +32,6 @@ defmodule PathMapperWeb.MasterLive.SceneSelectorTest do
     render_keydown(view, "navigate", %{"key" => "p"})
     render_keydown(view, "navigate", %{"key" => "s"})
     assert find_html_element(render(view), "#scene-selector")
-
-    render_keydown(view, "navigate", %{"key" => "p"})
-    render_keydown(view, "navigate", %{"key" => "s"})
-    assert !find_html_element(render(view), "#scene-selector")
   end
 
   test "selects 'scene selector' item with a click", %{conn: conn} do
@@ -59,10 +55,8 @@ defmodule PathMapperWeb.MasterLive.SceneSelectorTest do
     assert html_response(conn, 200)
     {:ok, view, _html} = live(conn)
 
-    view |> element("#scene-selector-button") |> render_click()
-    assert find_html_element(render(view), "#scene-selector")
-
-    render_keydown(view, "navigate", %{"key" => "l"})
+    render_keydown(view, "navigate", %{"key" => "p"})
+    render_keydown(view, "navigate", %{"key" => "s"})
     render_keydown(view, "navigate", %{"key" => "1"})
 
     assert find_html_element(render(view), "#scene-selector .item.selected")

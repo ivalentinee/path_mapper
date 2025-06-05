@@ -17,14 +17,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent do
     end
   end
 
-  def highlight_content_class(ui_state) do
-    if ui_state.keystroke_highlight == :left_panel_content do
-      "highlight"
-    else
-      ""
-    end
-  end
-
   def select_button_extra_classes(%UIState{left_panel: selected_panel_name}, panel_name)
       when panel_name == selected_panel_name,
       do: "selected"

@@ -8,6 +8,9 @@ defmodule PathMapperWeb.MasterLive.SceneSelectorComponent do
     {:noreply, socket}
   end
 
+  def highlight_content_class(%{keystroke_highlight: :scene_selector}), do: "highlight"
+  def highlight_content_class(_), do: ""
+
   def select_button_extra_classes(scene_name, selected_scene) do
     if scene_name == selected_scene, do: "selected", else: ""
   end

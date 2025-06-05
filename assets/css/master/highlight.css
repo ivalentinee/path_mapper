@@ -7,7 +7,7 @@
 }
 
 .highlight > button::first-letter {
-  font-size: 150%;
+  /* font-size: 150%; */
 }
 
 .panel-content.highlight {
