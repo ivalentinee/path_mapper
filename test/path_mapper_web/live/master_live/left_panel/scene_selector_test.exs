@@ -1,5 +1,5 @@
-defmodule PathMapperWeb.MasterLive.SceneSelectorTest do
-  use PathMapperWeb.ConnCase, async: true
+defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
+  use PathMapperWeb.ConnCase
   import Phoenix.LiveViewTest
 
   alias PathMapper.Adventures

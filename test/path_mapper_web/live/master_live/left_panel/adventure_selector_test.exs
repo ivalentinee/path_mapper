@@ -1,4 +1,4 @@
-defmodule PathMapperWeb.MasterLive.AdventureSelectorTest do
+defmodule PathMapperWeb.MasterLive.LeftPanel.AdventureSelectorTest do
   use PathMapperWeb.ConnCase, async: true
   import Phoenix.LiveViewTest
 

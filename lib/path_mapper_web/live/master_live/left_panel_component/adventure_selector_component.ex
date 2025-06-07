@@ -1,4 +1,4 @@
-defmodule PathMapperWeb.MasterLive.AdventureSelectorComponent do
+defmodule PathMapperWeb.MasterLive.LeftPanelComponent.AdventureSelectorComponent do
   use PathMapperWeb, :live_component
 
   alias PathMapper.Adventures

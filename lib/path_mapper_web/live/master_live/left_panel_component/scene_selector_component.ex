@@ -1,4 +1,4 @@
-defmodule PathMapperWeb.MasterLive.SceneSelectorComponent do
+defmodule PathMapperWeb.MasterLive.LeftPanelComponent.SceneSelectorComponent do
   use PathMapperWeb, :live_component
 
   alias PathMapper.Game
