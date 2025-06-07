@@ -5,7 +5,7 @@ defmodule PathMapper.ScenesTest do
   alias PathMapper.Adventures.Adventure
 
   test "loads an adventure" do
-    {:ok, %Adventure{}} = Adventures.load_adventure("adventure.zip")
+    {:ok, %Adventure{}} = Adventures.load_adventure("adventure-1.zip")
     %Adventure{} = Adventures.get().loaded
   end
 end

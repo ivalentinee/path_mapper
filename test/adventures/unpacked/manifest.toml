@@ -1,0 +1,18 @@
+title = "Adventure example"
+
+wallpaper = "wallpaper.png"
+
+urls = [
+     { name = "Sample URL 1", url = "https://example.net/"},
+     { name = "Sample URL 2", url = "https://example.net/"}
+]
+
+[[scenes]]
+name = "Scene 1"
+type = "battle"
+map.file = "map.ora"
+
+[[scenes]]
+name = "Scene 2"
+type = "battle"
+map.file = "map.ora"
