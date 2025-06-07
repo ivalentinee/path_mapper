@@ -1,0 +1,12 @@
+<div class="map-container">
+  <svg class="svg-container">
+    <%= for {layer, layer_state} <- map_adventure_layers_to_state(@adventure, @game_state) do %>
+      <image
+        x="0"
+        y="0"
+        class={"image #{layer_image_class(layer_state, @opts)} #{selected_layer_class(@selected_layer_index, layer_state.index)}"}
+        href={layer.image}
+      />
+    <% end %>
+  </svg>
+</div>

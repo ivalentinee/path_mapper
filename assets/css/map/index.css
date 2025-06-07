@@ -1,0 +1,51 @@
+.map-container {
+  position: fixed;
+  x: 0;
+  y: 0;
+  width: 97vw;
+  height: 97vh;
+  z-index: -100;
+  background-color: black;
+}
+
+.map-container .svg-container {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.map-container image {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.map-container image.dimmed {
+  filter: brightness(50%);
+}
+
+.map-container image.hide {
+  filter: brightness(0%);
+}
+
+.map-container image.highlight {
+  filter: brightness(200%);
+}
+
+.map-container image.darken {
+  filter: grayscale(1) brightness(20%);
+}
+
+.map-container image.darken.selected {
+  filter: grayscale(1) brightness(50%);
+}
+
+.map-container image.dimmed.selected {
+  filter: hue-rotate(90deg) brightness(70%);
+}
+
+.map-container image.selected {
+  filter: hue-rotate(90deg) brightness(200%);
+}

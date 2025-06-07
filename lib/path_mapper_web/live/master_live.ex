@@ -24,6 +24,9 @@ defmodule PathMapperWeb.MasterLive do
     {:ok, socket}
   end
 
+  def selected_layer_index(%UIState{keystroke_highlight: ["map-manager", index]} = ui_state) when is_number(index), do: index - 1
+  def selected_layer_index(%UIState{}), do: nil
+
   @impl true
   def handle_event("navigate", %{"key" => key}, socket) do
     {:noreply, assign(socket, :ui_state, UIState.run_key(socket.assigns.ui_state, key))}
