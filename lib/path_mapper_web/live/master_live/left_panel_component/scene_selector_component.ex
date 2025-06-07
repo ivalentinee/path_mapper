@@ -4,18 +4,13 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.SceneSelectorComponent do
   alias PathMapper.Game
 
   def handle_event("select_scene", %{"index" => index_string}, socket) do
-    case Integer.parse(index_string) do
-      {index, _rest} ->
-        Game.run_action(:select_scene, index)
-        {:noreply, socket}
-
-      _ ->
-        {:noreply, socket}
-    end
-
+    with_parsed_index(index_string, &Game.run_action(:select_scene, &1))
+    {:noreply, socket}
   end
 
-  def highlight_content_class(%{keystroke_highlight: "scene-selector"}), do: "highlight"
+  def highlight_content_class(%{keystroke_highlight: ["scene-selector"]}),
+    do: "highlight highlight-items"
+
   def highlight_content_class(_), do: ""
 
   def select_button_extra_classes(scene_index, selected_scene) do

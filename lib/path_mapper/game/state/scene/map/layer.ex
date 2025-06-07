@@ -6,12 +6,13 @@ defmodule PathMapper.Game.State.Scene.Map.Layer do
   @primary_key false
 
   embedded_schema do
-    field(:name, :string)
+    field(:index, :integer)
     field(:show, :boolean)
-    field(:floor, :integer)
+    field(:light, :binary)
+    field(:highlight, :boolean)
   end
 
-  def initialize(%AdventureLayer{name: name, show: show, floor: floor}) do
-    %__MODULE__{name: name, show: show, floor: floor}
+  def initialize({%AdventureLayer{show: show, light: light}, index}) do
+    %__MODULE__{index: index, show: show, light: light, highlight: false}
   end
 end

@@ -35,7 +35,7 @@ defmodule PathMapper.Game do
     end)
   end
 
-  def run_action(action, data) when is_atom(action) do
+  def run_action(action, data) when is_atom(action) or is_list(action) do
     case run_action_in_agent_update(action, data) do
       {:ok, state} ->
         broadcast_game_update(state)
@@ -46,16 +46,16 @@ defmodule PathMapper.Game do
     end
   end
 
-  defp run_action_in_agent_update(action, data) when is_atom(action) do
+  defp run_action_in_agent_update(action, data) when is_atom(action) or is_list(action) do
     Agent.get_and_update(__MODULE__, fn
-      %__MODULE__{state: %State{} = state} ->
+      %__MODULE__{state: %State{} = state} = game ->
         case Actions.action(state, action, data) do
           {:ok, new_state} -> {{:ok, new_state}, %__MODULE__{state: new_state}}
-          error -> {error, state}
+          error -> {error, game}
         end
 
-      state ->
-        {{:error, "No adventure loaded"}, state}
+      game ->
+        {{:error, "No adventure loaded"}, game}
     end)
   end
 

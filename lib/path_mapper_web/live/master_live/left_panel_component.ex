@@ -18,13 +18,13 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent do
       phx-target={@myself}
       phx-value-name={assigns.panel_name}
     >
-      Map
+      {assigns.text}
     </button>
     """
   end
 
   def highlight_class(ui_state) do
-    if ui_state.keystroke_highlight == :left_panel do
+    if ui_state.keystroke_highlight == ["left-panel"] do
       "highlight"
     else
       ""

@@ -29,7 +29,7 @@ defmodule PathMapper.Adventures do
   def load_adventure(filename) when is_binary(filename) do
     with {:ok, filename} <- get_filename(filename),
          {:ok, adventure} <- Loader.load(filename),
-           :ok <- LoadedStorage.store(adventure) do
+         :ok <- LoadedStorage.store(adventure) do
       broadcast(%{@adventure_loaded_event => adventure})
       Game.reset()
       {:ok, adventure}

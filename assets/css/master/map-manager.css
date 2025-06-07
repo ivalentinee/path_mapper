@@ -1,0 +1,63 @@
+.map-manager {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.map-manager > .layer {
+  padding-top: 5px;
+  padding-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+}
+
+.map-manager > .layer.highlight {
+  background: rgb(255, 200, 50);
+}
+
+.map-manager > .layer > .layer-name {
+  padding-bottom: 5px;
+  padding-left: 10px;
+}
+
+.map-manager > .layer > .layer-controls {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.map-manager > .layer > .layer-controls button {
+  width: 50px;
+  height: 40px;
+}
+
+.map-manager > .layer.highlight > .layer-controls button {
+  -webkit-text-stroke-width: 0.5px;
+  -webkit-text-stroke-color: black;
+  font-weight: bold;
+  padding: 0.2rem;
+  font-size: 2rem;
+  color: rgb(255, 200, 50)
+}
+
+.map-manager > .layer > .layer-controls button.show-false {
+  background: rgb(100, 100, 100);
+}
+
+.map-manager > .layer > .layer-controls button.light-bright {
+  background: rgb(255, 255, 00);
+}
+
+.map-manager > .layer > .layer-controls button.light-dim {
+  background: rgb(150, 150, 100);
+}
+
+.map-manager > .layer > .layer-controls button.highlight-true {
+  background: rgb(200, 225, 200);
+}
+
+.map-manager > .layer > .layer-controls button.highlight-false {
+  background: rgb(100, 100, 100);
+}

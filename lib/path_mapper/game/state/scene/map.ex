@@ -10,6 +10,6 @@ defmodule PathMapper.Game.State.Scene.Map do
   end
 
   def initialize(%AdventureMap{layers: layers}) do
-    %__MODULE__{layers: Enum.map(layers, &__MODULE__.Layer.initialize/1)}
+    %__MODULE__{layers: Enum.map(Enum.with_index(layers), &__MODULE__.Layer.initialize/1)}
   end
 end

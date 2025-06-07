@@ -5,17 +5,12 @@
 }
 
 .left-panel-button {
-  height: 50%;
+  height: 33.3%;
   writing-mode: sideways-lr;
 }
 
-.left-panel-content {
+.left-panel .panel-content {
   width: 15vw;
-  height: 100%;
-}
-
-.adventure-selector {
-  width: 100%;
   height: 100%;
 }
 
@@ -25,11 +20,22 @@
 }
 
 .left-panel .item .index {
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
   font-size: 150%;
+  font-weight: bold;
   opacity: 0;
 }
 
-.left-panel .highlight .item .index {
+.left-panel .item .index {
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+  font-size: 150%;
+  font-weight: bold;
+  opacity: 0;
+}
+
+.left-panel .highlight-items .item .index {
   opacity: 100%;
   color: rgb(255, 200, 50);
 }

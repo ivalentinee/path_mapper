@@ -13,3 +13,11 @@
 .panel-content.highlight {
   border-right: 10px solid rgb(255, 200, 50);
 }
+
+.panel-content > .highlight {
+  border-right: 10px solid rgb(255, 200, 50);
+}
+
+.panel-content .item.highlight {
+  border-right: 10px solid rgb(255, 200, 50);
+}

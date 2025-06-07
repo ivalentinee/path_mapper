@@ -1,0 +1,39 @@
+<div id="map-manager" class={"map-manager #{highlight_content_class(@ui_state)}"}>
+  <%= for {layer, index} <- Enum.with_index(@game_state.scene.map.layers) do %>
+    <div class={"layer item #{highlight_content_class(@ui_state, index)}"} id={"layer-#{index}"}>
+      <div class="layer-name">
+        <span class="index">{index + 1}</span>{adventure_layer(@adventure, @game_state, layer).name}
+      </div>
+      <div class="layer-controls">
+        <button
+          phx-click="toggle_layer_show"
+          phx-target={@myself}
+          phx-value-index={index}
+          class={"pure-button toggle-layer-show show-#{layer.show}"}
+        >
+          <span>{show_button_text(layer.show, highlight_content_class(@ui_state, index))}</span>
+        </button>
+
+        <button
+          phx-click="toggle_layer_light"
+          phx-target={@myself}
+          phx-value-index={index}
+          class={"pure-button toggle-layer-light light-#{layer.light}"}
+        >
+          <span>{light_button_text(layer.light, highlight_content_class(@ui_state, index))}</span>
+        </button>
+
+        <button
+          phx-click="toggle_layer_highlight"
+          phx-target={@myself}
+          phx-value-index={index}
+          class={"pure-button toggle-layer-highlight highlight-#{layer.highlight}"}
+        >
+          <span>
+            {highlight_button_text(layer.highlight, highlight_content_class(@ui_state, index))}
+          </span>
+        </button>
+      </div>
+    </div>
+  <% end %>
+</div>

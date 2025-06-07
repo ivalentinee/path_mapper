@@ -5,9 +5,14 @@
 }
 
 .panel-content {
-  background-color: #aaaaaa;
+  background-color: #cccccc;
   border-right: 1px solid;
   border-left: 1px solid;
+}
+
+.panel-content > * {
+  width: 100%;
+  height: 100%;
 }
 
 .panel-selector {

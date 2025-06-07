@@ -15,6 +15,7 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map.Layer do
     field(:y, :integer)
     field(:tags, {:array, :string})
     field(:show, :boolean)
+    field(:light, :binary)
     field(:floor, :integer)
   end
 
@@ -23,8 +24,9 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map.Layer do
     |> cast(params, [:name, :image, :index, :x, :y, :tags])
     |> store_image(:image)
     |> cast_show()
+    |> cast_light()
     |> cast_floor()
-    |> validate_required([:name, :image, :index, :x, :y, :tags, :show])
+    |> validate_required([:name, :image, :index, :x, :y, :tags, :show, :light])
   end
 
   def store_image(changeset, property) do
@@ -40,6 +42,13 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map.Layer do
     tags = get_change(changeset, :tags)
     show = !Enum.any?(tags, &(&1 == "hide"))
     put_change(changeset, :show, show)
+  end
+
+  def cast_light(changeset) do
+    tags = get_change(changeset, :tags)
+    dim = Enum.any?(tags, &(&1 == "dim"))
+    light = if dim, do: "dim", else: "bright"
+    put_change(changeset, :light, light)
   end
 
   def cast_floor(changeset) do

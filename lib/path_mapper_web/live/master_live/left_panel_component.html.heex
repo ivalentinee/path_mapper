@@ -5,6 +5,10 @@
     <%= if @game_state do %>
       {panel_select_button(%{text: "Scenes", panel_name: "scene-selector", myself: @myself})}
     <% end %>
+
+    <%= if @game_state && @game_state.scene do %>
+      {panel_select_button(%{text: "Map", panel_name: "map-manager", myself: @myself})}
+    <% end %>
   </div>
 
   <%= if @ui_state.left_panel == "adventure-selector" do %>
@@ -23,6 +27,18 @@
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.SceneSelectorComponent}
         id="scene-selector"
+        ui_state={@ui_state}
+        adventure={@adventure}
+        game_state={@game_state}
+      />
+    </div>
+  <% end %>
+
+  <%= if @game_state && @game_state.scene && @ui_state.left_panel == "map-manager" do %>
+    <div class="panel-content">
+      <.live_component
+        module={PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent}
+        id="map-manager"
         ui_state={@ui_state}
         adventure={@adventure}
         game_state={@game_state}

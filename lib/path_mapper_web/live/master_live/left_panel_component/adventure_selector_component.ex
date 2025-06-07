@@ -9,6 +9,8 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.AdventureSelectorComponent
   end
 
   def select_button_extra_classes(adventure_filename, selected_adventure) do
-    if selected_adventure && selected_adventure.file == adventure_filename, do: "selected", else: ""
+    if selected_adventure && selected_adventure.file == adventure_filename,
+      do: "selected",
+      else: ""
   end
 end
