@@ -1,5 +1,5 @@
 defmodule PathMapperWeb.MasterLive.LeftPanel.AdventureSelectorTest do
-  use PathMapperWeb.ConnCase, async: true
+  use PathMapperWeb.ConnCase
   import Phoenix.LiveViewTest
 
   alias PathMapper.Adventures
@@ -23,7 +23,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.AdventureSelectorTest do
   end
 
   test "selects 'adventure selector' item with a click", %{view: view} do
-    first_adventure_name = List.first(Adventures.get().list)
+    first_adventure_name = List.first(Adventures.get())
 
     view |> element("#adventure-selector-button") |> render_click()
     assert find_html_element(render(view), "#adventure-selector")

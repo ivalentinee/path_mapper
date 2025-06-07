@@ -9,14 +9,16 @@ defmodule PathMapperWeb.MasterLive do
   @impl true
   def mount(_params, _session, socket) do
     adventures = Adventures.get()
-    game = Game.get()
+    adventure = get_selected_adventure()
+    game_state = Game.get_state()
     Adventures.subscribe()
     Game.subscribe()
 
     socket =
       socket
       |> assign(:adventures, adventures)
-      |> assign(:game, game)
+      |> assign(:adventure, adventure)
+      |> assign(:game_state, game_state)
       |> assign(:ui_state, %UIState{})
 
     {:ok, socket}
@@ -28,17 +30,24 @@ defmodule PathMapperWeb.MasterLive do
   end
 
   @impl true
-  def handle_info(%{adventure_loaded: adventures}, socket) do
-    {:noreply, assign(socket, :adventures, adventures)}
+  def handle_info(%{adventure_loaded: adventure}, socket) do
+    {:noreply, assign(socket, :adventure, adventure)}
   end
 
   @impl true
-  def handle_info(%{game_update: game}, socket) do
-    {:noreply, assign(socket, :game, game)}
+  def handle_info(%{game_update: game_state}, socket) do
+    {:noreply, assign(socket, :game_state, game_state)}
   end
 
   @impl true
   def handle_info(%{ui_update: ui_update}, socket) do
     {:noreply, assign(socket, :ui_state, UIState.run_event(socket.assigns.ui_state, ui_update))}
+  end
+
+  defp get_selected_adventure do
+    case Adventures.get_loaded() do
+      {:ok, adventure} -> adventure
+      _ -> nil
+    end
   end
 end

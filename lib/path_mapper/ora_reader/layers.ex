@@ -27,8 +27,8 @@ defmodule PathMapper.ORAReader.Layers do
   end
 
   defp get_layer(layer_xml_element, ora_files) do
-    with {:ok, src} <- XML.get_attribute_value(layer_xml_element, :src),
-         {:ok, src_file} <- ORAReader.find_ora_file(ora_files, src),
+    with {:ok, image} <- XML.get_attribute_value(layer_xml_element, :src),
+         {:ok, image_file} <- ORAReader.find_ora_file(ora_files, image),
          {:ok, name} <- XML.get_attribute_value(layer_xml_element, :name),
          {:ok, {parsed_name, index, tags}} <- parse_name(name),
          {:ok, {x, y}} <- Geometry.get_position(layer_xml_element) do
@@ -36,13 +36,13 @@ defmodule PathMapper.ORAReader.Layers do
         do: %{
           name: parsed_name,
           type: :layer,
-          src: src_file,
+          image: image_file,
           x: x,
           y: y,
           index: index,
           tags: tags
         },
-        else: %{name: parsed_name, type: :additional_layer, src: src_file, x: x, y: y}
+        else: %{name: parsed_name, type: :additional_layer, image: image_file, x: x, y: y}
     else
       error -> error
     end
@@ -51,7 +51,7 @@ defmodule PathMapper.ORAReader.Layers do
   defp parse_name(full_name) do
     case Regex.run(@name_regex, full_name) do
       [_, index, name] ->
-        {:ok, {String.trim(name), String.to_integer(index), nil}}
+        {:ok, {String.trim(name), String.to_integer(index), []}}
 
       [_, index, name, tags] ->
         {:ok, {String.trim(name), String.to_integer(index), parse_tags(tags)}}

@@ -2,6 +2,7 @@ defmodule PathMapper.Adventures.Adventure do
   use Ecto.Schema
 
   import Ecto.Changeset
+  alias PathMapper.Adventures.Adventure.FileStorage
   alias PathMapper.Zip
 
   @primary_key false
@@ -14,16 +15,11 @@ defmodule PathMapper.Adventures.Adventure do
     embeds_many(:scenes, __MODULE__.Scene)
   end
 
-  def read(full_path, filename) when is_binary(full_path) and is_binary(filename) do
-    with {:ok, adventure_zip} <- Zip.read(full_path),
-         {:ok, adventure_manifest_file} <- Zip.get_file(adventure_zip, "manifest.toml"),
-         {:ok, adventure_manifest} <- :tomerl.parse(adventure_manifest_file),
-         %Ecto.Changeset{} = changeset <-
-           changeset(%__MODULE__{}, Map.put(adventure_manifest, "file", filename), adventure_zip),
-         {:ok, adventure} <- apply_action(changeset, :insert) do
-      {:ok, adventure}
+  def get_scene(%__MODULE__{scenes: scenes}, scene_index) when is_number(scene_index) do
+    if adventure_scene = Enum.at(scenes, scene_index) do
+      {:ok, adventure_scene}
     else
-      error -> error
+      {:error, "Scene ##{scene_index} not found"}
     end
   end
 
@@ -40,8 +36,9 @@ defmodule PathMapper.Adventures.Adventure do
 
   defp read_manifest_files(params, adventure_zip) when is_map(params) do
     with filename when is_binary(filename) <- params["wallpaper"],
-         {:ok, wallpaper} <- Zip.get_file(adventure_zip, filename) do
-      Map.put(params, "wallpaper", wallpaper)
+         {:ok, wallpaper} <- Zip.get_file(adventure_zip, filename),
+         {:ok, wallpaper_path} <- FileStorage.store_image(wallpaper) do
+      Map.put(params, "wallpaper", wallpaper_path)
     else
       _ -> params
     end

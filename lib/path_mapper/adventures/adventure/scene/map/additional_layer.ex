@@ -2,19 +2,21 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map.AdditionalLayer do
   use Ecto.Schema
 
   import Ecto.Changeset
+  alias PathMapper.Adventures.Adventure.Scene.Map.Layer
 
   @primary_key false
 
   embedded_schema do
     field(:name, :string)
-    field(:src, :binary)
+    field(:image, :binary)
     field(:x, :integer)
     field(:y, :integer)
   end
 
   def changeset(struct, params) do
     struct
-    |> cast(params, [:name, :src, :x, :y])
-    |> validate_required([:name, :src, :x, :y])
+    |> cast(params, [:name, :image, :x, :y])
+    |> Layer.store_image(:image)
+    |> validate_required([:name, :image, :x, :y])
   end
 end

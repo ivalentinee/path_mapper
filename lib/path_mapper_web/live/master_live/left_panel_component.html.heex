@@ -1,24 +1,9 @@
 <div class="left-panel">
   <div class={"panel-selector #{highlight_class(@ui_state)}"}>
-    <button
-      id="adventure-selector-button"
-      class={"left-panel-button pure-button #{select_button_extra_classes(@ui_state, "adventure-selector")}"}
-      phx-click="select_panel"
-      phx-target={@myself}
-      phx-value-name="adventure-selector"
-    >
-      Adventures
-    </button>
-    <%= if @adventures.loaded do %>
-      <button
-        id="scene-selector-button"
-        class="left-panel-button pure-button"
-        phx-click="select_panel"
-        phx-target={@myself}
-        phx-value-name="scene-selector"
-      >
-        Scenes
-      </button>
+    {panel_select_button(%{text: "Adventures", panel_name: "adventure-selector", myself: @myself})}
+
+    <%= if @game_state do %>
+      {panel_select_button(%{text: "Scenes", panel_name: "scene-selector", myself: @myself})}
     <% end %>
   </div>
 
@@ -27,20 +12,20 @@
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.AdventureSelectorComponent}
         id="adventure-selector"
-        list={@adventures.list}
-        loaded={@adventures.loaded}
+        adventures={@adventures}
+        adventure={@adventure}
       />
     </div>
   <% end %>
 
-  <%= if @adventures.loaded && @ui_state.left_panel == "scene-selector" do %>
+  <%= if @adventure && @game_state && @ui_state.left_panel == "scene-selector" do %>
     <div class="panel-content">
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.SceneSelectorComponent}
         id="scene-selector"
         ui_state={@ui_state}
-        adventure={@adventures.loaded}
-        game={@game}
+        adventure={@adventure}
+        game_state={@game_state}
       />
     </div>
   <% end %>

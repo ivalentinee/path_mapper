@@ -2,21 +2,55 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map.Layer do
   use Ecto.Schema
 
   import Ecto.Changeset
+  alias PathMapper.Adventures.Adventure.FileStorage
 
   @primary_key false
+  @floor_regex ~r/^floor-([0-9]+)$/
 
   embedded_schema do
     field(:name, :string)
-    field(:src, :binary)
+    field(:image, :binary)
     field(:index, :integer)
     field(:x, :integer)
     field(:y, :integer)
     field(:tags, {:array, :string})
+    field(:show, :boolean)
+    field(:floor, :integer)
   end
 
   def changeset(struct, params) do
     struct
-    |> cast(params, [:name, :src, :index, :x, :y, :tags])
-    |> validate_required([:name, :src, :index, :x, :y])
+    |> cast(params, [:name, :image, :index, :x, :y, :tags])
+    |> store_image(:image)
+    |> cast_show()
+    |> cast_floor()
+    |> validate_required([:name, :image, :index, :x, :y, :tags, :show])
+  end
+
+  def store_image(changeset, property) do
+    with image when is_binary(image) <- get_change(changeset, property),
+         {:ok, filename} <- FileStorage.store_image(image) do
+      put_change(changeset, property, filename)
+    else
+      _ -> put_change(changeset, property, nil)
+    end
+  end
+
+  def cast_show(changeset) do
+    tags = get_change(changeset, :tags)
+    show = !Enum.any?(tags, &(&1 == "hide"))
+    put_change(changeset, :show, show)
+  end
+
+  def cast_floor(changeset) do
+    tags = get_change(changeset, :tags)
+
+    case Enum.find_value(tags, &Regex.run(@floor_regex, &1)) do
+      [_, floor_number_string] ->
+        put_change(changeset, :floor, String.to_integer(floor_number_string))
+
+      _ ->
+        changeset
+    end
   end
 end

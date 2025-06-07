@@ -16,7 +16,7 @@ defmodule PathMapperWeb.MasterLive.UIState.Actions do
   def select_scene_selector_item(%{left_panel: "scene-selector"} = ui_state, index_string) do
     case Integer.parse(index_string) do
       {index, _rest} ->
-        Game.select_scene(index - 1)
+        Game.run_action(:select_scene, index - 1)
         ui_state
 
       _ ->

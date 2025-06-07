@@ -9,6 +9,20 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent do
     {:noreply, socket}
   end
 
+  def panel_select_button(assigns) do
+    ~H"""
+    <button
+      id={"#{assigns.panel_name}-button"}
+      class="left-panel-button pure-button"
+      phx-click="select_panel"
+      phx-target={@myself}
+      phx-value-name={assigns.panel_name}
+    >
+      Map
+    </button>
+    """
+  end
+
   def highlight_class(ui_state) do
     if ui_state.keystroke_highlight == :left_panel do
       "highlight"

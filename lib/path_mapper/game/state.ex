@@ -4,6 +4,6 @@ defmodule PathMapper.Game.State do
   @primary_key false
 
   embedded_schema do
-    field(:scene, :string)
+    embeds_one(:scene, __MODULE__.Scene)
   end
 end

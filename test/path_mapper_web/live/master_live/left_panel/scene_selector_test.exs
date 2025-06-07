@@ -5,7 +5,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
   alias PathMapper.Adventures
 
   setup %{conn: conn} do
-    {:ok, _adventure_name} = load_an_adventure()
+    {:ok, _adventure_name} = Adventures.load_adventure("adventure-1.zip")
 
     conn = get(conn, "/master")
     assert html_response(conn, 200)
@@ -33,7 +33,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
   end
 
   test "selects 'scene selector' item with a click", %{view: view} do
-    first_scene_name = List.first(Adventures.get().loaded.scenes).name
+    {:ok, %{scenes: [%{name: first_scene_name} | _rest]}} = Adventures.get_loaded()
 
     view |> element("#scene-selector-button") |> render_click()
     assert find_html_element(render(view), "#scene-selector")
@@ -48,10 +48,5 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
     render_keydown(view, "navigate", %{"key" => "1"})
 
     assert find_html_element(render(view), "#scene-selector .item.selected")
-  end
-
-  def load_an_adventure do
-    first_adventure_name = List.first(Adventures.get().list)
-    Adventures.load_adventure(first_adventure_name)
   end
 end

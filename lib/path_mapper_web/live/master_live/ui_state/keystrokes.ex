@@ -2,23 +2,23 @@ defmodule PathMapperWeb.MasterLive.UIState.Keystrokes do
   alias PathMapperWeb.MasterLive.UIState.Actions
 
   def run_keystroke(%{keystroke: ["p"]} = ui_state),
-    do: keystroke_highlight(ui_state, :left_panel)
+    do: keystroke_highlight(ui_state, "left-panel")
 
   def run_keystroke(%{keystroke: ["p", "s"]} = ui_state),
-    do:
-      ui_state
-      |> Actions.select_left_panel("scene-selector")
-      |> keystroke_highlight(:scene_selector)
+    do: select_panel(ui_state, "scene-selector")
 
   def run_keystroke(%{keystroke: ["p", "s", index]} = ui_state),
     do: ui_state |> Actions.select_scene_selector_item(index) |> reset_keystroke()
+
+  def run_keystroke(%{keystroke: ["p", "m"]} = ui_state),
+    do: select_panel(ui_state, "map-manager")
 
   def run_keystroke(%{keystroke: ["p", "q"]} = ui_state),
     do: ui_state |> Actions.select_left_panel(nil) |> reset_keystroke()
 
   def run_keystroke(ui_state), do: reset_keystroke(ui_state)
 
-  def keystroke_highlight(ui_state, element) when is_atom(element) do
+  def keystroke_highlight(ui_state, element) when is_binary(element) or is_nil(element) do
     Map.put(ui_state, :keystroke_highlight, element)
   end
 
@@ -31,4 +31,10 @@ defmodule PathMapperWeb.MasterLive.UIState.Keystrokes do
     |> Map.put(:keystroke, [])
     |> Map.put(:keystroke_highlight, nil)
   end
+
+  defp select_panel(ui_state, panel_name),
+    do:
+      ui_state
+      |> Actions.select_left_panel(panel_name)
+      |> keystroke_highlight(panel_name)
 end
