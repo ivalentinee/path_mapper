@@ -50,6 +50,9 @@ defmodule PathMapper.Game do
     if Enum.find(scenes, &(&1.name == scene_name)) do
       Agent.update(__MODULE__, &Map.put(&1, :scene, scene_name))
       broadcast_game_update()
+      {:ok, scene_name}
+    else
+      {:error, "Scene '#{scene_name}' not found"}
     end
   end
 

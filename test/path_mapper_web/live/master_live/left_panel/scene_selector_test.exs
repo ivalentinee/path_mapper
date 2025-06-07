@@ -4,13 +4,17 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
 
   alias PathMapper.Adventures
 
-  test "opens and closes 'scene selector' with a click", %{conn: conn} do
-    load_an_adventure()
+  setup %{conn: conn} do
+    {:ok, _adventure_name} = load_an_adventure()
 
     conn = get(conn, "/master")
     assert html_response(conn, 200)
     {:ok, view, html} = live(conn)
 
+    {:ok, %{conn: conn, view: view, html: html}}
+  end
+
+  test "opens and closes 'scene selector' with a click", %{view: view, html: html} do
     assert !find_html_element(html, "#scene-selector")
 
     view |> element("#scene-selector-button") |> render_click()
@@ -20,13 +24,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
     assert !find_html_element(render(view), "#scene-selector")
   end
 
-  test "opens 'scene selector' with a keystroke", %{conn: conn} do
-    load_an_adventure()
-
-    conn = get(conn, "/master")
-    assert html_response(conn, 200)
-    {:ok, view, html} = live(conn)
-
+  test "opens 'scene selector' with a keystroke", %{view: view, html: html} do
     assert !find_html_element(html, "#scene-selector")
 
     render_keydown(view, "navigate", %{"key" => "p"})
@@ -34,13 +32,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
     assert find_html_element(render(view), "#scene-selector")
   end
 
-  test "selects 'scene selector' item with a click", %{conn: conn} do
-    load_an_adventure()
-
-    conn = get(conn, "/master")
-    assert html_response(conn, 200)
-    {:ok, view, _html} = live(conn)
-
+  test "selects 'scene selector' item with a click", %{view: view} do
     first_scene_name = List.first(Adventures.get().loaded.scenes).name
 
     view |> element("#scene-selector-button") |> render_click()
@@ -50,11 +42,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
     assert find_html_element(render(view), "button.item.selected")
   end
 
-  test "selects 'scene selector' item with a keystroke", %{conn: conn} do
-    conn = get(conn, "/master")
-    assert html_response(conn, 200)
-    {:ok, view, _html} = live(conn)
-
+  test "selects 'scene selector' item with a keystroke", %{view: view} do
     render_keydown(view, "navigate", %{"key" => "p"})
     render_keydown(view, "navigate", %{"key" => "s"})
     render_keydown(view, "navigate", %{"key" => "1"})
@@ -64,6 +52,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
 
   def load_an_adventure do
     first_adventure_name = List.first(Adventures.get().list)
-    {:ok, _adventure} = Adventures.load_adventure(first_adventure_name)
+    Adventures.load_adventure(first_adventure_name)
   end
 end

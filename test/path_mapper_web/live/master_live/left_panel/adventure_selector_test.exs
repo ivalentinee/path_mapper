@@ -4,11 +4,15 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.AdventureSelectorTest do
 
   alias PathMapper.Adventures
 
-  test "opens 'adventure selector' with a click", %{conn: conn} do
+  setup %{conn: conn} do
     conn = get(conn, "/master")
     assert html_response(conn, 200)
     {:ok, view, html} = live(conn)
 
+    {:ok, %{conn: conn, view: view, html: html}}
+  end
+
+  test "opens 'adventure selector' with a click", %{view: view, html: html} do
     assert !find_html_element(html, "#adventure-selector")
 
     view
@@ -18,11 +22,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.AdventureSelectorTest do
     assert find_html_element(render(view), "#adventure-selector")
   end
 
-  test "selects 'adventure selector' item with a click", %{conn: conn} do
-    conn = get(conn, "/master")
-    assert html_response(conn, 200)
-    {:ok, view, _html} = live(conn)
-
+  test "selects 'adventure selector' item with a click", %{view: view} do
     first_adventure_name = List.first(Adventures.get().list)
 
     view |> element("#adventure-selector-button") |> render_click()
