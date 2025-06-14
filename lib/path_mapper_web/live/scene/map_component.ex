@@ -1,4 +1,4 @@
-defmodule PathMapperWeb.Map.MapComponent do
+defmodule PathMapperWeb.Scene.MapComponent do
   use PathMapperWeb, :live_component
 
   alias PathMapper.Game.State.Scene.Map.Layer
@@ -9,7 +9,10 @@ defmodule PathMapperWeb.Map.MapComponent do
   def layer_image_class(%Layer{light: "dim"}, _opts), do: "dimmed"
   def layer_image_class(%Layer{}, _opts), do: ""
 
-  def selected_layer_class(selected_layer_index, layer_index) when selected_layer_index == layer_index, do: "selected"
+  def selected_layer_class(selected_layer_index, layer_index)
+      when selected_layer_index == layer_index,
+      do: "selected"
+
   def selected_layer_class(_selected_layer_index, _layer_index), do: ""
 
   def map_adventure_layers_to_state(adventure, game_state) do

@@ -3,12 +3,12 @@
 
   <%= if @adventure && @game_state && @game_state.scene do %>
     <.live_component
-      module={PathMapperWeb.Map.MapComponent}
-      id="map"
+      module={PathMapperWeb.Scene.SceneComponent}
+      id="scene"
       adventure={@adventure}
       game_state={@game_state}
-      selected_layer_index={selected_layer_index(@ui_state)}
       opts={%{show_hidden: true}}
+      selected_layer_index={selected_layer_index(@ui_state)}
     />
   <% end %>
 

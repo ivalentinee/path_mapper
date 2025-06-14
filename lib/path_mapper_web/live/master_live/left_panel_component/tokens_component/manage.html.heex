@@ -1,0 +1,11 @@
+<div id="manage-tokens" class={"manage-tokens #{highlight_content_class(@ui_state)}"}>
+  <%= for {token, index} <- Enum.with_index(@game_state.scene.tokens) do %>
+    <div class={"item token #{highlight_content_class(@ui_state, index)}"}>
+      <span class="index">{index + 1}</span>
+      <span class="name">{token.data.name}</span>
+      <button class="delete" phx-click="delete_token" phx-value-index={index} phx-target={@myself}>
+        ✕
+      </button>
+    </div>
+  <% end %>
+</div>

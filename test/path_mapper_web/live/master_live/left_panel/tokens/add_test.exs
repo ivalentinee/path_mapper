@@ -1,0 +1,49 @@
+defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.AddTest do
+  use PathMapperWeb.ConnCase
+  import Phoenix.LiveViewTest
+
+  alias PathMapper.Adventures
+  alias PathMapper.Game
+
+  setup %{conn: conn} do
+    {:ok, adventure} = Adventures.load_adventure("adventure-1.zip")
+    :ok = Game.run_action(:select_scene, 0)
+
+    conn = get(conn, "/master")
+    assert html_response(conn, 200)
+    {:ok, view, html} = live(conn)
+
+    {:ok, %{conn: conn, view: view, html: html, adventure: adventure}}
+  end
+
+  test "adds a token", %{view: view, html: html} do
+    assert !find_html_element(html, "#tokens")
+    assert Enum.empty?(Game.get_state().scene.tokens)
+
+    view |> element("#tokens-button") |> render_click()
+    assert find_html_element(render(view), "#tokens")
+
+    view |> element("#add-token-button") |> render_click()
+    assert find_html_element(render(view), "#add-token")
+
+    view |> element("#add-token > :first-child button") |> render_click()
+    assert Enum.count(Game.get_state().scene.tokens) == 1
+
+    view |> element("#tokens-button") |> render_click()
+    assert !find_html_element(render(view), "#tokens")
+  end
+
+  test "adds a token using a keystroke", %{view: view, html: html} do
+    assert !find_html_element(html, "#tokens")
+    assert Enum.empty?(Game.get_state().scene.tokens)
+
+    run_keystroke(view, ["p", "t"])
+    assert find_html_element(render(view), "#tokens")
+
+    run_keystroke(view, ["a"])
+    assert find_html_element(render(view), "#add-token")
+
+    run_keystroke(view, ["1"])
+    assert Enum.count(Game.get_state().scene.tokens) == 1
+  end
+end

@@ -23,19 +23,29 @@ defmodule PathMapperWeb.MasterLive.UIState.Actions do
 
   def map_manager_toggle_layer_show(%{left_panel: "map-manager"} = ui_state, index)
       when is_number(index) do
-    Game.run_action([:layer, :toggle_show], index - 1)
+    Game.run_action([:map, :layer, :toggle_show], index - 1)
     ui_state
   end
 
   def map_manager_toggle_layer_light(%{left_panel: "map-manager"} = ui_state, index)
       when is_number(index) do
-    Game.run_action([:layer, :toggle_light], index - 1)
+    Game.run_action([:map, :layer, :toggle_light], index - 1)
     ui_state
   end
 
   def map_manager_toggle_layer_highlight(%{left_panel: "map-manager"} = ui_state, index)
       when is_number(index) do
-    Game.run_action([:layer, :toggle_highlight], index - 1)
+    Game.run_action([:map, :layer, :toggle_highlight], index - 1)
+    ui_state
+  end
+
+  def add_token(%{left_panel: "tokens-add"} = ui_state, index) when is_number(index) do
+    Game.run_action([:tokens, :add], index - 1)
+    ui_state
+  end
+
+  def delete_token(%{left_panel: "tokens"} = ui_state, index) when is_number(index) do
+    Game.run_action([:tokens, :delete], index - 1)
     ui_state
   end
 end

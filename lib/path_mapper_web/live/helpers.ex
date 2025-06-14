@@ -9,4 +9,10 @@ defmodule PathMapperWeb.Live.Helpers do
         return_value
     end
   end
+
+  def serialize_style(style) when is_map(style) do
+    Enum.map_join(style, " ", fn {property, value} ->
+      "#{property}: #{value};"
+    end)
+  end
 end

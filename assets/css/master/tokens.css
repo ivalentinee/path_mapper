@@ -1,0 +1,30 @@
+.tokens.highlight-items #add-token-button {
+  background: rgb(255, 200, 50);
+}
+
+.tokens.highlight-items #add-token-button::first-letter {
+  font-size: 150%;
+}
+
+.tokens .item {
+  padding-left: 10px;
+  padding-top: 5px;
+  padding-bottom: 10px;
+}
+
+#manage-tokens .item button {
+  width: 50px;
+  height: 40px;
+}
+
+#manage-tokens > .item.highlight {
+  background: rgb(255, 200, 50);
+}
+
+#manage-tokens > .item.highlight > button {
+  -webkit-text-stroke-width: 0.5px;
+  -webkit-text-stroke-color: black;
+  font-weight: bold;
+  padding: 0.2rem;
+  color: rgb(255, 200, 50)
+}

@@ -4,5 +4,7 @@
 @import "./master/panel.css";
 @import "./master/left-panel.css";
 @import "./master/map-manager.css";
+@import "./master/tokens.css";
 @import "./player/index.css";
-@import "./map/index.css";
+@import "./scene/map.css";
+@import "./scene/tokens.css";

@@ -24,7 +24,10 @@ defmodule PathMapperWeb.MasterLive do
     {:ok, socket}
   end
 
-  def selected_layer_index(%UIState{keystroke_highlight: ["map-manager", index]} = ui_state) when is_number(index), do: index - 1
+  def selected_layer_index(%UIState{keystroke_highlight: ["map-manager", index]})
+      when is_number(index),
+      do: index - 1
+
   def selected_layer_index(%UIState{}), do: nil
 
   @impl true

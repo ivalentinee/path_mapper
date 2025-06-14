@@ -1,12 +1,14 @@
 .left-panel {
+  position: fixed;
   display: flex;
   flex-direction: row;
   height: 100%;
   max-width: 30%;
+  z-index: 100;
 }
 
 .left-panel-button {
-  height: 33.3%;
+  height: 100%;
   writing-mode: sideways-lr;
 }
 
@@ -36,4 +38,13 @@
 .left-panel .highlight-items .item .index {
   color: rgb(255, 200, 50);
   font-weight: bold;
+}
+
+
+.left-panel .sub-buttons {
+  margin-bottom: 20px;
+}
+
+.left-panel .sub-button {
+  width: 100%;
 }

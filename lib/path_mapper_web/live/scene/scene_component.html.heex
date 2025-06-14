@@ -1,0 +1,26 @@
+<div id="scene" style={scene_style()} phx-hook="Geometry" phx-target={@myself}>
+  <%= if has_geometry?(assigns) do %>
+    <div style={map_style(@map_geometry)}>
+      <.live_component
+        module={PathMapperWeb.Scene.MapComponent}
+        id="map"
+        adventure={@adventure}
+        game_state={@game_state}
+        opts={@opts}
+        selected_layer_index={@selected_layer_index}
+      />
+    </div>
+
+    <div class="tokens-container" style={map_style(@map_geometry)}>
+      <%= for {token, index} <- Enum.with_index(@game_state.scene.tokens) do %>
+        <.live_component
+          module={PathMapperWeb.Scene.TokenComponent}
+          id={"token-#{index}"}
+          token={token}
+          index={index}
+          map_geometry={@map_geometry}
+        />
+      <% end %>
+    </div>
+  <% end %>
+</div>

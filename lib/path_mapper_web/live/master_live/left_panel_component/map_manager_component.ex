@@ -4,17 +4,17 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent do
   alias PathMapper.Game
 
   def handle_event("toggle_layer_show", %{"index" => index_string}, socket) do
-    with_parsed_index(index_string, &Game.run_action([:layer, :toggle_show], &1))
+    with_parsed_index(index_string, &Game.run_action([:map, :layer, :toggle_show], &1))
     {:noreply, socket}
   end
 
   def handle_event("toggle_layer_light", %{"index" => index_string}, socket) do
-    with_parsed_index(index_string, &Game.run_action([:layer, :toggle_light], &1))
+    with_parsed_index(index_string, &Game.run_action([:map, :layer, :toggle_light], &1))
     {:noreply, socket}
   end
 
   def handle_event("toggle_layer_highlight", %{"index" => index_string}, socket) do
-    with_parsed_index(index_string, &Game.run_action([:layer, :toggle_highlight], &1))
+    with_parsed_index(index_string, &Game.run_action([:map, :layer, :toggle_highlight], &1))
     {:noreply, socket}
   end
 

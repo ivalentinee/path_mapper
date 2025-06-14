@@ -30,6 +30,24 @@ defmodule PathMapperWeb.MasterLive.UIState.Keystrokes do
       when is_number(index),
       do: ui_state |> Actions.map_manager_toggle_layer_light(index) |> reset_keystroke()
 
+  def run_keystroke(%{keystroke: keystroke(["p", "t"])} = ui_state),
+    do: select_panel(ui_state, "tokens")
+
+  def run_keystroke(%{keystroke: keystroke(["p", "t", "a"])} = ui_state),
+    do: select_panel(ui_state, "tokens-add")
+
+  def run_keystroke(%{keystroke: keystroke(["p", "t", "a", index])} = ui_state)
+      when is_number(index),
+      do: ui_state |> Actions.add_token(index) |> select_panel("tokens") |> reset_keystroke()
+
+  def run_keystroke(%{keystroke: keystroke(["p", "t", index])} = ui_state)
+      when is_number(index),
+      do: keystroke_highlight(ui_state, ["tokens", index])
+
+  def run_keystroke(%{keystroke: keystroke(["p", "t", index, "x"])} = ui_state)
+      when is_number(index),
+      do: ui_state |> Actions.delete_token(index) |> reset_keystroke()
+
   def run_keystroke(%{keystroke: keystroke(["p", "q"])} = ui_state),
     do: ui_state |> Actions.select_left_panel(nil) |> reset_keystroke()
 
