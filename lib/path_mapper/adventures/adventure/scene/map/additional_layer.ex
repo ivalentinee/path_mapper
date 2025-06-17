@@ -11,11 +11,12 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map.AdditionalLayer do
     field(:image, :binary)
     field(:x, :integer)
     field(:y, :integer)
+    field(:tags, {:array, :string})
   end
 
   def changeset(struct, params) do
     struct
-    |> cast(params, [:name, :image, :x, :y])
+    |> cast(params, [:name, :image, :x, :y, :tags])
     |> Layer.store_image(:image)
     |> validate_required([:name, :image, :x, :y])
   end
