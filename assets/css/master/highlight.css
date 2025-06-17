@@ -6,10 +6,6 @@
   background: rgb(66, 184, 221);
 }
 
-.highlight > button::first-letter {
-  /* font-size: 150%; */
-}
-
 .panel-content.highlight {
   border-right: 10px solid rgb(255, 200, 50);
 }

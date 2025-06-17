@@ -1,0 +1,12 @@
+<div id="group-selector" class="group-selector">
+  <%= for {item, index} <- Enum.with_index(@groups, 1) do %>
+    <button
+      phx-click="select_group"
+      phx-target={@myself}
+      phx-value-name={item}
+      class={"pure-button item #{select_button_extra_classes(item, @group)}"}
+    >
+      <span class="index">{index}</span> {item}
+    </button>
+  <% end %>
+</div>

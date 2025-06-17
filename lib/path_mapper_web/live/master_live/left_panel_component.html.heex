@@ -1,8 +1,19 @@
 <div class="left-panel">
   <div class={"panel-selector #{highlight_class(@ui_state)}"}>
-    {panel_select_button(%{text: "Adventures", panel_name: "adventure-selector", myself: @myself})}
+    {panel_select_button(%{
+      text: "Adventures",
+      panel_name: "adventure-selector",
+      myself: @myself,
+      disable_highlight: true
+    })}
+    {panel_select_button(%{
+      text: "Groups",
+      panel_name: "group-selector",
+      myself: @myself,
+      disable_highlight: true
+    })}
 
-    <%= if @game_state do %>
+    <%= if @group && @game_state do %>
       {panel_select_button(%{text: "Scenes", panel_name: "scene-selector", myself: @myself})}
     <% end %>
 
@@ -26,7 +37,18 @@
     </div>
   <% end %>
 
-  <%= if @adventure && @game_state && @ui_state.left_panel == "scene-selector" do %>
+  <%= if @ui_state.left_panel == "group-selector" do %>
+    <div class="panel-content">
+      <.live_component
+        module={PathMapperWeb.MasterLive.LeftPanelComponent.GroupSelectorComponent}
+        id="group-selector"
+        groups={@groups}
+        group={@group}
+      />
+    </div>
+  <% end %>
+
+  <%= if @group && @adventure && @game_state && @ui_state.left_panel == "scene-selector" do %>
     <div class="panel-content">
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.SceneSelectorComponent}

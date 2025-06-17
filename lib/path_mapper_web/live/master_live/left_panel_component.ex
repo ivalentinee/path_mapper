@@ -10,10 +10,17 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent do
   end
 
   def panel_select_button(assigns) do
+    button_classes =
+      if assigns[:disable_highlight],
+        do: "left-panel-button pure-button",
+        else: "left-panel-button pure-button enable-highlight"
+
+    assigns = Map.put(assigns, :button_classes, button_classes)
+
     ~H"""
     <button
       id={"#{assigns.panel_name}-button"}
-      class="left-panel-button pure-button"
+      class={@button_classes}
       phx-click="select_panel"
       phx-target={@myself}
       phx-value-name={assigns.panel_name}

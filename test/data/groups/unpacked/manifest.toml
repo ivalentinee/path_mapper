@@ -1,0 +1,20 @@
+title="Test group"
+
+[[players]]
+character_name = "Character 1"
+player_name = "Player 1"
+color = "#328546"
+token = "player-1/player-1.png"
+extra_tokens = [
+    { image = "player-1/some-marker.png", name = "Some marker" },
+    { image = "player-1/some-marker-2.png", name = "Some marker 2" }
+]
+
+[[players]]
+character_name = "Character 1"
+player_name = "Player 1"
+color = "#8100fa"
+token = "player-2/player-2.png"
+extra_tokens = [
+    { image = "player-2/some-marker.png", name = "Some marker" }
+]

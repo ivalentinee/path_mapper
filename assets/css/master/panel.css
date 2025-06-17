@@ -23,6 +23,6 @@
   flex-direction: column;
 }
 
-.panel-selector.highlight > button::first-letter {
+.panel-selector.highlight > button.enable-highlight::first-letter {
   font-size: 150%;
 }

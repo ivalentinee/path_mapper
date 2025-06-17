@@ -5,6 +5,11 @@ config :path_mapper,
        Application.get_env(:path_mapper, :adventure_base_path) ||
          System.get_env("ADVENTURE_BASE_PATH") || "adventures"
 
+config :path_mapper,
+       :group_base_path,
+       Application.get_env(:path_mapper, :group_base_path) ||
+         System.get_env("GROUP_BASE_PATH") || "groups"
+
 if System.get_env("PHX_SERVER") do
   config :path_mapper, PathMapperWeb.Endpoint, server: true
 end

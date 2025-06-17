@@ -1,4 +1,4 @@
-defmodule PathMapper.ScenesTest do
+defmodule PathMapper.AdventuresTest do
   use ExUnit.Case
 
   alias PathMapper.Adventures

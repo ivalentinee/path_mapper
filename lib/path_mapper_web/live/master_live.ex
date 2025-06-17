@@ -4,20 +4,26 @@ defmodule PathMapperWeb.MasterLive do
 
   alias PathMapper.Adventures
   alias PathMapper.Game
+  alias PathMapper.Groups
   alias PathMapperWeb.MasterLive.UIState
 
   @impl true
   def mount(_params, _session, socket) do
     adventures = Adventures.get()
     adventure = get_selected_adventure()
+    groups = Groups.get()
+    group = get_selected_group()
     game_state = Game.get_state()
     Adventures.subscribe()
+    Groups.subscribe()
     Game.subscribe()
 
     socket =
       socket
       |> assign(:adventures, adventures)
       |> assign(:adventure, adventure)
+      |> assign(:groups, groups)
+      |> assign(:group, group)
       |> assign(:game_state, game_state)
       |> assign(:ui_state, %UIState{})
 
@@ -50,6 +56,11 @@ defmodule PathMapperWeb.MasterLive do
   end
 
   @impl true
+  def handle_info(%{group_loaded: group}, socket) do
+    {:noreply, assign(socket, :group, group)}
+  end
+
+  @impl true
   def handle_info(%{game_update: game_state}, socket) do
     {:noreply, assign(socket, :game_state, game_state)}
   end
@@ -62,6 +73,13 @@ defmodule PathMapperWeb.MasterLive do
   defp get_selected_adventure do
     case Adventures.get_loaded() do
       {:ok, adventure} -> adventure
+      _ -> nil
+    end
+  end
+
+  defp get_selected_group do
+    case Groups.get_loaded() do
+      {:ok, group} -> group
       _ -> nil
     end
   end

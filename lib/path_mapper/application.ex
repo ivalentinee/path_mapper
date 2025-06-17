@@ -15,6 +15,7 @@ defmodule PathMapper.Application do
       # {PathMapper.Worker, arg},
       # Start to serve requests, typically the last entry
       PathMapper.Adventures,
+      PathMapper.Groups,
       PathMapper.Game,
       PathMapperWeb.Endpoint
     ]
