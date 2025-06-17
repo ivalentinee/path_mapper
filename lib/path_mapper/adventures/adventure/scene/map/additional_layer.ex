@@ -2,7 +2,7 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map.AdditionalLayer do
   use Ecto.Schema
 
   import Ecto.Changeset
-  alias PathMapper.Adventures.Adventure.Scene.Map.Layer
+  alias PathMapper.Adventures.Adventure.FileStorage
 
   @primary_key false
 
@@ -17,7 +17,7 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map.AdditionalLayer do
   def changeset(struct, params) do
     struct
     |> cast(params, [:name, :image, :x, :y, :tags])
-    |> Layer.store_image(:image)
+    |> FileStorage.store_image(:image)
     |> validate_required([:name, :image, :x, :y])
   end
 end

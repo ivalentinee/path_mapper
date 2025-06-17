@@ -1,15 +1,16 @@
 defmodule PathMapper.Game.Actions.Tokens do
+  alias PathMapper.Adventures.Adventure.Scene.Token
   alias PathMapper.Game.State
   alias PathMapper.Game.State.Scene.Token, as: GameToken
-  alias PathMapper.Tokens
 
   def action(%State{} = state, [:tokens, :add], index_or_name)
       when is_number(index_or_name) or is_binary(index_or_name) do
-    token = Tokens.get(index_or_name)
+    token = find_adventure_token(state, index_or_name)
 
     if token do
       {x, y, size} = initial_token_geometry(state, token)
-      game_token = %GameToken{data: token, x: x, y: y, size: size, color: "red"}
+      color = Token.color(token)
+      game_token = %GameToken{data: token, x: x, y: y, size: size, color: color, state: "alive"}
       updated_tokens = state.scene.tokens ++ [game_token]
       update_tokens(state, updated_tokens)
     else
@@ -42,11 +43,10 @@ defmodule PathMapper.Game.Actions.Tokens do
   end
 
   def action(%State{} = _state, action, _data) do
-    IO.puts("Tokens action '#{inspect(action)}' not found")
     {:error, "Tokens action '#{inspect(action)}' not found"}
   end
 
-  defp initial_token_geometry(%State{scene: %{map: %{grid_size: grid_size}}}, %Tokens.Token{
+  defp initial_token_geometry(%State{scene: %{map: %{grid_size: grid_size}}}, %Token{
          size: size
        }) do
     token_size = grid_size * size
@@ -75,5 +75,13 @@ defmodule PathMapper.Game.Actions.Tokens do
     |> Map.put(:drag_y, nil)
     |> Map.put(:x, x)
     |> Map.put(:y, y)
+  end
+
+  defp find_adventure_token(%State{} = state, index) when is_number(index) do
+    Enum.at(state.scene.data.tokens, index)
+  end
+
+  defp find_adventure_token(%State{} = state, name) when is_binary(name) do
+    Enum.find(state.scene.data.tokens, fn token -> token.name == name end)
   end
 end

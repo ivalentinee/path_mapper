@@ -6,12 +6,23 @@
     phx-target={@myself}
     style={token_shape_style(@token, @token_geometry, !!assigns[:dragged_token_geometry])}
   >
-    <img style={token_image_style(@token, @token_geometry)} title={@token.data.name} src={@token.data.image} />
+    <img
+      style={token_image_style(@token, @token_geometry)}
+      title={@token.data.name}
+      src={@token.data.image}
+    />
   </div>
 
   <%= if @dragged_token_geometry && !assigns[:own_drag] do %>
-    <div id={"#{@id}_dragged_token"} style={token_shape_style(@token, @dragged_token_geometry, true)}>
-      <img style={token_image_style(@token, @dragged_token_geometry)} title={@token.data.name} src={@token.data.image} />
+    <div
+      id={"#{@id}_dragged_token"}
+      style={token_shape_style(@token, @dragged_token_geometry, true)}
+    >
+      <img
+        style={token_image_style(@token, @dragged_token_geometry)}
+        title={@token.data.name}
+        src={@token.data.image}
+      />
     </div>
   <% end %>
 </div>

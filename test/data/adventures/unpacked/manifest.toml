@@ -11,6 +11,10 @@ urls = [
 name = "Scene 1"
 type = "battle"
 map.file = "map.ora"
+tokens = [
+       { name = "monster 1", size = 1, owner = "enemy", image = "tokens/monster-1.png" },
+       { name = "NPC 1", size = 1, owner = "npc", image = "tokens/monster-2.png" }
+]
 
 [[scenes]]
 name = "Scene 2"

@@ -22,20 +22,11 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map.Layer do
   def changeset(struct, params) do
     struct
     |> cast(params, [:name, :image, :index, :x, :y, :tags])
-    |> store_image(:image)
+    |> FileStorage.store_image(:image)
     |> cast_show()
     |> cast_light()
     |> cast_floor()
     |> validate_required([:name, :image, :index, :x, :y, :tags, :show, :light])
-  end
-
-  def store_image(changeset, property) do
-    with image when is_binary(image) <- get_change(changeset, property),
-         {:ok, filename} <- FileStorage.store_image(image) do
-      put_change(changeset, property, filename)
-    else
-      _ -> put_change(changeset, property, nil)
-    end
   end
 
   def cast_show(changeset) do

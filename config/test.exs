@@ -17,4 +17,4 @@ config :phoenix, :plug_init_mode, :runtime
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
 
-config :path_mapper, :adventure_base_path, "test/adventures"
+config :path_mapper, :adventure_base_path, "test/data/adventures"

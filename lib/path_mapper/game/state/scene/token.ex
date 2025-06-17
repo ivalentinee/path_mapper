@@ -4,6 +4,7 @@ defmodule PathMapper.Game.State.Scene.Token do
   embedded_schema do
     field(:x, :integer)
     field(:y, :integer)
+    field(:state, :string)
     field(:drag_x, :integer)
     field(:drag_y, :integer)
     field(:size, :integer)
