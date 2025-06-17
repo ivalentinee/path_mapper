@@ -11,6 +11,11 @@
       title={@token.data.name}
       src={@token.data.image}
     />
+
+    <div style={token_state_style(@token, @token_geometry)} class="token-state-marker"></div>
+    <%= if show_index(@selected_token_index, @index) do %>
+      <div class="token-index">{@index + 1}</div>
+    <% end %>
   </div>
 
   <%= if @dragged_token_geometry && !assigns[:own_drag] do %>

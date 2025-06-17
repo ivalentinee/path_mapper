@@ -48,4 +48,10 @@ defmodule PathMapperWeb.MasterLive.UIState.Actions do
     Game.run_action([:tokens, :delete], index - 1)
     ui_state
   end
+
+  def set_token_state(%{left_panel: "tokens"} = ui_state, index, state)
+      when is_number(index) and is_binary(state) do
+    Game.run_action([:tokens, index - 1, :set_state], state)
+    ui_state
+  end
 end

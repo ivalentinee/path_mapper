@@ -48,6 +48,18 @@ defmodule PathMapperWeb.MasterLive.UIState.Keystrokes do
       when is_number(index),
       do: ui_state |> Actions.delete_token(index) |> reset_keystroke()
 
+  def run_keystroke(%{keystroke: keystroke(["p", "t", index, "r"])} = ui_state)
+      when is_number(index),
+      do: ui_state |> Actions.set_token_state(index, "alive") |> reset_keystroke()
+
+  def run_keystroke(%{keystroke: keystroke(["p", "t", index, "k"])} = ui_state)
+      when is_number(index),
+      do: ui_state |> Actions.set_token_state(index, "dead") |> reset_keystroke()
+
+  def run_keystroke(%{keystroke: keystroke(["p", "t", index, "u"])} = ui_state)
+      when is_number(index),
+      do: ui_state |> Actions.set_token_state(index, "unconscious") |> reset_keystroke()
+
   def run_keystroke(%{keystroke: keystroke(["p", "q"])} = ui_state),
     do: ui_state |> Actions.select_left_panel(nil) |> reset_keystroke()
 

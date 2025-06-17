@@ -65,6 +65,12 @@ defmodule PathMapperWeb.Scene.TokenComponent do
     end
   end
 
+  def show_index(selected_token_index, token_index) when selected_token_index == token_index,
+    do: true
+
+  def show_index(:all, _token_index), do: true
+  def show_index(_selected_token_index, _token_index), do: false
+
   def token_shape_style(token, token_geometry, transparent) do
     size = token_geometry.width
     radius = round(size / 2)
@@ -98,7 +104,27 @@ defmodule PathMapperWeb.Scene.TokenComponent do
       "border-radius" => "#{radius}px",
       "width" => "#{size}px",
       "height" => "#{size}px"
-      # "title" => token.data.name
+    }
+
+    serialize_style(style)
+  end
+
+  def token_state_style(token, token_geometry) do
+    size = token_geometry.width
+    radius = round(size / 2)
+
+    opacity = if token.state == "alive", do: 0, else: 0.5
+
+    style = %{
+      "position" => "absolute",
+      "left" => "0",
+      "top" => "0",
+      "border-radius" => "#{radius}px",
+      "background" => token_state_color(token),
+      "width" => "#{size}px",
+      "height" => "#{size}px",
+      "z-index" => 250,
+      "opacity" => opacity
     }
 
     serialize_style(style)
@@ -112,4 +138,12 @@ defmodule PathMapperWeb.Scene.TokenComponent do
   end
 
   defp build_token_geometry(_assigns, _size, _x, _y), do: nil
+
+  defp token_state_color(token) do
+    case token.state do
+      "dead" -> "#db5164"
+      "unconscious" -> "#57d5ff"
+      _ -> "white"
+    end
+  end
 end

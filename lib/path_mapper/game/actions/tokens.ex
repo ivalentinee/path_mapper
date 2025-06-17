@@ -3,6 +3,8 @@ defmodule PathMapper.Game.Actions.Tokens do
   alias PathMapper.Game.State
   alias PathMapper.Game.State.Scene.Token, as: GameToken
 
+  require GameToken
+
   def action(%State{} = state, [:tokens, :add], index_or_name)
       when is_number(index_or_name) or is_binary(index_or_name) do
     token = find_adventure_token(state, index_or_name)
@@ -21,6 +23,17 @@ defmodule PathMapper.Game.Actions.Tokens do
   def action(%State{} = state, [:tokens, :delete], index) when is_number(index) do
     updated_tokens = List.delete_at(state.scene.tokens, index)
     update_tokens(state, updated_tokens)
+  end
+
+  def action(%State{} = state, [:tokens, index, :set_state], token_state)
+      when is_integer(index) and token_state in GameToken.states() do
+    case Enum.at(state.scene.tokens, index) do
+      %GameToken{} = game_token ->
+        update_token(state, index, Map.put(game_token, :state, token_state))
+
+      _ ->
+        {:ok, state}
+    end
   end
 
   def action(%State{} = state, [:tokens, index, :drag], {drag_x, drag_y})

@@ -1,6 +1,8 @@
 defmodule PathMapper.Game.State.Scene.Token do
   use Ecto.Schema
 
+  @states ["alive", "unconscious", "dead"]
+
   embedded_schema do
     field(:x, :integer)
     field(:y, :integer)
@@ -11,4 +13,6 @@ defmodule PathMapper.Game.State.Scene.Token do
     field(:color, :string)
     embeds_one(:data, PathMapper.Tokens.Token)
   end
+
+  defmacro states, do: @states
 end

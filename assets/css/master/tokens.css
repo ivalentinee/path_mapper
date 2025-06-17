@@ -28,3 +28,7 @@
   padding: 0.2rem;
   color: rgb(255, 200, 50)
 }
+
+#manage-tokens button.highlight {
+  background: rgb(255, 200, 50);
+}
