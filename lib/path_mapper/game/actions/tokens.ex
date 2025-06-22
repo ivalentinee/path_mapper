@@ -7,6 +7,7 @@ defmodule PathMapper.Game.Actions.Tokens do
 
   require GameToken
   import PathMapper.Game.Actions.Tokens.Find
+  import PathMapper.Game.Actions.Tokens.Move
 
   def action(%State{} = state, [:tokens, :add], index_or_name)
       when is_number(index_or_name) or is_binary(index_or_name) do
@@ -82,22 +83,25 @@ defmodule PathMapper.Game.Actions.Tokens do
     end
   end
 
-  def action(%State{} = state, [:tokens, index, :drag], {drag_x, drag_y})
-      when is_number(index) and is_number(drag_x) and is_number(drag_y) do
+  def action(%State{} = state, [:tokens, index, :drag], {drag_x, drag_y, opts})
+      when is_number(index) and is_number(drag_x) and is_number(drag_y) and is_map(opts) do
     case Enum.at(state.scene.tokens, index) do
       %GameToken{} = game_token ->
-        update_token(state, index, drag_token(game_token, drag_x, drag_y))
+        update_token(state, index, drag_token(state, game_token, drag_x, drag_y, opts))
 
       _ ->
         {:ok, state}
     end
   end
 
-  def action(%State{} = state, [:tokens, index, :move], {x, y})
-      when is_number(index) and is_number(x) and is_number(y) do
+  def action(%State{} = state, [:tokens, index, :move], {x, y, opts})
+      when is_number(index) and is_number(x) and is_number(y) and is_map(opts) do
     case Enum.at(state.scene.tokens, index) do
-      %GameToken{} = game_token -> update_token(state, index, move_token(game_token, x, y))
-      _ -> {:ok, state}
+      %GameToken{} = game_token ->
+        update_token(state, index, move_token(state, game_token, x, y, opts))
+
+      _ ->
+        {:ok, state}
     end
   end
 
@@ -122,17 +126,5 @@ defmodule PathMapper.Game.Actions.Tokens do
   defp update_tokens(%State{scene: scene} = state, updated_tokens) when is_list(updated_tokens) do
     updated_scene = Map.put(scene, :tokens, updated_tokens)
     {:ok, Map.put(state, :scene, updated_scene)}
-  end
-
-  defp drag_token(%GameToken{} = game_token, x, y) when is_number(x) and is_number(y) do
-    game_token |> Map.put(:drag_x, x) |> Map.put(:drag_y, y)
-  end
-
-  defp move_token(%GameToken{} = game_token, x, y) when is_number(x) and is_number(y) do
-    game_token
-    |> Map.put(:drag_x, nil)
-    |> Map.put(:drag_y, nil)
-    |> Map.put(:x, x)
-    |> Map.put(:y, y)
   end
 end

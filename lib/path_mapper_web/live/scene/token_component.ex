@@ -36,7 +36,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
   def handle_event("dragend", _event, socket) do
     Game.run_action(
       [:tokens, socket.assigns.index, :move],
-      {socket.assigns.token.drag_x, socket.assigns.token.drag_y}
+      {socket.assigns.token.drag_x, socket.assigns.token.drag_y, %{snap: true}}
     )
 
     socket =
@@ -57,7 +57,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
       scaled_x = GeometryMapper.scale_back(x, socket.assigns.map_geometry)
       scaled_y = GeometryMapper.scale_back(y, socket.assigns.map_geometry)
 
-      Game.run_action([:tokens, socket.assigns.index, :drag], {scaled_x, scaled_y})
+      Game.run_action([:tokens, socket.assigns.index, :drag], {scaled_x, scaled_y, %{}})
 
       {:noreply, socket}
     else
@@ -73,15 +73,15 @@ defmodule PathMapperWeb.Scene.TokenComponent do
 
   def token_shape_style(token, token_geometry, transparent) do
     size = token_geometry.width
-    radius = round(size / 2)
-    border_width = round(size / 15)
+    radius = ceil(size / 2)
+    border_width = round(size / 10)
 
     opacity = if transparent, do: 0.5, else: 1
 
     style = %{
       "position" => "absolute",
-      "left" => "#{token_geometry.x}px",
-      "top" => "#{token_geometry.y}px",
+      "left" => "#{token_geometry.x - border_width}px",
+      "top" => "#{token_geometry.y - border_width}px",
       "border-radius" => "#{radius}px",
       "border" => "#{border_width}px solid #{token.color}",
       "width" => "#{size}px",
@@ -95,13 +95,11 @@ defmodule PathMapperWeb.Scene.TokenComponent do
 
   def token_image_style(_token, token_geometry) do
     size = token_geometry.width
-    radius = round(size / 2)
 
     style = %{
       "position" => "absolute",
-      "left" => "0",
-      "top" => "0",
-      "border-radius" => "#{radius}px",
+      "left" => "0px",
+      "top" => "0px",
       "width" => "#{size}px",
       "height" => "#{size}px"
     }
