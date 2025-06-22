@@ -5,6 +5,8 @@
   height: 100%;
   max-width: 30%;
   z-index: 100;
+  opacity: 90%;
+  filter: brightness(110%);
 }
 
 .left-panel-button {
