@@ -1,5 +1,5 @@
-<div id="add-token" class={"add-token #{highlight_content_class(@ui_state)}"}>
-  <%= for {token, index} <- Enum.with_index(@game_state.scene.data.tokens) do %>
+<div id="add-token" class={"add-token #{highlight_content_class(@ui_state, @id)}"}>
+  <%= for {token, index} <- Enum.with_index(@tokens) do %>
     <div class="item">
       <span class="index">{index + 1}</span>
       <button phx-click="add_token" phx-value-name={token.name} phx-target={@myself}>

@@ -34,11 +34,22 @@ defmodule PathMapperWeb.MasterLive.UIState.Keystrokes do
     do: select_panel(ui_state, "tokens")
 
   def run_keystroke(%{keystroke: keystroke(["p", "t", "a"])} = ui_state),
-    do: select_panel(ui_state, "tokens-add")
+    do: select_panel(ui_state, "add-token")
 
   def run_keystroke(%{keystroke: keystroke(["p", "t", "a", index])} = ui_state)
       when is_number(index),
       do: ui_state |> Actions.add_token(index) |> select_panel("tokens") |> reset_keystroke()
+
+  def run_keystroke(%{keystroke: keystroke(["p", "t", "p"])} = ui_state),
+    do: select_panel(ui_state, "add-player-token")
+
+  def run_keystroke(%{keystroke: keystroke(["p", "t", "p", index])} = ui_state)
+      when is_number(index),
+      do:
+        ui_state |> Actions.add_player_token(index) |> select_panel("tokens") |> reset_keystroke()
+
+  def run_keystroke(%{keystroke: keystroke(["p", "t", "p", "a"])} = ui_state),
+    do: ui_state |> Actions.add_all_players() |> select_panel("tokens") |> reset_keystroke()
 
   def run_keystroke(%{keystroke: keystroke(["p", "t", index])} = ui_state)
       when is_number(index),

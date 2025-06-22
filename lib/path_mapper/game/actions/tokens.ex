@@ -3,8 +3,10 @@ defmodule PathMapper.Game.Actions.Tokens do
   alias PathMapper.Game.Actions.Tokens.FindFreeSpace
   alias PathMapper.Game.State
   alias PathMapper.Game.State.Scene.Token, as: GameToken
+  alias PathMapper.Groups
 
   require GameToken
+  import PathMapper.Game.Actions.Tokens.Find
 
   def action(%State{} = state, [:tokens, :add], index_or_name)
       when is_number(index_or_name) or is_binary(index_or_name) do
@@ -12,12 +14,55 @@ defmodule PathMapper.Game.Actions.Tokens do
 
     if token do
       {x, y, size} = initial_token_geometry(state, token)
-      color = Token.color(token)
-      game_token = %GameToken{data: token, x: x, y: y, size: size, color: color, state: "alive"}
+
+      game_token = %GameToken{
+        data: token,
+        x: x,
+        y: y,
+        size: size,
+        color: token.color,
+        state: "alive"
+      }
+
       updated_tokens = state.scene.tokens ++ [game_token]
       update_tokens(state, updated_tokens)
     else
       {:ok, state}
+    end
+  end
+
+  def action(%State{} = state, [:tokens, :add_player], index_or_name)
+      when is_number(index_or_name) or is_binary(index_or_name) do
+    token = find_player_token(index_or_name)
+
+    if token && !token_exists(state, token.name) do
+      {x, y, size} = initial_token_geometry(state, token)
+
+      game_token = %GameToken{
+        data: token,
+        x: x,
+        y: y,
+        size: size,
+        color: token.color,
+        state: "alive"
+      }
+
+      updated_tokens = state.scene.tokens ++ [game_token]
+      update_tokens(state, updated_tokens)
+    else
+      {:ok, state}
+    end
+  end
+
+  def action(%State{} = state, [:tokens, :add_all_players], _) do
+    with {:ok, group} <- Groups.get_loaded(),
+         character_names <- Enum.map(group.players, & &1.character_name) do
+      Enum.reduce(character_names, {:ok, state}, fn
+        character_name, {:ok, state} -> action(state, [:tokens, :add_player], character_name)
+        _character_name, error -> error
+      end)
+    else
+      _ -> {:ok, state}
     end
   end
 
@@ -89,13 +134,5 @@ defmodule PathMapper.Game.Actions.Tokens do
     |> Map.put(:drag_y, nil)
     |> Map.put(:x, x)
     |> Map.put(:y, y)
-  end
-
-  defp find_adventure_token(%State{} = state, index) when is_number(index) do
-    Enum.at(state.scene.data.tokens, index)
-  end
-
-  defp find_adventure_token(%State{} = state, name) when is_binary(name) do
-    Enum.find(state.scene.data.tokens, fn token -> token.name == name end)
   end
 end

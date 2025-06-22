@@ -39,8 +39,19 @@ defmodule PathMapperWeb.MasterLive.UIState.Actions do
     ui_state
   end
 
-  def add_token(%{left_panel: "tokens-add"} = ui_state, index) when is_number(index) do
+  def add_token(%{left_panel: "add-token"} = ui_state, index) when is_number(index) do
     Game.run_action([:tokens, :add], index - 1)
+    ui_state
+  end
+
+  def add_player_token(%{left_panel: "add-player-token"} = ui_state, index)
+      when is_number(index) do
+    Game.run_action([:tokens, :add_player], index - 1)
+    ui_state
+  end
+
+  def add_all_players(%{left_panel: "add-player-token"} = ui_state) do
+    Game.run_action([:tokens, :add_all_players], nil)
     ui_state
   end
 

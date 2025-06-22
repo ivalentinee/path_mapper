@@ -1,8 +1,8 @@
-.tokens.highlight-items #add-token-button {
+.tokens.highlight-items .sub-buttons button {
   background: rgb(255, 200, 50);
 }
 
-.tokens.highlight-items #add-token-button::first-letter {
+.tokens.highlight-items .sub-buttons button::first-letter {
   font-size: 150%;
 }
 

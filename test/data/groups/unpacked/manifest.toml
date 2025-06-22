@@ -11,8 +11,8 @@ extra_tokens = [
 ]
 
 [[players]]
-character_name = "Character 1"
-player_name = "Player 1"
+character_name = "Character 2"
+player_name = "Player 2"
 color = "#8100fa"
 token = "player-2/player-2.png"
 extra_tokens = [

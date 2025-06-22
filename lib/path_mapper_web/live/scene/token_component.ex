@@ -74,7 +74,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
   def token_shape_style(token, token_geometry, transparent) do
     size = token_geometry.width
     radius = round(size / 2)
-    border_width = round(size / 20)
+    border_width = round(size / 15)
 
     opacity = if transparent, do: 0.5, else: 1
 
@@ -83,7 +83,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
       "left" => "#{token_geometry.x}px",
       "top" => "#{token_geometry.y}px",
       "border-radius" => "#{radius}px",
-      "border" => "#{border_width}px groove #{token.color}",
+      "border" => "#{border_width}px solid #{token.color}",
       "width" => "#{size}px",
       "height" => "#{size}px",
       "z-index" => 200,

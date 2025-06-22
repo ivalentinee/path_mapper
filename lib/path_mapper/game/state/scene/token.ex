@@ -3,6 +3,8 @@ defmodule PathMapper.Game.State.Scene.Token do
 
   @states ["alive", "unconscious", "dead"]
 
+  @primary_key false
+
   embedded_schema do
     field(:x, :integer)
     field(:y, :integer)

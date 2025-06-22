@@ -1,30 +1,46 @@
 <div id="tokens" class={"tokens #{highlight_content_class(@ui_state)}"}>
-  <%= if @ui_state.left_panel == "tokens-add" do %>
-    <.live_component
-      module={PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Add}
-      id="add-token"
-      ui_state={@ui_state}
-      adventure={@adventure}
-      game_state={@game_state}
-    />
-  <% else %>
-    <div class="sub-buttons">
-      <button
-        id="add-token-button"
-        class="pure-button sub-button"
-        phx-click="go_to_add_tokens"
-        phx-target={@myself}
-      >
-        Add
-      </button>
-    </div>
+  <%= cond do %>
+    <% @ui_state.left_panel == "add-token" -> %>
+      <.live_component
+        module={PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Add}
+        id="add-token"
+        ui_state={@ui_state}
+        tokens={@game_state.scene.data.tokens}
+      />
+    <% @ui_state.left_panel == "add-player-token" -> %>
+      <.live_component
+        module={PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.AddPlayer}
+        id="add-player-token"
+        ui_state={@ui_state}
+        group={@group}
+      />
+    <% true -> %>
+      <div class="sub-buttons">
+        <button
+          id="add-token-button"
+          class="pure-button sub-button"
+          phx-click="go_to_add_tokens"
+          phx-target={@myself}
+        >
+          Add
+        </button>
 
-    <.live_component
-      module={PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage}
-      id="manage-tokens"
-      ui_state={@ui_state}
-      adventure={@adventure}
-      game_state={@game_state}
-    />
+        <button
+          id="add-player-token-button"
+          class="pure-button sub-button"
+          phx-click="go_to_add_player_tokens"
+          phx-target={@myself}
+        >
+          Players (add)
+        </button>
+      </div>
+
+      <.live_component
+        module={PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage}
+        id="manage-tokens"
+        ui_state={@ui_state}
+        adventure={@adventure}
+        game_state={@game_state}
+      />
   <% end %>
 </div>

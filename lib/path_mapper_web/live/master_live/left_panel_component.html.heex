@@ -72,7 +72,7 @@
     </div>
   <% end %>
 
-  <%= if @adventure && @game_state && @ui_state.left_panel in ["tokens", "tokens-add"] do %>
+  <%= if @adventure && @game_state && @ui_state.left_panel in ["tokens", "add-token", "add-player-token"] do %>
     <div class="panel-content">
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent}
@@ -80,6 +80,7 @@
         ui_state={@ui_state}
         adventure={@adventure}
         game_state={@game_state}
+        group={@group}
       />
     </div>
   <% end %>

@@ -1,0 +1,23 @@
+<div id="add-player-token" class={"add-token #{highlight_content_class(@ui_state, @id)}"}>
+  <div class="sub-buttons">
+    <button
+      id="add-all-players"
+      class="pure-button sub-button"
+      phx-click="add_all"
+      phx-target={@myself}
+    >
+      All
+    </button>
+  </div>
+
+  <div id="add-player-token-players">
+    <%= for {player, index} <- Enum.with_index(@group.players) do %>
+      <div class="item">
+        <span class="index">{index + 1}</span>
+        <button phx-click="add_token" phx-value-name={player.character_name} phx-target={@myself}>
+          {player.character_name}
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>
