@@ -20,8 +20,15 @@
           index={index}
           map_geometry={@map_geometry}
           selected_token_index={@selected_token_index}
+          scene_state={@scene_state}
         />
       <% end %>
     </div>
+
+    <.live_component
+      module={PathMapperWeb.Scene.RightPanelComponent}
+      id="right-panel"
+      scene_state={@scene_state}
+    />
   <% end %>
 </div>

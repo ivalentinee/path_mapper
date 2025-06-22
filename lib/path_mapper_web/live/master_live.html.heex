@@ -5,6 +5,7 @@
     <.live_component
       module={PathMapperWeb.Scene.SceneComponent}
       id="scene"
+      scene_state={@scene_state}
       adventure={@adventure}
       game_state={@game_state}
       opts={%{show_hidden: true}}
@@ -22,5 +23,6 @@
     group={@group}
     game_state={@game_state}
     ui_state={@ui_state}
+    scene_state={@scene_state}
   />
 </div>

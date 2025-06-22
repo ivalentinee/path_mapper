@@ -34,9 +34,11 @@ defmodule PathMapperWeb.Scene.TokenComponent do
 
   @impl true
   def handle_event("dragend", _event, socket) do
+    snap_to_grid = socket.assigns.scene_state.snap_to_grid
+
     Game.run_action(
       [:tokens, socket.assigns.index, :move],
-      {socket.assigns.token.drag_x, socket.assigns.token.drag_y, %{snap: true}}
+      {socket.assigns.token.drag_x, socket.assigns.token.drag_y, %{snap: snap_to_grid}}
     )
 
     socket =

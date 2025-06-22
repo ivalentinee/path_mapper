@@ -1,0 +1,10 @@
+<div class="right-panel">
+  <button
+    id="snap-to-grid"
+    class="pure-button right-panel-button"
+    phx-click="snap_to_grid"
+    phx-target={@myself}
+  >
+    {if @scene_state.snap_to_grid, do: "▣", else: "□"}
+  </button>
+</div>

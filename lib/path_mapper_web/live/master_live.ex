@@ -6,6 +6,7 @@ defmodule PathMapperWeb.MasterLive do
   alias PathMapper.Game
   alias PathMapper.Groups
   alias PathMapperWeb.MasterLive.UIState
+  alias PathMapperWeb.Scene.SceneState
 
   @impl true
   def mount(_params, _session, socket) do
@@ -26,6 +27,7 @@ defmodule PathMapperWeb.MasterLive do
       |> assign(:group, group)
       |> assign(:game_state, game_state)
       |> assign(:ui_state, %UIState{})
+      |> assign(:scene_state, %SceneState{})
 
     {:ok, socket}
   end
@@ -68,6 +70,12 @@ defmodule PathMapperWeb.MasterLive do
   @impl true
   def handle_info(%{ui_update: ui_update}, socket) do
     {:noreply, assign(socket, :ui_state, UIState.run_event(socket.assigns.ui_state, ui_update))}
+  end
+
+  @impl true
+  def handle_info(%{scene_update: scene_update}, socket) do
+    {:noreply,
+     assign(socket, :scene_state, SceneState.run_event(socket.assigns.scene_state, scene_update))}
   end
 
   defp get_selected_adventure do

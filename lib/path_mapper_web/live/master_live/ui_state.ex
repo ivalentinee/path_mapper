@@ -2,7 +2,7 @@ defmodule PathMapperWeb.MasterLive.UIState do
   alias PathMapperWeb.MasterLive.UIState.Actions
   alias PathMapperWeb.MasterLive.UIState.Keystrokes
 
-  defstruct left_panel: nil, right_panel: nil, keystroke: [], keystroke_highlight: nil
+  defstruct left_panel: nil, keystroke: [], keystroke_highlight: nil
 
   @numeric_keys ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 

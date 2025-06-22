@@ -1,0 +1,18 @@
+.right-panel {
+  position: fixed;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  max-width: 30%;
+  z-index: 100;
+  opacity: 90%;
+  filter: brightness(110%);
+  top: 0;
+  right: 0;
+}
+
+.right-panel-button {
+  height: 100%;
+  writing-mode: sideways-rl;
+  font-weight: bold;
+}
