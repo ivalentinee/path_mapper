@@ -1,5 +1,6 @@
 defmodule PathMapper.Game.Actions.Tokens do
   alias PathMapper.Adventures.Adventure.Scene.Token
+  alias PathMapper.Game.Actions.Tokens.FindFreeSpace
   alias PathMapper.Game.State
   alias PathMapper.Game.State.Scene.Token, as: GameToken
 
@@ -59,12 +60,12 @@ defmodule PathMapper.Game.Actions.Tokens do
     {:error, "Tokens action '#{inspect(action)}' not found"}
   end
 
-  defp initial_token_geometry(%State{scene: %{map: %{grid_size: grid_size}}}, %Token{
+  defp initial_token_geometry(%State{scene: %{map: %{grid_size: grid_size}}} = state, %Token{
          size: size
        }) do
     token_size = grid_size * size
-    initial_coordinate = 0
-    {initial_coordinate, initial_coordinate, token_size}
+    {x, y} = FindFreeSpace.find_free_space(state, token_size)
+    {x, y, token_size}
   end
 
   defp update_token(%State{} = state, index, %GameToken{} = updated_token)
