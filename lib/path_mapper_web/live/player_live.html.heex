@@ -1,4 +1,11 @@
 <div class="player-container">
+  <.live_component
+    module={PathMapperWeb.WallpaperComponent}
+    id="wallpaper"
+    adventure={@adventure}
+    game_state={@game_state}
+  />
+
   <%= if @adventure && @game_state && @game_state.scene do %>
     <.live_component
       module={PathMapperWeb.Scene.SceneComponent}

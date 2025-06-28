@@ -1,0 +1,5 @@
+<div class="wallpaper-container">
+  <%= if @adventure && @game_state do %>
+    <img src={@adventure.wallpaper} class={dim_wallpaper_class(@game_state)} />
+  <% end %>
+</div>

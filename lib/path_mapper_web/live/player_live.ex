@@ -4,7 +4,6 @@ defmodule PathMapperWeb.PlayerLive do
   alias PathMapper.Adventures
   alias PathMapper.Game
   alias PathMapper.Groups
-  alias PathMapperWeb.MasterLive.UIState
   alias PathMapperWeb.Scene.SceneState
   @impl true
   def mount(_params, _session, socket) do
