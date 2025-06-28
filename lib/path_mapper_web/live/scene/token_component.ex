@@ -5,6 +5,9 @@ defmodule PathMapperWeb.Scene.TokenComponent do
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
   alias PathMapper.Geometry.Object, as: GeometryObject
 
+  @border_size 0.10
+  @token_size_multiplier 1 - @border_size
+
   @impl true
   def update(assigns, socket) do
     %{size: size, x: x, y: y, drag_x: drag_x, drag_y: drag_y} = assigns.token
@@ -74,16 +77,18 @@ defmodule PathMapperWeb.Scene.TokenComponent do
   def show_index(_selected_token_index, _token_index), do: false
 
   def token_shape_style(token, token_geometry, transparent) do
-    size = token_geometry.width
+    size = token_geometry.width * @token_size_multiplier
     radius = ceil(size / 2)
-    border_width = round(size / 10)
+    border_width = round(size * @border_size)
+    # NOTE: I have no idea why it works
+    position_offset = border_width / 4
 
     opacity = if transparent, do: 0.5, else: 1
 
     style = %{
       "position" => "absolute",
-      "left" => "#{token_geometry.x - border_width}px",
-      "top" => "#{token_geometry.y - border_width}px",
+      "left" => "#{token_geometry.x - position_offset}px",
+      "top" => "#{token_geometry.y - position_offset}px",
       "border-radius" => "#{radius}px",
       "border" => "#{border_width}px solid #{token.color}",
       "width" => "#{size}px",
@@ -96,7 +101,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
   end
 
   def token_image_style(_token, token_geometry) do
-    size = token_geometry.width
+    size = token_geometry.width * @token_size_multiplier
 
     style = %{
       "position" => "absolute",
@@ -113,12 +118,15 @@ defmodule PathMapperWeb.Scene.TokenComponent do
     size = token_geometry.width
     radius = round(size / 2)
 
+    border_width = round(size * @border_size)
+    # NOTE: I have no idea why it works
+    position_offset = border_width / 2
     opacity = if token.state == "alive", do: 0, else: 0.5
 
     style = %{
       "position" => "absolute",
-      "left" => "0",
-      "top" => "0",
+      "left" => "#{-position_offset}px",
+      "top" => "#{-position_offset}px",
       "border-radius" => "#{radius}px",
       "background" => token_state_color(token),
       "width" => "#{size}px",
