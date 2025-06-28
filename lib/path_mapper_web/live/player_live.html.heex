@@ -1,0 +1,14 @@
+<div class="player-container">
+  <%= if @adventure && @game_state && @game_state.scene do %>
+    <.live_component
+      module={PathMapperWeb.Scene.SceneComponent}
+      id="scene"
+      scene_state={@scene_state}
+      adventure={@adventure}
+      game_state={@game_state}
+      opts={%{}}
+      selected_layer_index={nil}
+      selected_token_index={nil}
+    />
+  <% end %>
+</div>
