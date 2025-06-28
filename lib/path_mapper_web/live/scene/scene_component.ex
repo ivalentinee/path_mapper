@@ -24,20 +24,6 @@ defmodule PathMapperWeb.Scene.SceneComponent do
     {:noreply, socket}
   end
 
-  def scene_style do
-    style = %{
-      "position" => "fixed",
-      "left" => 0,
-      "top" => 0,
-      "width" => "98vw",
-      "height" => "98vh",
-      "margin" => "0",
-      "padding" => "0"
-    }
-
-    serialize_style(style)
-  end
-
   def map_style(geometry) do
     style = %{
       position: "absolute",

@@ -1,4 +1,4 @@
-<div id="scene" style={scene_style()} phx-hook="Geometry" phx-target={@myself}>
+<div id="scene" class="scene" phx-hook="Geometry" phx-target={@myself}>
   <%= if has_geometry?(assigns) do %>
     <div style={map_style(@map_geometry)}>
       <.live_component

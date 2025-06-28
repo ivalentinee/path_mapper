@@ -7,6 +7,7 @@
 @import "./master/map-manager.css";
 @import "./master/tokens.css";
 @import "./player/index.css";
+@import "./scene/scene.css";
 @import "./scene/map.css";
 @import "./scene/tokens.css";
 @import "./scene/right-panel.css";
