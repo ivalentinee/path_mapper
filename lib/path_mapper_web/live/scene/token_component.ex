@@ -90,7 +90,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
       "left" => "#{token_geometry.x - position_offset}px",
       "top" => "#{token_geometry.y - position_offset}px",
       "border-radius" => "#{radius}px",
-      "border" => "#{border_width}px solid #{token.color}",
+      "border" => if(no_owner?(token), do: "", else: "#{border_width}px solid #{token.color}"),
       "width" => "#{size}px",
       "height" => "#{size}px",
       "z-index" => 200,
@@ -154,4 +154,6 @@ defmodule PathMapperWeb.Scene.TokenComponent do
       _ -> "white"
     end
   end
+
+  defp no_owner?(token), do: token.data.owner == "none"
 end
