@@ -3,9 +3,11 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
   import Phoenix.LiveViewTest
 
   alias PathMapper.Adventures
+  alias PathMapper.Groups
 
   setup %{conn: conn} do
     {:ok, _adventure_name} = Adventures.load_adventure("adventure-1.zip")
+    {:ok, _group} = Groups.load_group("group-1.zip")
 
     conn = get(conn, "/master")
     assert html_response(conn, 200)
