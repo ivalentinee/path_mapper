@@ -5,21 +5,23 @@ defmodule PathMapperWeb.Scene.SceneComponent do
   alias PathMapper.Geometry.Object, as: GeometryObject
 
   @impl true
+  def update(assigns, socket) do
+    socket =
+      if scene_was_updated?(socket, assigns),
+        do: build_map_geometry(assign(socket, assigns)),
+        else: assign(socket, assigns)
+
+    {:ok, socket}
+  end
+
+  @impl true
   def handle_event("geometry", %{"width" => viewport_width, "height" => viewport_height}, socket) do
     viewport_geometry = GeometryObject.build(viewport_width, viewport_height)
-    map = get_map(socket.assigns)
-
-    map_geometry =
-      map
-      |> GeometryObject.build()
-      |> GeometryMapper.fit_to_viewport(viewport_geometry)
-      |> GeometryMapper.center(viewport_geometry)
 
     socket =
       socket
       |> assign(:viewport_geometry, viewport_geometry)
-      |> assign(:map_geometry, map_geometry)
-      |> assign(:grid_size, map.grid_size)
+      |> build_map_geometry()
 
     {:noreply, socket}
   end
@@ -45,5 +47,29 @@ defmodule PathMapperWeb.Scene.SceneComponent do
     |> Map.get(:scenes)
     |> Enum.at(assigns.game_state.scene.index)
     |> Map.get(:map)
+  end
+
+  defp scene_was_updated?(
+         %{assigns: %{game_state: %{scene: scene}}} = _socket,
+         %{game_state: %{scene: new_scene}} = _new_assigns
+       ) do
+    scene.index != new_scene.index
+  end
+
+  defp scene_was_updated?(_socket, _new_assigns), do: false
+
+  defp build_map_geometry(socket) do
+    viewport_geometry = socket.assigns.viewport_geometry
+    map = get_map(socket.assigns)
+
+    map_geometry =
+      map
+      |> GeometryObject.build()
+      |> GeometryMapper.fit_to_viewport(viewport_geometry)
+      |> GeometryMapper.center(viewport_geometry)
+
+    socket
+    |> assign(:map_geometry, map_geometry)
+    |> assign(:grid_size, map.grid_size)
   end
 end

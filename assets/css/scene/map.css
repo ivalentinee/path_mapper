@@ -18,8 +18,6 @@
 .map-container image {
   margin: 0;
   padding: 0;
-  width: 100%;
-  height: 100%;
 }
 
 .map-container image.dimmed {

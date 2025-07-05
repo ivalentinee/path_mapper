@@ -1,18 +1,36 @@
 <div class="map-container">
   <svg class="svg-container">
     <%= if fow_layer = additional_map_layer(@adventure, @game_state, :fow) do %>
-      <image x="0" y="0" class="image" href={fow_layer.image} />
+      <image
+        x="0"
+        y="0"
+        width={@geometry.width}
+        height={@geometry.height}
+        class="image"
+        href={fow_layer.image}
+      />
     <% end %>
+
     <%= for {layer, layer_state} <- map_adventure_layers_to_state(@adventure, @game_state) do %>
       <image
         x="0"
         y="0"
+        width={@geometry.width}
+        height={@geometry.height}
         class={"image #{layer_image_class(layer_state, @opts)} #{selected_layer_class(@selected_layer_index, layer_state.index)}"}
         href={layer.image}
       />
     <% end %>
+
     <%= if grid_layer = additional_map_layer(@adventure, @game_state, :grid) do %>
-      <image x="0" y="0" class="image" href={grid_layer.image} />
+      <image
+        x="0"
+        y="0"
+        width={@geometry.width}
+        height={@geometry.height}
+        class="image"
+        href={grid_layer.image}
+      />
     <% end %>
   </svg>
 </div>
