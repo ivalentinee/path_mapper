@@ -15,6 +15,16 @@ defmodule PathMapperWeb.Scene.MapComponent do
 
   def selected_layer_class(_selected_layer_index, _layer_index), do: ""
 
+  def additional_map_layer(_adventure, %{scene: %{map: %{show_grid: false}}}, :grid), do: nil
+
+  def additional_map_layer(adventure, game_state, name) when is_atom(name) do
+    adventure
+    |> Map.get(:scenes)
+    |> Enum.at(game_state.scene.index)
+    |> Map.get(:map)
+    |> Map.get(name)
+  end
+
   def map_adventure_layers_to_state(adventure, game_state) do
     adventure
     |> Map.get(:scenes)

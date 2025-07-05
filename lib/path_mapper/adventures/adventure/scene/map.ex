@@ -14,8 +14,10 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map do
     field(:width, :integer)
     field(:height, :integer)
     field(:grid_size, :integer)
+    field(:show_grid, :boolean)
     field(:floors, {:array, :integer})
     embeds_many(:layers, __MODULE__.Layer)
+    embeds_one(:grid, __MODULE__.AdditionalLayer)
     embeds_one(:fow, __MODULE__.AdditionalLayer)
   end
 
@@ -24,10 +26,12 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map do
     |> cast(read_ora_file(params, adventure_zip), [:file, :width, :height])
     |> validate_required([:file, :width, :height])
     |> cast_embed(:layers, required: true)
+    |> cast_embed(:grid)
     |> cast_embed(:fow)
     |> get_grid_size()
+    |> get_show_grid()
     |> cast_floors()
-    |> validate_required([:grid_size, :floors])
+    |> validate_required([:grid_size, :show_grid, :floors])
   end
 
   defp read_ora_file(params, adventure_zip) when is_map(params) do
@@ -41,7 +45,7 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map do
   end
 
   defp get_grid_size(changeset) do
-    with [_, grid_size_string] <- get_grid_size_tag(changeset),
+    with [_, grid_size_string] <- get_grid_tag(changeset, @grid_tag_regex),
          {grid_size, _} <- Integer.parse(grid_size_string) do
       put_change(changeset, :grid_size, grid_size)
     else
@@ -49,14 +53,22 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map do
     end
   end
 
-  defp get_grid_size_tag(changeset) do
+  defp get_show_grid(changeset) do
+    case get_grid_tag(changeset, ~r/grid-hide/) do
+      ["grid-hide"] -> put_change(changeset, :show_grid, false)
+      nil -> put_change(changeset, :show_grid, true)
+    end
+  end
+
+  defp get_grid_tag(changeset, regex) do
     layers = get_embed(changeset, :layers)
+    grid = get_embed(changeset, :grid)
     fow = get_embed(changeset, :fow)
-    all_layers = [fow | layers]
+    all_layers = Enum.filter([grid | [fow | layers]], &(!is_nil(&1)))
 
     Enum.find_value(all_layers, fn layer ->
       case get_change(layer, :tags) do
-        tags when is_list(tags) -> Enum.find_value(tags, &Regex.run(@grid_tag_regex, &1))
+        tags when is_list(tags) -> Enum.find_value(tags, &Regex.run(regex, &1))
         _ -> nil
       end
     end)

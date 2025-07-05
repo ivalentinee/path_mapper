@@ -15,6 +15,9 @@ defmodule PathMapperWeb.MasterLive.UIState.Keystrokes do
   def run_keystroke(%{keystroke: keystroke(["p", "m"])} = ui_state),
     do: select_panel(ui_state, "map-manager")
 
+  def run_keystroke(%{keystroke: keystroke(["p", "m", "g"])} = ui_state),
+    do: ui_state |> Actions.map_manager_toggle_grid_show() |> reset_keystroke()
+
   def run_keystroke(%{keystroke: keystroke(["p", "m", index])} = ui_state) when is_number(index),
     do: keystroke_highlight(ui_state, ["map-manager", index])
 

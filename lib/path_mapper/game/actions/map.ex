@@ -2,6 +2,12 @@ defmodule PathMapper.Game.Actions.Map do
   alias PathMapper.Game.State
   alias PathMapper.Game.State.Scene.Map.Layer
 
+  def action(%State{} = state, [:map, :toggle_grid], _) do
+    updated_map = Map.put(state.scene.map, :show_grid, !state.scene.map.show_grid)
+    updated_scene = Map.put(state.scene, :map, updated_map)
+    {:ok, Map.put(state, :scene, updated_scene)}
+  end
+
   def action(%State{} = state, [:map, :layer, :toggle_show], index) when is_number(index) do
     layer = Enum.at(state.scene.map.layers, index)
 

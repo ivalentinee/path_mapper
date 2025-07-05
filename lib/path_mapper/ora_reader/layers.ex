@@ -3,8 +3,9 @@ defmodule PathMapper.ORAReader.Layers do
   alias PathMapper.ORAReader.Geometry
   alias PathMapper.ORAReader.XML
 
-  @name_regex ~r/([0-9]+) - ([^\[]+) *(\[.+\])?/
+  @name_regex ~r/(([0-9]+) - )?([^\[]+) *(\[.+\])?/
   @tag_trim_regex ~r/[ \[\]]+/
+  @empty_capture ""
 
   def get_all_layers(element, ora_files) do
     stack_element = List.first(XML.get_children(element, :stack))
@@ -33,16 +34,8 @@ defmodule PathMapper.ORAReader.Layers do
          {:ok, {parsed_name, index, tags}} <- parse_name(name),
          {:ok, {x, y}} <- Geometry.get_position(layer_xml_element) do
       if index,
-        do: %{
-          name: parsed_name,
-          type: :layer,
-          image: image_file,
-          x: x,
-          y: y,
-          index: index,
-          tags: tags
-        },
-        else: %{name: parsed_name, type: :additional_layer, image: image_file, x: x, y: y}
+        do: build_layer(:layer, parsed_name, image_file, x, y, tags, index),
+        else: build_layer(:additional_layer, parsed_name, image_file, x, y, tags)
     else
       error -> error
     end
@@ -50,14 +43,17 @@ defmodule PathMapper.ORAReader.Layers do
 
   defp parse_name(full_name) do
     case Regex.run(@name_regex, full_name) do
-      [_, index, name] ->
+      [_, _, @empty_capture, name] ->
+        {:ok, {String.trim(name), nil, nil}}
+
+      [_, _, @empty_capture, name, tags] ->
+        {:ok, {String.trim(name), nil, parse_tags(tags)}}
+
+      [_, _, index, name] ->
         {:ok, {String.trim(name), String.to_integer(index), []}}
 
-      [_, index, name, tags] ->
+      [_, _, index, name, tags] ->
         {:ok, {String.trim(name), String.to_integer(index), parse_tags(tags)}}
-
-      _ ->
-        {:ok, {full_name, nil, nil}}
     end
   end
 
@@ -66,5 +62,9 @@ defmodule PathMapper.ORAReader.Layers do
     |> String.replace(@tag_trim_regex, "")
     |> String.split(",")
     |> Enum.map(&String.trim/1)
+  end
+
+  defp build_layer(type, name, image, x, y, tags, index \\ nil) when is_atom(type) do
+    %{type: type, name: name, image: image, x: x, y: y, tags: tags, index: index}
   end
 end

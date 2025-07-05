@@ -101,6 +101,16 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.MapManagerTest do
     assert first_layer_state().highlight == false
   end
 
+  test "hides/shows map grid with a keystroke", %{view: view} do
+    assert Game.get_state().scene.map.show_grid == true
+
+    run_keystroke(view, ["p", "m", "g"])
+    assert Game.get_state().scene.map.show_grid == false
+
+    run_keystroke(view, ["p", "m", "g"])
+    assert Game.get_state().scene.map.show_grid == true
+  end
+
   def first_layer(adventure),
     do: adventure.scenes |> Enum.at(0) |> get_in([:map, :layers]) |> Enum.at(0)
 

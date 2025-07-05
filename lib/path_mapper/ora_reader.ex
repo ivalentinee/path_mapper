@@ -13,8 +13,9 @@ defmodule PathMapper.ORAReader do
          {:ok, {width, height}} <- Geometry.get_dimensions(document),
          {:ok, all_layers} <- Layers.get_all_layers(document, ora_files) do
       layers = Layers.find_layers(all_layers)
+      grid = Layers.find_additional_layer(all_layers, "grid")
       fow = Layers.find_additional_layer(all_layers, "fow")
-      {:ok, %{layers: layers, fow: fow, width: width, height: height}}
+      {:ok, %{layers: layers, grid: grid, fow: fow, width: width, height: height}}
     else
       error -> error
     end
