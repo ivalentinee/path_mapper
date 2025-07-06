@@ -5,7 +5,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
   alias PathMapper.Geometry.Object, as: GeometryObject
 
-  @border_size 0.10
+  @border_size 0.05
   @token_size_multiplier 1 - @border_size
 
   @impl true
@@ -79,7 +79,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
   def token_shape_style(token, token_geometry, transparent) do
     size = token_geometry.width * @token_size_multiplier
     radius = ceil(size / 2)
-    border_width = round(size * @border_size)
+    border_width = ceil(size * @border_size)
     # NOTE: I have no idea why it works
     position_offset = border_width / 4
 
@@ -118,7 +118,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
     size = token_geometry.width
     radius = round(size / 2)
 
-    border_width = round(size * @border_size)
+    border_width = ceil(size * @border_size)
     # NOTE: I have no idea why it works
     position_offset = border_width / 2
     opacity = if token.state == "alive", do: 0, else: 0.5
