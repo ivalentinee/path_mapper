@@ -47,7 +47,6 @@ defmodule PathMapperWeb.MasterLive.UIState.Keystrokes do
       do:
         ui_state
         |> Actions.add_token(index)
-        |> select_panel(["left-panel", "tokens"])
         |> reset()
 
   def run_keystroke(%{keystroke: keystroke(["p", "t", "p"])} = ui_state),
@@ -58,7 +57,6 @@ defmodule PathMapperWeb.MasterLive.UIState.Keystrokes do
       do:
         ui_state
         |> Actions.add_player_token(index)
-        |> select_panel(["left-panel", "tokens"])
         |> reset()
 
   def run_keystroke(%{keystroke: keystroke(["p", "t", "p", "a"])} = ui_state),
@@ -67,6 +65,31 @@ defmodule PathMapperWeb.MasterLive.UIState.Keystrokes do
       |> Actions.add_all_players()
       |> select_panel(["left-panel", "tokens"])
       |> reset()
+
+  def run_keystroke(%{keystroke: keystroke(["p", "t", "e"])} = ui_state),
+    do: select_panel(ui_state, ["left-panel", "tokens", "add-extra-token"])
+
+  def run_keystroke(%{keystroke: keystroke(["p", "t", "e", index])} = ui_state)
+      when is_number(index),
+      do: select_panel(ui_state, ["left-panel", "tokens", "add-extra-token", index - 1])
+
+  def run_keystroke(%{keystroke: keystroke(["p", "t", "e", player_index, "a"])} = ui_state)
+      when is_number(player_index),
+      do:
+        select_panel(ui_state, [
+          "left-panel",
+          "tokens",
+          "add-extra-token",
+          player_index - 1,
+          "add"
+        ])
+
+  def run_keystroke(%{keystroke: keystroke(["p", "t", "e", player_index, "a", index])} = ui_state)
+      when is_number(index),
+      do:
+        ui_state
+        |> Actions.add_player_extra_token(player_index, index)
+        |> reset()
 
   def run_keystroke(%{keystroke: keystroke(["p", "t", index])} = ui_state)
       when is_number(index),
@@ -93,6 +116,7 @@ defmodule PathMapperWeb.MasterLive.UIState.Keystrokes do
 
   def run_keystroke(%{keystroke: ["q" | _rest]} = ui_state), do: reset(ui_state)
 
+  def run_keystroke(%{left_panel: ["left-panel"]} = ui_state), do: reset(ui_state)
   def run_keystroke(ui_state), do: set_keystroke(ui_state, [])
 
   def set_keystroke(ui_state, keystroke) when is_list(keystroke) do

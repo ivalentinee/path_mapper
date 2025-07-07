@@ -14,6 +14,11 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent do
     {:noreply, socket}
   end
 
+  def handle_event("go_to_extra_tokens", _, socket) do
+    send(self(), %{ui_update: %{left_panel_select: ["left-panel", "tokens", "add-extra-token"]}})
+    {:noreply, socket}
+  end
+
   def highlight_content_class(keystroke?(["left-panel", "tokens"])),
     do: "highlight highlight-items"
 

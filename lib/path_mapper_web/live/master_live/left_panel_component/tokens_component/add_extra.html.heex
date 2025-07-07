@@ -1,0 +1,35 @@
+<div id="add-extra-token" class={"add-extra-token #{highlight_content_class(@ui_state)}"}>
+  <div id="add-extra-token-players">
+    <%= for {player, player_index} <- Enum.with_index(@group.players) do %>
+      <div
+        phx-click="select_player"
+        phx-value-index={player_index}
+        phx-target={@myself}
+        class={"add-extra-token-player item #{highlight_content_class(@ui_state, player_index)}"}
+        id={"add-extra-token-player-#{player_index}"}
+      >
+        <span class="index">{player_index + 1}</span> {player.character_name}
+        <%= if show_add_notice?(@ui_state, player_index) do %>
+          <span class="sub-buttons"><button class="sub-button add pure-button">Add</button></span>
+        <% end %>
+
+        <%= if show_tokens?(@ui_state, player_index) do %>
+          <div class={"add-extra-token-player-tokens #{highlight_content_class(@ui_state, player_index)}"}>
+            <%= for {extra_token, index} <- Enum.with_index(player.extra_tokens) do %>
+              <div class="item">
+                <button
+                  phx-click="add_token"
+                  phx-value-player={player.character_name}
+                  phx-value-index={index}
+                  phx-target={@myself}
+                >
+                  <span class="index">{index + 1}</span> {extra_token.name}
+                </button>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

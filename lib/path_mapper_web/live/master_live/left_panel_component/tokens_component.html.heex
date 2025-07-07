@@ -14,6 +14,13 @@
         ui_state={@ui_state}
         group={@group}
       />
+    <% selected_panel(@ui_state) == "add-extra-token" -> %>
+      <.live_component
+        module={PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.AddExtra}
+        id="add-extra-token"
+        ui_state={@ui_state}
+        group={@group}
+      />
     <% true -> %>
       <div class="sub-buttons">
         <button
@@ -32,6 +39,15 @@
           phx-target={@myself}
         >
           Players (add)
+        </button>
+
+        <button
+          id="add-player-extra-button"
+          class="pure-button sub-button"
+          phx-click="go_to_extra_tokens"
+          phx-target={@myself}
+        >
+          Extra (players)
         </button>
       </div>
 

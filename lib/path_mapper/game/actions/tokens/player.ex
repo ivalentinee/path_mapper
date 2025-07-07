@@ -46,7 +46,6 @@ defmodule PathMapper.Game.Actions.Tokens.Player do
   end
 
   def action(%State{} = _state, action, _data) do
-    IO.inspect(action)
     {:error, "Player token action '#{inspect(action)}' not found"}
   end
 end

@@ -14,10 +14,10 @@
   border-right: 10px solid rgb(255, 200, 50);
 }
 
-.highlight-items .sub-buttons button {
+.highlight-items .sub-buttons .sub-button {
   background: rgb(255, 200, 50);
 }
 
-.highlight-items .sub-buttons button::first-letter {
+.highlight-items .sub-buttons .sub-button::first-letter {
   font-size: 150%;
 }

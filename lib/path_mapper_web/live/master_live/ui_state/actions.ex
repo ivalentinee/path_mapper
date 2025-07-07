@@ -26,8 +26,6 @@ defmodule PathMapperWeb.MasterLive.UIState.Actions do
     ui_state
   end
 
-  def unset_scene(ui_state), do: ui_state
-
   def map_manager_toggle_grid_show(ui_state) do
     Game.run_action([:map, :toggle_grid], nil)
     ui_state
@@ -64,6 +62,11 @@ defmodule PathMapperWeb.MasterLive.UIState.Actions do
 
   def add_all_players(ui_state) do
     Game.run_action([:tokens, :player, :add_all], nil)
+    ui_state
+  end
+
+  def add_player_extra_token(ui_state, player_index, token_index) do
+    Game.run_action([:tokens, :player, :add_extra], {player_index - 1, token_index - 1})
     ui_state
   end
 
