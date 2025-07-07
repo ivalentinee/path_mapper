@@ -5,7 +5,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent do
 
   @impl true
   def handle_event("select_panel", %{"name" => name}, socket) do
-    send(self(), %{ui_update: %{left_panel_select: name}})
+    send(self(), %{ui_update: %{left_panel_select: ["left-panel", name]}})
     {:noreply, socket}
   end
 
@@ -31,10 +31,17 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent do
   end
 
   def highlight_class(ui_state) do
-    if ui_state.keystroke_highlight == ["left-panel"] do
+    if ui_state.left_panel == ["left-panel"] do
       "highlight"
     else
       ""
+    end
+  end
+
+  def selected_panel(ui_state) do
+    case ui_state do
+      %{left_panel: ["left-panel", left_subpanel | _rest]} -> left_subpanel
+      _ -> nil
     end
   end
 

@@ -32,16 +32,16 @@ defmodule PathMapperWeb.MasterLive do
     {:ok, socket}
   end
 
-  def selected_layer_index(%UIState{keystroke_highlight: ["map-manager", index]})
+  def selected_layer_index(%UIState{left_panel: ["left-panel", "map-manager", index]})
       when is_number(index),
       do: index - 1
 
   def selected_layer_index(%UIState{}), do: nil
 
-  def selected_token_index(%UIState{keystroke_highlight: ["tokens"]}),
+  def selected_token_index(%UIState{left_panel: ["left-panel", "tokens"]}),
     do: :all
 
-  def selected_token_index(%UIState{keystroke_highlight: ["tokens", index]})
+  def selected_token_index(%UIState{left_panel: ["left-panel", "tokens", index]})
       when is_number(index),
       do: index - 1
 

@@ -1,6 +1,9 @@
 defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage do
   use PathMapperWeb, :live_component
 
+  require PathMapperWeb.MasterLive.UIState
+  import PathMapperWeb.MasterLive.UIState, only: [keystroke?: 1]
+
   alias PathMapper.Game
 
   def handle_event("delete_token", %{"index" => index_string}, socket) do
@@ -23,35 +26,35 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage do
     {:noreply, socket}
   end
 
-  def highlight_content_class(%{keystroke_highlight: ["tokens"]}),
+  def highlight_content_class(keystroke?(["left-panel", "tokens"])),
     do: "highlight"
 
   def highlight_content_class(_), do: ""
 
-  def highlight_content_class(%{keystroke_highlight: ["tokens" | [index]]}, item_index)
+  def highlight_content_class(keystroke?(["left-panel", "tokens" | [index]]), item_index)
       when index - 1 == item_index,
       do: "highlight"
 
-  def highlight_content_class(%{keystroke_highlight: ["tokens" | _index]}, _item_index),
+  def highlight_content_class(keystroke?(["left-panel", "tokens" | _index]), _item_index),
     do: ""
 
   def highlight_content_class(_, _item_index), do: ""
 
-  def restore_button_text(%{keystroke_highlight: ["tokens" | [index]]}, item_index)
+  def restore_button_text(keystroke?(["left-panel", "tokens" | [index]]), item_index)
       when index - 1 == item_index,
       do: "R"
 
   def restore_button_text(_ui_state, _item_index),
     do: "💕"
 
-  def kill_button_text(%{keystroke_highlight: ["tokens" | [index]]}, item_index)
+  def kill_button_text(keystroke?(["left-panel", "tokens" | [index]]), item_index)
       when index - 1 == item_index,
       do: "K"
 
   def kill_button_text(_ui_state, _item_index),
     do: "🗡"
 
-  def knock_out_button_text(%{keystroke_highlight: ["tokens" | [index]]}, item_index)
+  def knock_out_button_text(keystroke?(["left-panel", "tokens" | [index]]), item_index)
       when index - 1 == item_index,
       do: "U"
 

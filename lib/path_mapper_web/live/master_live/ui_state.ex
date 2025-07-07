@@ -2,19 +2,23 @@ defmodule PathMapperWeb.MasterLive.UIState do
   alias PathMapperWeb.MasterLive.UIState.Actions
   alias PathMapperWeb.MasterLive.UIState.Keystrokes
 
-  defstruct left_panel: nil, keystroke: [], keystroke_highlight: nil
+  defstruct left_panel: nil, keystroke: []
 
   @numeric_keys ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
-  def run_event(ui_state, %{left_panel_select: panel_name}) do
-    ui_state
-    |> Actions.toggle_left_panel(panel_name)
-    |> Keystrokes.reset_keystroke()
+  defmacro keystroke?(left_panel) do
+    quote do
+      %{left_panel: unquote(left_panel), keystroke: [_anything | _rest]}
+    end
   end
 
-  def run_event(ui_state, _unknown_event) do
-    Keystrokes.reset_keystroke(ui_state)
+  def run_event(ui_state, %{left_panel_select: panel}) when is_list(panel) do
+    ui_state
+    |> Actions.toggle_left_panel(panel)
+    |> Keystrokes.set_keystroke([])
   end
+
+  def run_event(ui_state, _unknown_event), do: Keystrokes.set_keystroke(ui_state, [])
 
   def run_key(%{keystroke: [last_key | rest]} = ui_state, key)
       when key in @numeric_keys and is_number(last_key) do

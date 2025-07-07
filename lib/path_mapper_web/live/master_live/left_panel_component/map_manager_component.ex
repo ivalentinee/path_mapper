@@ -1,6 +1,9 @@
 defmodule PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent do
   use PathMapperWeb, :live_component
 
+  require PathMapperWeb.MasterLive.UIState
+  import PathMapperWeb.MasterLive.UIState, only: [keystroke?: 1]
+
   alias PathMapper.Game
 
   def handle_event("toggle_grid", _, socket) do
@@ -34,17 +37,17 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent do
   def highlight_button_text(true, _highlight_class), do: "☇"
   def highlight_button_text(false, _highlight_class), do: ""
 
-  def highlight_content_class(%{keystroke_highlight: ["map-manager"]}),
+  def highlight_content_class(keystroke?(["left-panel", "map-manager"])),
     do: "highlight highlight-items"
 
-  def highlight_content_class(%{keystroke_highlight: ["map-manager" | _]}), do: "highlight"
+  def highlight_content_class(keystroke?(["left-panel", "map-manager" | _])), do: "highlight"
   def highlight_content_class(_), do: ""
 
-  def highlight_content_class(%{keystroke_highlight: ["map-manager" | [index]]}, item_index)
+  def highlight_content_class(keystroke?(["left-panel", "map-manager", index]), item_index)
       when index - 1 == item_index,
       do: "highlight"
 
-  def highlight_content_class(%{keystroke_highlight: ["map-manager" | _index]}, _item_index),
+  def highlight_content_class(keystroke?(["left-panel", "map-manager", _index]), _item_index),
     do: ""
 
   def highlight_content_class(_, _item_index), do: ""

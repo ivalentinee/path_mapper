@@ -31,11 +31,11 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.AddTest do
     view |> element("#add-token > :first-child button") |> render_click()
     assert Enum.count(Game.get_state().scene.tokens) == 1
 
-    view |> element("#add-token-button") |> render_click()
     view |> element("#add-token > :nth-child(2) button") |> render_click()
     assert Enum.count(Game.get_state().scene.tokens) == 2
     assert Enum.at(Game.get_state().scene.tokens, 1).x == 20
 
+    view |> element("#tokens-button") |> render_click()
     view |> element("#tokens-button") |> render_click()
     assert !find_html_element(render(view), "#tokens")
   end

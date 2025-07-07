@@ -1,6 +1,9 @@
 defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Add do
   use PathMapperWeb, :live_component
 
+  require PathMapperWeb.MasterLive.UIState
+  import PathMapperWeb.MasterLive.UIState, only: [keystroke?: 1]
+
   alias PathMapper.Game
 
   def handle_event("add_token", %{"name" => name}, socket) do
@@ -9,11 +12,9 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Add do
     {:noreply, socket}
   end
 
-  def highlight_content_class(%{keystroke_highlight: [keystroke_highlight]}, id)
-      when keystroke_highlight == id,
+  def highlight_content_class(keystroke?(["left-panel", "tokens", index]), id)
+      when index == id,
       do: "highlight highlight-items"
 
   def highlight_content_class(_, _), do: ""
-
-  def highlight_content_class(_, _, _item_index), do: ""
 end
