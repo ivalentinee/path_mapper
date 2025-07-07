@@ -4,7 +4,12 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.SceneSelectorComponent do
   alias PathMapper.Game
 
   def handle_event("select_scene", %{"index" => index_string}, socket) do
-    with_parsed_index(index_string, &Game.run_action(:select_scene, &1))
+    with_parsed_index(index_string, &Game.run_action([:scene, :select], &1))
+    {:noreply, socket}
+  end
+
+  def handle_event("unset_scene", _, socket) do
+    Game.run_action([:scene, :unset], nil)
     {:noreply, socket}
   end
 

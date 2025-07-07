@@ -13,3 +13,11 @@
 .panel-content > .highlight {
   border-right: 10px solid rgb(255, 200, 50);
 }
+
+.highlight-items .sub-buttons button {
+  background: rgb(255, 200, 50);
+}
+
+.highlight-items .sub-buttons button::first-letter {
+  font-size: 150%;
+}

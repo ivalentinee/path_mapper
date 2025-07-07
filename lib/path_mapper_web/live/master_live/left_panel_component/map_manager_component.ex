@@ -3,6 +3,11 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent do
 
   alias PathMapper.Game
 
+  def handle_event("toggle_grid", _, socket) do
+    Game.run_action([:map, :toggle_grid], nil)
+    {:noreply, socket}
+  end
+
   def handle_event("toggle_layer_show", %{"index" => index_string}, socket) do
     with_parsed_index(index_string, &Game.run_action([:map, :layer, :toggle_show], &1))
     {:noreply, socket}

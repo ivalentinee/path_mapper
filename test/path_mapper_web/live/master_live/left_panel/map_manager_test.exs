@@ -9,7 +9,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.MapManagerTest do
   setup %{conn: conn} do
     {:ok, adventure} = Adventures.load_adventure("adventure-1.zip")
     {:ok, _group} = Groups.load_group("group-1.zip")
-    :ok = Game.run_action(:select_scene, 0)
+    :ok = Game.run_action([:scene, :select], 0)
 
     conn = get(conn, "/master")
     assert html_response(conn, 200)
@@ -99,6 +99,17 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.MapManagerTest do
 
     run_keystroke(view, ["p", "m", "1", "h"])
     assert first_layer_state().highlight == false
+  end
+
+  test "hides/shows map grid with a click", %{view: view} do
+    assert Game.get_state().scene.map.show_grid == true
+
+    view |> element("#map-manager-button") |> render_click()
+    view |> element("#toggle_grid") |> render_click()
+    assert Game.get_state().scene.map.show_grid == false
+
+    view |> element("#toggle_grid") |> render_click()
+    assert Game.get_state().scene.map.show_grid == true
   end
 
   test "hides/shows map grid with a keystroke", %{view: view} do

@@ -12,6 +12,9 @@ defmodule PathMapperWeb.MasterLive.UIState.Keystrokes do
   def run_keystroke(%{keystroke: keystroke(["p", "s", index])} = ui_state) when is_number(index),
     do: ui_state |> Actions.select_scene_selector_item(index) |> reset_keystroke()
 
+  def run_keystroke(%{keystroke: keystroke(["p", "s", "u"])} = ui_state),
+    do: ui_state |> Actions.unset_scene() |> reset_keystroke()
+
   def run_keystroke(%{keystroke: keystroke(["p", "m"])} = ui_state),
     do: select_panel(ui_state, "map-manager")
 

@@ -29,8 +29,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
   test "opens 'scene selector' with a keystroke", %{view: view, html: html} do
     assert !find_html_element(html, "#scene-selector")
 
-    render_keydown(view, "navigate", %{"key" => "p"})
-    render_keydown(view, "navigate", %{"key" => "s"})
+    run_keystroke(view, ["p", "s"])
     assert find_html_element(render(view), "#scene-selector")
   end
 
@@ -45,10 +44,24 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
   end
 
   test "selects 'scene selector' item with a keystroke", %{view: view} do
-    render_keydown(view, "navigate", %{"key" => "p"})
-    render_keydown(view, "navigate", %{"key" => "s"})
-    render_keydown(view, "navigate", %{"key" => "1"})
+    run_keystroke(view, ["p", "s", "1"])
 
     assert find_html_element(render(view), "#scene-selector .item.selected")
+  end
+
+  test "unsets scene with a click", %{view: view} do
+    run_keystroke(view, ["p", "s", "1"])
+    find_html_element(render(view), "#scene-selector .item.selected")
+
+    view |> element("#unset_scene") |> render_click()
+    assert !find_html_element(render(view), "#scene-selector .item.selected")
+  end
+
+  test "unsets scene with a keystroke", %{view: view} do
+    run_keystroke(view, ["p", "s", "1"])
+    find_html_element(render(view), "#scene-selector .item.selected")
+
+    run_keystroke(view, ["p", "s", "u"])
+    assert !find_html_element(render(view), "#scene-selector .item.selected")
   end
 end

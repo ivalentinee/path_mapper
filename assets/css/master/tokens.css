@@ -1,11 +1,3 @@
-.tokens.highlight-items .sub-buttons button {
-  background: rgb(255, 200, 50);
-}
-
-.tokens.highlight-items .sub-buttons button::first-letter {
-  font-size: 150%;
-}
-
 .tokens .item {
   padding-left: 10px;
   padding-top: 5px;

@@ -1,4 +1,14 @@
 <div id="map-manager" class={"map-manager #{highlight_content_class(@ui_state)}"}>
+  <div class="sub-buttons">
+    <button
+      id="toggle_grid"
+      phx-click="toggle_grid"
+      phx-target={@myself}
+      class="pure-button sub-button"
+    >
+      Grid (toggle)
+    </button>
+  </div>
   <%= for {layer, index} <- Enum.with_index(@game_state.scene.map.layers) do %>
     <div class={"layer item #{highlight_content_class(@ui_state, index)}"} id={"layer-#{index}"}>
       <div class="layer-name item-name">

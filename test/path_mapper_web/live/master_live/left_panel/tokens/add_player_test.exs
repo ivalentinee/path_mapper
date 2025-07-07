@@ -9,7 +9,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.AddPlayerTest do
   setup %{conn: conn} do
     {:ok, adventure} = Adventures.load_adventure("adventure-1.zip")
     {:ok, _group} = Groups.load_group("group-1.zip")
-    :ok = Game.run_action(:select_scene, 0)
+    :ok = Game.run_action([:scene, :select], 0)
 
     conn = get(conn, "/master")
     assert html_response(conn, 200)

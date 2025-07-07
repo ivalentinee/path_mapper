@@ -15,11 +15,18 @@ defmodule PathMapperWeb.MasterLive.UIState.Actions do
 
   def select_scene_selector_item(%{left_panel: "scene-selector"} = ui_state, index)
       when is_number(index) do
-    Game.run_action(:select_scene, index - 1)
+    Game.run_action([:scene, :select], index - 1)
     ui_state
   end
 
   def select_scene_selector_item(ui_state, _index_string), do: ui_state
+
+  def unset_scene(%{left_panel: "scene-selector"} = ui_state) do
+    Game.run_action([:scene, :unset], nil)
+    ui_state
+  end
+
+  def unset_scene(ui_state), do: ui_state
 
   def map_manager_toggle_grid_show(%{left_panel: "map-manager"} = ui_state) do
     Game.run_action([:map, :toggle_grid], nil)
