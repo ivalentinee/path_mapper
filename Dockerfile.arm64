@@ -1,0 +1,56 @@
+FROM --platform=linux/arm64 ubuntu:jammy-20250126
+
+## Build OTP + Elixir
+RUN apt update && \
+    apt install --no-install-recommends -y libncurses-dev libwxgtk3.0-gtk3-dev libssl-dev apt-utils openssl ca-certificates inotify-tools build-essential locales wget && \
+    apt clean && \
+    locale-gen && \
+    localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+
+ENV LANG="en_US.UTF-8" LANGUAGE="en_US:en" LC_ALL="en_US.UTF-8"
+
+ENV OTP_VERSION="27.2.4" ELIXIR_VERSION="1.18.2"
+
+ENV BUILD_PATH=/root/elixir \
+    OTP_URL="https://github.com/erlang/otp/releases/download/OTP-$OTP_VERSION/otp_src_$OTP_VERSION.tar.gz" \
+    ELIXIR_VERSION="1.18.2" \
+    ELIXIR_URL="https://github.com/elixir-lang/elixir/archive/v$ELIXIR_VERSION.tar.gz"
+
+RUN mkdir -p $BUILD_PATH && \
+    rm -rf $BUILD_PATH && \
+    mkdir -p $BUILD_PATH/
+
+RUN cd $BUILD_PATH/ && \
+    wget "$OTP_URL" && tar -xf "otp_src_$OTP_VERSION.tar.gz" && \
+    cd "$BUILD_PATH/otp_src_$OTP_VERSION" && \
+    ./configure --disable-jit && make && make install
+
+RUN cd $BUILD_PATH/ && \
+    wget $ELIXIR_URL && tar -xf "v$ELIXIR_VERSION.tar.gz" && \
+    cd "$BUILD_PATH/elixir-$ELIXIR_VERSION" && \
+    make && make install
+
+
+## Build the app
+RUN mkdir /app
+WORKDIR /app
+
+ARG RELEASE_NAME=path_mapper
+ENV MIX_ENV=prod RELEASE_NAME=${RELEASE_NAME}
+
+COPY ./mix.exs ./mix.lock /app
+RUN mix deps.get && mix deps.compile
+# NOTE: since we don't compile assets here, no need for esbuild or tailwind
+# RUN mix esbuild.install && mix tailwind.install
+
+COPY . /app/
+RUN mix compile
+# NOTE: this one hangs, let's copy externally-built assets
+# RUN mix assets.deploy && mix phx.digest
+COPY ./priv/static /app/priv/static
+
+RUN mix release $RELEASE_NAME && \
+# NOTE: sometimes release is missing all the .beam files for some reason, we need to test it
+    test -f _build/prod/rel/path_mapper/lib/path_mapper-0.1.0/ebin/Elixir.CeilingUI.Application.beam
+
+RUN tar -C "./_build/prod/rel/${RELEASE_NAME}" -cf release.tar ./

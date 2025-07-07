@@ -9,7 +9,18 @@ defmodule PathMapper.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      releases: releases()
+    ]
+  end
+
+  def releases do
+    [
+      path_mapper: [
+        include_executables_for: [:unix],
+        applications: [runtime_tools: :permanent],
+        steps: [:assemble]
+      ]
     ]
   end
 

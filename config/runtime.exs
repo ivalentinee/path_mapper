@@ -10,10 +10,6 @@ config :path_mapper,
        Application.get_env(:path_mapper, :group_base_path) ||
          System.get_env("GROUP_BASE_PATH") || "groups"
 
-if System.get_env("PHX_SERVER") do
-  config :path_mapper, PathMapperWeb.Endpoint, server: true
-end
-
 if config_env() == :prod do
   secret_key_base =
     System.get_env("SECRET_KEY_BASE") ||
@@ -28,6 +24,7 @@ if config_env() == :prod do
   config :path_mapper, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   config :path_mapper, PathMapperWeb.Endpoint,
+    server: true,
     url: [host: host, port: 443, scheme: "https"],
     http: [
       ip: {0, 0, 0, 0, 0, 0, 0, 0},

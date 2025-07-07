@@ -25,7 +25,7 @@ FROM dev AS build-release
 
 COPY . /app
 
-ARG RELEASE_NAME=path_battler
+ARG RELEASE_NAME=path_mapper
 ENV MIX_ENV=prod RELEASE_NAME=${RELEASE_NAME}
 
 RUN mix deps.get && mix deps.compile
@@ -44,4 +44,4 @@ COPY --from=build-release /app/release.tar /app/release.tar
 
 RUN tar -xf release.tar
 
-CMD ["/app/bin/path_battler", "start"]
+CMD ["/app/bin/path_mapper", "start"]
