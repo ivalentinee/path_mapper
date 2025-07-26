@@ -36,7 +36,7 @@ defmodule PathMapper.Adventures do
       {:ok, adventure}
     else
       {:error, %Changeset{} = changeset} -> IO.puts(PathMapper.Errors.display_errors(changeset))
-      error -> IO.inspect(error)
+      error -> error
     end
   end
 

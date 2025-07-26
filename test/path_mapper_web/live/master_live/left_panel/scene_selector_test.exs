@@ -3,6 +3,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
   import Phoenix.LiveViewTest
 
   alias PathMapper.Adventures
+  alias PathMapper.Game
   alias PathMapper.Groups
 
   setup %{conn: conn} do
@@ -41,6 +42,12 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
 
     view |> element("#scene-selector button.item", first_scene_name) |> render_click()
     assert find_html_element(render(view), "button.item.selected")
+
+    assert Enum.count(Game.get_state().scene.tokens) === 3
+    first_token = Enum.at(Game.get_state().scene.tokens, 0)
+    assert first_token.x == 10
+    assert first_token.y == 20
+    assert first_token.state == "unconscious"
   end
 
   test "selects 'scene selector' item with a keystroke", %{view: view} do

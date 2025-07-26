@@ -19,8 +19,9 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.AddExtraTest do
   end
 
   test "adds an extra token with a click", %{view: view, html: html} do
+    token_count = Enum.count(Game.get_state().scene.tokens)
+
     assert !find_html_element(html, "#tokens")
-    assert Enum.empty?(Game.get_state().scene.tokens)
 
     view |> element("#tokens-button") |> render_click()
     assert find_html_element(render(view), "#tokens")
@@ -36,26 +37,27 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.AddExtraTest do
     |> element("#add-extra-token-player-0 .add-extra-token-player-tokens > :first-child button")
     |> render_click()
 
-    assert Enum.count(Game.get_state().scene.tokens) == 1
+    assert Enum.count(Game.get_state().scene.tokens) == token_count + 1
 
     view
     |> element("#add-extra-token-player-0 .add-extra-token-player-tokens > :first-child button")
     |> render_click()
 
-    assert Enum.count(Game.get_state().scene.tokens) == 2
+    assert Enum.count(Game.get_state().scene.tokens) == token_count + 2
   end
 
   test "adds an extra token with a keystroke", %{view: view, html: html} do
+    token_count = Enum.count(Game.get_state().scene.tokens)
+
     assert !find_html_element(html, "#tokens")
-    assert Enum.empty?(Game.get_state().scene.tokens)
 
     run_keystroke(view, ["p", "t", "e"])
     assert find_html_element(render(view), "#add-extra-token")
 
     run_keystroke(view, ["1", "a", "1"])
-    assert Enum.count(Game.get_state().scene.tokens) == 1
+    assert Enum.count(Game.get_state().scene.tokens) == token_count + 1
 
     run_keystroke(view, ["p", "t", "e", "1", "a", "1"])
-    assert Enum.count(Game.get_state().scene.tokens) == 2
+    assert Enum.count(Game.get_state().scene.tokens) == token_count + 2
   end
 end

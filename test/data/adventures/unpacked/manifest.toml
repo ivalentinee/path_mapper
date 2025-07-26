@@ -15,6 +15,11 @@ tokens = [
        { name = "monster 1", size = 2, owner = "enemy", image = "tokens/monster-1.png" },
        { name = "NPC 1", size = 1, owner = "npc", image = "tokens/monster-2.png" }
 ]
+place_tokens = [
+      { name = "monster 1", x = "10", y = "20", state = "unconscious" },
+      { name = "monster 1", x = "20", y = "25" },
+      { name = "NPC 1", x = "50", y = "55" }
+]
 
 [[scenes]]
 name = "Scene 2"

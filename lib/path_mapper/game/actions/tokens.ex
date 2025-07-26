@@ -1,10 +1,12 @@
 defmodule PathMapper.Game.Actions.Tokens do
+  alias Ecto.Changeset
   alias PathMapper.Adventures.Adventure.Scene.Token
   alias PathMapper.Game.Actions.Tokens.FindFreeSpace
   alias PathMapper.Game.State
   alias PathMapper.Game.State.Scene.Token, as: GameToken
 
   require GameToken
+  import PathMapper.Errors
   import PathMapper.Game.Actions.Tokens.Find
   import PathMapper.Game.Actions.Tokens.Move
 
@@ -13,10 +15,16 @@ defmodule PathMapper.Game.Actions.Tokens do
 
   def action(%State{} = state, [:tokens, :add], index_or_name)
       when is_number(index_or_name) or is_binary(index_or_name) do
+    params = %{}
+    action(state, [:tokens, :add], {index_or_name, params})
+  end
+
+  def action(%State{} = state, [:tokens, :add], {index_or_name, params})
+      when (is_number(index_or_name) or is_binary(index_or_name)) and is_map(params) do
     token = find_adventure_token(state, index_or_name)
 
     if token do
-      add_token(state, token)
+      add_token(state, token, params)
     else
       {:ok, state}
     end
@@ -64,20 +72,28 @@ defmodule PathMapper.Game.Actions.Tokens do
     {:error, "Tokens action '#{inspect(action)}' not found"}
   end
 
-  def add_token(%State{} = state, token) do
+  def add_token(%State{} = state, token, params \\ %{}) when is_map(params) do
     {x, y, size} = initial_token_geometry(state, token)
 
-    game_token = %GameToken{
-      data: token,
-      x: x,
-      y: y,
+    params = %{
+      x: params[:x] || x,
+      y: params[:y] || y,
       size: size,
       color: token.color,
-      state: "alive"
+      state: params[:state] || "alive"
     }
 
-    updated_tokens = state.scene.tokens ++ [game_token]
-    update_tokens(state, updated_tokens)
+    case GameToken.build(params, token) do
+      {:ok, game_token} ->
+        updated_tokens = state.scene.tokens ++ [game_token]
+        update_tokens(state, updated_tokens)
+
+      {:error, %Changeset{} = changeset} ->
+        {:error, display_errors(changeset)}
+
+      {:error, error} ->
+        {:error, error}
+    end
   end
 
   def initial_token_geometry(%State{scene: %{map: %{grid_size: grid_size}}} = state, %Token{

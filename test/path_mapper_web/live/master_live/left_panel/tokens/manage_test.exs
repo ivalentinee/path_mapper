@@ -20,26 +20,29 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.ManageTest do
   end
 
   test "deletes a token", %{view: view, html: html} do
+    assert Enum.count(Game.get_state().scene.tokens) === 4
+
     assert !find_html_element(html, "#tokens")
 
     view |> element("#tokens-button") |> render_click()
     assert find_html_element(render(view), "#tokens")
 
     view |> element("#manage-tokens > :first-child .delete") |> render_click()
-    assert Enum.empty?(Game.get_state().scene.tokens)
+    assert Enum.count(Game.get_state().scene.tokens) === 3
 
     view |> element("#tokens-button") |> render_click()
     assert !find_html_element(render(view), "#tokens")
   end
 
   test "deletes a token using a keystroke", %{view: view, html: html} do
+    assert Enum.count(Game.get_state().scene.tokens) === 4
     assert !find_html_element(html, "#tokens")
 
     run_keystroke(view, ["p", "t"])
     assert find_html_element(render(view), "#tokens")
 
     run_keystroke(view, ["1", "x"])
-    assert Enum.empty?(Game.get_state().scene.tokens)
+    assert Enum.count(Game.get_state().scene.tokens) === 3
   end
 
   test "kills, knocks out and restores a token", %{view: view, html: html} do
