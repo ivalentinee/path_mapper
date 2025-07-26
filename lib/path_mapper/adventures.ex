@@ -1,6 +1,7 @@
 defmodule PathMapper.Adventures do
   use Agent
 
+  alias Ecto.Changeset
   alias PathMapper.Adventures.LoadedStorage
   alias PathMapper.Adventures.Loader
   alias PathMapper.Game
@@ -34,7 +35,8 @@ defmodule PathMapper.Adventures do
       Game.reset()
       {:ok, adventure}
     else
-      error -> error
+      {:error, %Changeset{} = changeset} -> IO.puts(PathMapper.Errors.display_errors(changeset))
+      error -> IO.inspect(error)
     end
   end
 
