@@ -28,4 +28,12 @@ defmodule PathMapper.Game.State.Scene.Token do
     |> put_embed(:data, data)
     |> apply_action(:insert)
   end
+
+  def to_place_records(tokens) when is_list(tokens) do
+    Enum.map_join(tokens, ",\n", &to_place_record/1)
+  end
+
+  defp to_place_record(%__MODULE__{} = token) do
+    "{ name = \"#{token.data.name}\", x = #{token.x}, y = #{token.y}, state = \"#{token.state}\" }"
+  end
 end

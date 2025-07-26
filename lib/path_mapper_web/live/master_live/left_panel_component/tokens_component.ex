@@ -4,6 +4,8 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent do
   require PathMapperWeb.MasterLive.UIState
   import PathMapperWeb.MasterLive.UIState, only: [keystroke?: 1]
 
+  alias PathMapper.Game.State.Scene.Token
+
   def handle_event("go_to_add_tokens", _, socket) do
     send(self(), %{ui_update: %{left_panel_select: ["left-panel", "tokens", "add-token"]}})
     {:noreply, socket}
@@ -39,5 +41,9 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent do
       %{left_panel: ["left-panel", "tokens", tokens_subpanel | _rest]} -> tokens_subpanel
       _ -> nil
     end
+  end
+
+  def serialize_tokens(%{scene: %{tokens: tokens}}) when is_list(tokens) do
+    Token.to_place_records(tokens)
   end
 end

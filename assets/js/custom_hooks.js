@@ -39,3 +39,21 @@ Hooks.Geometry = {
 	});
   }
 };
+
+Hooks.Copy = {
+  mounted() {
+	const element = this.el;
+
+	this.el.addEventListener("click", (event) => {
+      event.preventDefault();
+
+	  for (const child of element.children) {
+		if (child.className === 'data') {
+		  const text = child.innerHTML;
+		  navigator.clipboard.writeText(text);
+		  break;
+		}
+	  }
+    });
+  }
+};

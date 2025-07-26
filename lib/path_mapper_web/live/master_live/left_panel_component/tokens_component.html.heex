@@ -49,6 +49,10 @@
         >
           Extra (players)
         </button>
+
+        <button id="tokens-copy-button" class="pure-button sub-button" phx-hook="Copy">
+          <span class="data" style="display: none">{serialize_tokens(@game_state)}</span> Copy
+        </button>
       </div>
 
       <.live_component
