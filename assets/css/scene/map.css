@@ -25,7 +25,7 @@
 }
 
 .map-container image.hide {
-  filter: brightness(0%);
+  filter: opacity(0);
 }
 
 .map-container image.highlight {

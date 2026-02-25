@@ -30,10 +30,13 @@ defmodule PathMapper.Game.State.Scene.Token do
   end
 
   def to_place_records(tokens) when is_list(tokens) do
-    Enum.map_join(tokens, ",\n", &to_place_record/1)
+    records = Enum.map_join(tokens, ",\n", &to_place_record/1)
+    Enum.join(["place_tokens = [", records, "]"], "\n")
   end
 
   defp to_place_record(%__MODULE__{} = token) do
-    "{ name = \"#{token.data.name}\", x = #{token.x}, y = #{token.y}, state = \"#{token.state}\" }"
+    token_object = "{ name = \"#{token.data.name}\", x = #{token.x}, y = #{token.y}, state = \"#{token.state}\" }"
+    indent = "        "
+    "#{indent}#{token_object}"
   end
 end

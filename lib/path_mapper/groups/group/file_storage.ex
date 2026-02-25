@@ -2,14 +2,14 @@ defmodule PathMapper.Groups.Group.FileStorage do
   alias Ecto.Changeset
   alias PathMapper.Zip
 
-  @public_directory "priv/static"
+  @public_directory "static"
   @group_directory "group"
   @storage_directory Path.join(@public_directory, @group_directory)
   @image_extension "png"
 
   def initialize do
-    with {:ok, _} <- File.rm_rf(@storage_directory),
-         :ok <- File.mkdir(@storage_directory) do
+    with {:ok, _} <- File.rm_rf(storage_directory_path()),
+         :ok <- File.mkdir(storage_directory_path()) do
       :ok
     else
       _error -> {:error, "Failed to initialize group file storage"}
@@ -21,7 +21,7 @@ defmodule PathMapper.Groups.Group.FileStorage do
   def store(file, extension) when is_binary(file) and is_binary(extension) do
     filename = "#{random_name()}.#{extension}"
 
-    case File.write(Path.join(@storage_directory, filename), file) do
+    case File.write(Path.join(storage_directory_path(), filename), file) do
       :ok -> {:ok, Path.join(["/", @group_directory, filename])}
       error -> error
     end
@@ -39,5 +39,9 @@ defmodule PathMapper.Groups.Group.FileStorage do
 
   defp random_name do
     to_string(round(:rand.uniform() * 10_000_100))
+  end
+
+  defp storage_directory_path do
+    Path.join(:code.priv_dir(:path_mapper), @storage_directory)
   end
 end

@@ -1,6 +1,7 @@
 defmodule PathMapper.Adventures do
   use Agent
 
+  require Logger
   alias Ecto.Changeset
   alias PathMapper.Adventures.LoadedStorage
   alias PathMapper.Adventures.Loader
@@ -35,8 +36,12 @@ defmodule PathMapper.Adventures do
       Game.reset()
       {:ok, adventure}
     else
-      {:error, %Changeset{} = changeset} -> IO.puts(PathMapper.Errors.display_errors(changeset))
-      error -> error
+      {:error, %Changeset{} = changeset} ->
+        Logger.error("Failed to load adventure: #{inspect PathMapper.Errors.display_errors(changeset)}")
+        changeset
+      error ->
+        Logger.error("Failed to load adventure: #{inspect error}")
+        error
     end
   end
 

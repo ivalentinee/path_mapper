@@ -5,7 +5,8 @@ defmodule PathMapper.Zip do
   def read(filename) when is_binary(filename) do
     case :zip.unzip(to_charlist(filename), [:memory]) do
       {:ok, entries} -> {:ok, %__MODULE__{entries: entries, filename: filename}}
-      error -> error
+      {:error, error} -> {:error, {:zip, error}}
+      error -> {:zip, error}
     end
   end
 
