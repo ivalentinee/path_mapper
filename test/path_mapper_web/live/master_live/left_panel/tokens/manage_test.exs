@@ -51,15 +51,15 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.ManageTest do
     view |> element("#tokens-button") |> render_click()
     assert find_html_element(render(view), "#tokens")
 
-    view |> element("#manage-tokens > :first-child .kill") |> render_click()
+    view |> element("#manage-tokens > :first-child .dead") |> render_click()
     first_token = Enum.at(Game.get_state().scene.tokens, 0)
     assert first_token.state == "dead"
 
-    view |> element("#manage-tokens > :first-child .knock_out") |> render_click()
+    view |> element("#manage-tokens > :first-child .unconscious") |> render_click()
     first_token = Enum.at(Game.get_state().scene.tokens, 0)
     assert first_token.state == "unconscious"
 
-    view |> element("#manage-tokens > :first-child .restore") |> render_click()
+    view |> element("#manage-tokens > :first-child .alive") |> render_click()
     first_token = Enum.at(Game.get_state().scene.tokens, 0)
     assert first_token.state == "alive"
   end

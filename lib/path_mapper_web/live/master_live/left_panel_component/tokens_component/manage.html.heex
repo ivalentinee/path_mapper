@@ -13,32 +13,45 @@
           ✕
         </button>
 
-        <button
-          class={"restore #{highlight_state_button_class(token, "alive")}"}
-          phx-click="restore_token"
-          phx-value-index={index}
-          phx-target={@myself}
-        >
-          {restore_button_text(@ui_state, index)}
-        </button>
+        <.manage_state_button
+          ui_state={@ui_state}
+          token={token}
+          index={index}
+          state="alive"
+          mouse_text="💕"
+          key_text="R"
+          target={@myself}
+        />
 
-        <button
-          class={"kill #{highlight_state_button_class(token, "dead")}"}
-          phx-click="kill_token"
-          phx-value-index={index}
-          phx-target={@myself}
-        >
-          {kill_button_text(@ui_state, index)}
-        </button>
+        <.manage_state_button
+          ui_state={@ui_state}
+          token={token}
+          index={index}
+          state="dead"
+          mouse_text="🗡"
+          key_text="K"
+          target={@myself}
+        />
 
-        <button
-          class={"knock_out #{highlight_state_button_class(token, "unconscious")}"}
-          phx-click="knock_out_token"
-          phx-value-index={index}
-          phx-target={@myself}
-        >
-          {knock_out_button_text(@ui_state, index)}
-        </button>
+        <.manage_state_button
+          ui_state={@ui_state}
+          token={token}
+          index={index}
+          state="unconscious"
+          mouse_text="💤"
+          key_text="U"
+          target={@myself}
+        />
+
+        <.manage_state_button
+          ui_state={@ui_state}
+          token={token}
+          index={index}
+          state="hidden"
+          mouse_text="👀"
+          key_text="H"
+          target={@myself}
+        />
       </div>
     </div>
   <% end %>

@@ -4,7 +4,7 @@ defmodule PathMapper.Game.State.Scene.Token do
   import Ecto.Changeset
   alias PathMapper.Adventures.Adventure.Scene.Token, as: AdventureToken
 
-  @states ["alive", "unconscious", "dead"]
+  @states ["alive", "unconscious", "dead", "hidden"]
 
   @primary_key false
 
@@ -35,7 +35,9 @@ defmodule PathMapper.Game.State.Scene.Token do
   end
 
   defp to_place_record(%__MODULE__{} = token) do
-    token_object = "{ name = \"#{token.data.name}\", x = #{token.x}, y = #{token.y}, state = \"#{token.state}\" }"
+    token_object =
+      "{ name = \"#{token.data.name}\", x = #{token.x}, y = #{token.y}, state = \"#{token.state}\" }"
+
     indent = "        "
     "#{indent}#{token_object}"
   end

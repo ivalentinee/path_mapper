@@ -151,6 +151,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
     case token.state do
       "dead" -> "#db5164"
       "unconscious" -> "#57d5ff"
+      "hidden" -> "black"
       _ -> "white"
     end
   end

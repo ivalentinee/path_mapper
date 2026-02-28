@@ -12,6 +12,9 @@ defmodule PathMapperWeb.MasterLive.UIState do
     end
   end
 
+  def selected(%__MODULE__{} = ui_state, path_components) when is_list(path_components),
+    do: ui_state.left_panel == path_components
+
   def run_event(ui_state, %{left_panel_select: panel}) when is_list(panel) do
     ui_state
     |> Actions.toggle_left_panel(panel)

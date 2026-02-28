@@ -37,10 +37,14 @@ defmodule PathMapper.Adventures do
       {:ok, adventure}
     else
       {:error, %Changeset{} = changeset} ->
-        Logger.error("Failed to load adventure: #{inspect PathMapper.Errors.display_errors(changeset)}")
+        Logger.error(
+          "Failed to load adventure: #{inspect(PathMapper.Errors.display_errors(changeset))}"
+        )
+
         changeset
+
       error ->
-        Logger.error("Failed to load adventure: #{inspect error}")
+        Logger.error("Failed to load adventure: #{inspect(error)}")
         error
     end
   end

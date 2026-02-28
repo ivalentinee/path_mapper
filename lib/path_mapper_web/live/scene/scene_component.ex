@@ -72,4 +72,12 @@ defmodule PathMapperWeb.Scene.SceneComponent do
     |> assign(:map_geometry, map_geometry)
     |> assign(:grid_size, map.grid_size)
   end
+
+  defp visible_tokens(game_state, opts) do
+    if opts[:show_hidden] do
+      game_state.scene.tokens
+    else
+      Enum.filter(game_state.scene.tokens, fn token -> token.state !== "hidden" end)
+    end
+  end
 end

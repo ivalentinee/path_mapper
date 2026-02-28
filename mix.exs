@@ -61,15 +61,14 @@ defmodule PathMapper.MixProject do
     ]
   end
 
-  # Aliases are shortcuts or tasks specific to the current project.
-  # For example, to install project dependencies and perform other setup tasks, run:
-  #
-  #     $ mix setup
-  #
-  # See the documentation for `Mix` for more info on aliases.
+  def cli do
+    [preferred_envs: [paranoid: :test]]
+  end
+
   defp aliases do
     [
       setup: ["deps.get", "assets.setup", "assets.build"],
+      paranoid: ["test", "format", "credo"],
       "assets.setup": ["esbuild.install --if-missing"],
       "assets.build": ["esbuild path_mapper"],
       "assets.deploy": [

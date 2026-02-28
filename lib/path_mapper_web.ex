@@ -62,7 +62,9 @@ defmodule PathMapperWeb do
   def live_component do
     quote do
       use Phoenix.LiveComponent
+      require PathMapperWeb.MasterLive.UIState
       import PathMapperWeb.Live.Helpers
+      import PathMapperWeb.MasterLive.UIState, only: [selected: 2, keystroke?: 1]
 
       unquote(html_helpers())
     end
