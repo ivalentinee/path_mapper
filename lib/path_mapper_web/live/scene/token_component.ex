@@ -70,6 +70,18 @@ defmodule PathMapperWeb.Scene.TokenComponent do
     end
   end
 
+  @impl true
+  def handle_event("token_click", %{"ctrlKey" => true, "index" => index}, socket) do
+    with_parsed_index(index, fn index_number ->
+      send(self(), %{ui_update: %{left_panel_select: ["left-panel", "tokens", index_number + 1]}})
+    end)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("token_click", _, socket), do: {:noreply, socket}
+
   def show_index(selected_token_index, token_index) when selected_token_index == token_index,
     do: true
 

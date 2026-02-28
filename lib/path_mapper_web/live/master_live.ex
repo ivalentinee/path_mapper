@@ -49,7 +49,8 @@ defmodule PathMapperWeb.MasterLive do
 
   @impl true
   def handle_event("navigate", %{"key" => key}, socket) do
-    {:noreply, assign(socket, :ui_state, UIState.run_key(socket.assigns.ui_state, key))}
+    if key == "Escape", do: send(self(), %{ui_update: %{left_panel_select: []}})
+    {:noreply, socket}
   end
 
   @impl true

@@ -3,6 +3,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage do
 
   require PathMapperWeb.MasterLive.UIState
   require PathMapper.Game.State.Scene.Token
+  alias PathMapperWeb.MasterLive.UIState
   import PathMapper.Game.State.Scene.Token, only: [states: 0]
 
   alias PathMapper.Game
@@ -11,6 +12,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage do
 
   def handle_event("delete_token", %{"index" => index_string}, socket) do
     with_parsed_index(index_string, &Game.run_action([:tokens, :delete], &1))
+    unset_selected_token(socket.assigns.ui_state)
     {:noreply, socket}
   end
 
@@ -20,17 +22,19 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage do
     {:noreply, socket}
   end
 
-  def highlight_content_class(keystroke?(["left-panel", "tokens"])),
-    do: "highlight"
+  def selected_tokens(game_state, %{left_panel: ["left-panel", "tokens" | [index]]}) do
+    tokens_with_index = Enum.with_index(game_state.scene.tokens)
+    token = Enum.at(tokens_with_index, index - 1)
+    if token, do: [token], else: tokens_with_index
+  end
 
-  def highlight_content_class(_), do: ""
+  def selected_tokens(game_state, _ui_state) do
+    Enum.with_index(game_state.scene.tokens)
+  end
 
-  def highlight_content_class(keystroke?(["left-panel", "tokens" | [index]]), item_index)
-      when index - 1 == item_index,
-      do: "highlight"
+  defp unset_selected_token(%UIState{left_panel: ["left-panel", "tokens", _index]}) do
+    send(self(), %{ui_update: %{left_panel_select: ["left-panel", "tokens"]}})
+  end
 
-  def highlight_content_class(keystroke?(["left-panel", "tokens" | _index]), _item_index),
-    do: ""
-
-  def highlight_content_class(_, _item_index), do: ""
+  defp unset_selected_token(%UIState{}), do: nil
 end

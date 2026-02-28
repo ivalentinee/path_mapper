@@ -1,4 +1,4 @@
-<div id="map-manager" class={"map-manager #{highlight_content_class(@ui_state)}"}>
+<div id="map-manager" class="map-manager">
   <div class="sub-buttons">
     <button
       id="toggle_grid"
@@ -10,7 +10,7 @@
     </button>
   </div>
   <%= for {layer, index} <- Enum.with_index(@game_state.scene.map.layers) do %>
-    <div class={"layer item #{highlight_content_class(@ui_state, index)}"} id={"layer-#{index}"}>
+    <div class="layer item" id={"layer-#{index}"}>
       <div class="layer-name item-name">
         <span class="index">{index + 1}</span>{adventure_layer(@adventure, @game_state, layer).name}
       </div>
@@ -21,7 +21,7 @@
           phx-value-index={index}
           class={"pure-button toggle-layer-show show-#{layer.show}"}
         >
-          <span>{show_button_text(layer.show, highlight_content_class(@ui_state, index))}</span>
+          <span>✓</span>
         </button>
 
         <button
@@ -30,7 +30,7 @@
           phx-value-index={index}
           class={"pure-button toggle-layer-light light-#{layer.light}"}
         >
-          <span>{light_button_text(layer.light, highlight_content_class(@ui_state, index))}</span>
+          <span>💡</span>
         </button>
 
         <button
@@ -39,9 +39,7 @@
           phx-value-index={index}
           class={"pure-button toggle-layer-highlight highlight-#{layer.highlight}"}
         >
-          <span>
-            {highlight_button_text(layer.highlight, highlight_content_class(@ui_state, index))}
-          </span>
+          <span>☇</span>
         </button>
       </div>
     </div>

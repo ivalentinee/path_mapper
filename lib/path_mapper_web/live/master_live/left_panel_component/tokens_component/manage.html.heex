@@ -1,6 +1,6 @@
-<div id="manage-tokens" class={"manage-tokens #{highlight_content_class(@ui_state)}"}>
-  <%= for {token, index} <- Enum.with_index(@game_state.scene.tokens) do %>
-    <div class={"item token #{highlight_content_class(@ui_state, index)}"}>
+<div id="manage-tokens" class="manage-tokens">
+  <%= for {token, index} <- selected_tokens(@game_state, @ui_state) do %>
+    <div class="item token">
       <span class="index">{index + 1}</span>
       <span class="name">{token.data.name}</span>
       <div class="buttons">
@@ -18,8 +18,7 @@
           token={token}
           index={index}
           state="alive"
-          mouse_text="💕"
-          key_text="R"
+          text="💕"
           target={@myself}
         />
 
@@ -28,8 +27,7 @@
           token={token}
           index={index}
           state="dead"
-          mouse_text="🗡"
-          key_text="K"
+          text="🗡"
           target={@myself}
         />
 
@@ -38,8 +36,7 @@
           token={token}
           index={index}
           state="unconscious"
-          mouse_text="💤"
-          key_text="U"
+          text="💤"
           target={@myself}
         />
 
@@ -48,8 +45,7 @@
           token={token}
           index={index}
           state="hidden"
-          mouse_text="👀"
-          key_text="H"
+          text="👀"
           target={@myself}
         />
       </div>

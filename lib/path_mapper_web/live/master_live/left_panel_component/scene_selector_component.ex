@@ -2,7 +2,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.SceneSelectorComponent do
   use PathMapperWeb, :live_component
 
   require PathMapperWeb.MasterLive.UIState
-  import PathMapperWeb.MasterLive.UIState, only: [keystroke?: 1]
 
   alias PathMapper.Game
 
@@ -15,11 +14,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.SceneSelectorComponent do
     Game.run_action([:scene, :unset], nil)
     {:noreply, socket}
   end
-
-  def highlight_content_class(keystroke?(["left-panel", "scene-selector"])),
-    do: "highlight highlight-items"
-
-  def highlight_content_class(_), do: ""
 
   def select_button_extra_classes(scene_index, selected_scene) do
     if selected_scene && selected_scene.index == scene_index, do: "selected", else: ""

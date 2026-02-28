@@ -41,19 +41,4 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.AddTest do
     view |> element("#tokens-button") |> render_click()
     assert !find_html_element(render(view), "#tokens")
   end
-
-  test "adds a token using a keystroke", %{view: view, html: html} do
-    token_count = Enum.count(Game.get_state().scene.tokens)
-
-    assert !find_html_element(html, "#tokens")
-
-    run_keystroke(view, ["p", "t"])
-    assert find_html_element(render(view), "#tokens")
-
-    run_keystroke(view, ["a"])
-    assert find_html_element(render(view), "#add-token")
-
-    run_keystroke(view, ["1"])
-    assert Enum.count(Game.get_state().scene.tokens) == token_count + 1
-  end
 end

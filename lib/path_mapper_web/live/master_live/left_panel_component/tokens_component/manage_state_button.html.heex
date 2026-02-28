@@ -1,13 +1,9 @@
 <button
-  class={"#{@state} #{if @token.state == @state, do: "highlight", else: ""}"}
+  class={"#{@state} #{if @token.state == @state, do: "active", else: ""}"}
   phx-click="set_token_state"
   phx-value-index={@index}
   phx-value-state={"#{@state}"}
   phx-target={@target}
 >
-  <%= if selected(@ui_state, ["left-panel", "tokens", @index - 1]) do %>
-    {@key_text}
-  <% else %>
-    {@mouse_text}
-  <% end %>
+  {@text}
 </button>

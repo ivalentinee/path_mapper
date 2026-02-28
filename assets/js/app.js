@@ -12,6 +12,12 @@ let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken},
   hooks: Hooks,
+  metadata: {
+    click: (e, el) => ({
+      altKey: e.altKey,
+	  ctrlKey: e.ctrlKey,
+    })
+  },
 });
 
 // Show progress bar on live navigation and form submits

@@ -10,11 +10,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent do
   end
 
   def panel_select_button(assigns) do
-    button_classes =
-      if assigns[:disable_highlight],
-        do: "left-panel-button pure-button",
-        else: "left-panel-button pure-button enable-highlight"
-
+    button_classes = "left-panel-button pure-button"
     assigns = Map.put(assigns, :button_classes, button_classes)
 
     ~H"""
@@ -28,14 +24,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent do
       {assigns.text}
     </button>
     """
-  end
-
-  def highlight_class(ui_state) do
-    if ui_state.left_panel == ["left-panel"] do
-      "highlight"
-    else
-      ""
-    end
   end
 
   def selected_panel(ui_state) do

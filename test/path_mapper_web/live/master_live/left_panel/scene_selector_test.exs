@@ -27,13 +27,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
     assert !find_html_element(render(view), "#scene-selector")
   end
 
-  test "opens 'scene selector' with a keystroke", %{view: view, html: html} do
-    assert !find_html_element(html, "#scene-selector")
-
-    run_keystroke(view, ["p", "s"])
-    assert find_html_element(render(view), "#scene-selector")
-  end
-
   test "selects 'scene selector' item with a click", %{view: view} do
     {:ok, %{scenes: [%{name: first_scene_name} | _rest]}} = Adventures.get_loaded()
 
@@ -50,28 +43,11 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
     assert first_token.state == "unconscious"
   end
 
-  test "selects 'scene selector' item with a keystroke", %{view: view} do
-    run_keystroke(view, ["p", "s", "1"])
-
-    run_keystroke(view, ["p", "s"])
-    assert find_html_element(render(view), "#scene-selector .item.selected")
-  end
-
   test "unsets scene with a click", %{view: view} do
-    run_keystroke(view, ["p", "s", "1"])
     find_html_element(render(view), "#scene-selector .item.selected")
 
     view |> element("#scene-selector-button") |> render_click()
     view |> element("#unset_scene") |> render_click()
-    assert !find_html_element(render(view), "#scene-selector .item.selected")
-  end
-
-  test "unsets scene with a keystroke", %{view: view} do
-    run_keystroke(view, ["p", "s", "1"])
-    view |> element("#scene-selector-button") |> render_click()
-    find_html_element(render(view), "#scene-selector .item.selected")
-
-    run_keystroke(view, ["p", "s", "u"])
     assert !find_html_element(render(view), "#scene-selector .item.selected")
   end
 end

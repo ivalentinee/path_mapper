@@ -28,13 +28,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.MapManagerTest do
     assert !find_html_element(render(view), "#map-manager")
   end
 
-  test "opens 'map manager' with a keystroke", %{view: view, html: html} do
-    assert !find_html_element(html, "#map-manager")
-
-    run_keystroke(view, ["p", "m"])
-    assert find_html_element(render(view), "#map-manager")
-  end
-
   test "shows/hides a layer with a click", %{view: view} do
     assert first_layer_state().show == true
 
@@ -44,16 +37,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.MapManagerTest do
     assert first_layer_state().show == false
 
     view |> element("#layer-0 button.toggle-layer-show") |> render_click()
-    assert first_layer_state().show == true
-  end
-
-  test "shows/hides a layer with a keystroke", %{view: view} do
-    assert first_layer_state().show == true
-
-    run_keystroke(view, ["p", "m", "1", "s"])
-    assert first_layer_state().show == false
-
-    run_keystroke(view, ["p", "m", "1", "s"])
     assert first_layer_state().show == true
   end
 
@@ -69,16 +52,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.MapManagerTest do
     assert first_layer_state().light == "bright"
   end
 
-  test "dims/undims a layer with a keystroke", %{view: view} do
-    assert first_layer_state().light == "bright"
-
-    run_keystroke(view, ["p", "m", "1", "l"])
-    assert first_layer_state().light == "dim"
-
-    run_keystroke(view, ["p", "m", "1", "l"])
-    assert first_layer_state().light == "bright"
-  end
-
   test "highlights/hides a layer with a click", %{view: view} do
     assert first_layer_state().highlight == false
 
@@ -91,16 +64,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.MapManagerTest do
     assert first_layer_state().highlight == false
   end
 
-  test "highlights/hides a layer with a keystroke", %{view: view} do
-    assert first_layer_state().highlight == false
-
-    run_keystroke(view, ["p", "m", "1", "h"])
-    assert first_layer_state().highlight == true
-
-    run_keystroke(view, ["p", "m", "1", "h"])
-    assert first_layer_state().highlight == false
-  end
-
   test "hides/shows map grid with a click", %{view: view} do
     assert Game.get_state().scene.map.show_grid == true
 
@@ -109,16 +72,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.MapManagerTest do
     assert Game.get_state().scene.map.show_grid == false
 
     view |> element("#toggle_grid") |> render_click()
-    assert Game.get_state().scene.map.show_grid == true
-  end
-
-  test "hides/shows map grid with a keystroke", %{view: view} do
-    assert Game.get_state().scene.map.show_grid == true
-
-    run_keystroke(view, ["p", "m", "g"])
-    assert Game.get_state().scene.map.show_grid == false
-
-    run_keystroke(view, ["p", "m", "g"])
     assert Game.get_state().scene.map.show_grid == true
   end
 

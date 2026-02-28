@@ -34,17 +34,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.ManageTest do
     assert !find_html_element(render(view), "#tokens")
   end
 
-  test "deletes a token using a keystroke", %{view: view, html: html} do
-    assert Enum.count(Game.get_state().scene.tokens) === 4
-    assert !find_html_element(html, "#tokens")
-
-    run_keystroke(view, ["p", "t"])
-    assert find_html_element(render(view), "#tokens")
-
-    run_keystroke(view, ["1", "x"])
-    assert Enum.count(Game.get_state().scene.tokens) === 3
-  end
-
   test "kills, knocks out and restores a token", %{view: view, html: html} do
     assert !find_html_element(html, "#tokens")
 
@@ -60,22 +49,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.ManageTest do
     assert first_token.state == "unconscious"
 
     view |> element("#manage-tokens > :first-child .alive") |> render_click()
-    first_token = Enum.at(Game.get_state().scene.tokens, 0)
-    assert first_token.state == "alive"
-  end
-
-  test "kills, knocks out and restores a token using a keystroke", %{view: view, html: html} do
-    assert !find_html_element(html, "#tokens")
-
-    run_keystroke(view, ["p", "t", "1", "k"])
-    first_token = Enum.at(Game.get_state().scene.tokens, 0)
-    assert first_token.state == "dead"
-
-    run_keystroke(view, ["p", "t", "1", "u"])
-    first_token = Enum.at(Game.get_state().scene.tokens, 0)
-    assert first_token.state == "unconscious"
-
-    run_keystroke(view, ["p", "t", "1", "r"])
     first_token = Enum.at(Game.get_state().scene.tokens, 0)
     assert first_token.state == "alive"
   end

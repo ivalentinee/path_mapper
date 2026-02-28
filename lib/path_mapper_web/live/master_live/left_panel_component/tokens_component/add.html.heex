@@ -1,4 +1,4 @@
-<div id="add-token" class={"add-token #{highlight_content_class(@ui_state, @id)}"}>
+<div id="add-token" class="add-token">
   <%= for {token, index} <- Enum.with_index(@tokens) do %>
     <div class="item">
       <span class="index">{index + 1}</span>

@@ -10,9 +10,19 @@
       style={token_image_style(@token, @token_geometry)}
       title={@token.data.name}
       src={@token.data.image}
+      phx-click="token_click"
+      phx-value-index={@index}
+      phx-target={@myself}
     />
 
-    <div style={token_state_style(@token, @token_geometry)} class="token-state-marker"></div>
+    <div
+      style={token_state_style(@token, @token_geometry)}
+      class="token-state-marker"
+      phx-click="token_click"
+      phx-value-index={@index}
+      phx-target={@myself}
+    >
+    </div>
     <%= if show_index(@selected_token_index, @index) do %>
       <div class="token-index">{@index + 1}</div>
     <% end %>

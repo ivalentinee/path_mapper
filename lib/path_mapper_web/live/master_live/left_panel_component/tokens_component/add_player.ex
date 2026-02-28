@@ -2,7 +2,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.AddPlayer 
   use PathMapperWeb, :live_component
 
   require PathMapperWeb.MasterLive.UIState
-  import PathMapperWeb.MasterLive.UIState, only: [keystroke?: 1]
 
   alias PathMapper.Game
 
@@ -17,9 +16,4 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.AddPlayer 
     send(self(), %{ui_update: %{left_panel_select: "tokens"}})
     {:noreply, socket}
   end
-
-  def highlight_content_class(keystroke?(["left-panel", "tokens", "add-player-token"])),
-    do: "highlight highlight-items"
-
-  def highlight_content_class(_), do: ""
 end

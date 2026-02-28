@@ -17,7 +17,6 @@ Hooks.Draggable = {
     });
 
 	this.el.addEventListener("drag", event => {
-	  console.log(event);
 	  this.pushEventTo(this.el, "drag", {...baseEventPayload, x: event.clientX, y: event.clientY, offset_x: event.offsetX, offset_y: event.offsetY});
 	});
   }

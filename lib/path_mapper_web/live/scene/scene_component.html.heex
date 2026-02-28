@@ -13,7 +13,7 @@
     </div>
 
     <div class="tokens-container" style={map_style(@map_geometry)}>
-      <%= for {token, index} <- Enum.with_index(visible_tokens(@game_state, @opts)) do %>
+      <%= for {token, index} <- visible_tokens(@game_state, @opts) do %>
         <.live_component
           module={PathMapperWeb.Scene.TokenComponent}
           id={"token-#{index}"}

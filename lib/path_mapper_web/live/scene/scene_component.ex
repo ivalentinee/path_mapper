@@ -74,10 +74,12 @@ defmodule PathMapperWeb.Scene.SceneComponent do
   end
 
   defp visible_tokens(game_state, opts) do
+    tokens_with_index = Enum.with_index(game_state.scene.tokens)
+
     if opts[:show_hidden] do
-      game_state.scene.tokens
+      tokens_with_index
     else
-      Enum.filter(game_state.scene.tokens, fn token -> token.state !== "hidden" end)
+      Enum.filter(tokens_with_index, fn {token, _index} -> token.state !== "hidden" end)
     end
   end
 end

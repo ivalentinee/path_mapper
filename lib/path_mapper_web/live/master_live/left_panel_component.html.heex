@@ -1,16 +1,14 @@
 <div class="left-panel">
-  <div class={"panel-selector #{highlight_class(@ui_state)}"}>
+  <div class="panel-selector">
     {panel_select_button(%{
       text: "Adventures",
       panel_name: "adventure-selector",
-      myself: @myself,
-      disable_highlight: true
+      myself: @myself
     })}
     {panel_select_button(%{
       text: "Groups",
       panel_name: "group-selector",
-      myself: @myself,
-      disable_highlight: true
+      myself: @myself
     })}
 
     <%= if @group && @game_state do %>
