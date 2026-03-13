@@ -21,6 +21,7 @@ defmodule PathMapperWeb.MasterLive do
 
     socket =
       socket
+      |> assign(:page_title, "GM")
       |> assign(:adventures, adventures)
       |> assign(:adventure, adventure)
       |> assign(:groups, groups)

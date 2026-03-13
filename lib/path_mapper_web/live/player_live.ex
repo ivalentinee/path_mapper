@@ -16,6 +16,7 @@ defmodule PathMapperWeb.PlayerLive do
 
     socket =
       socket
+      |> assign(:page_title, "Player")
       |> assign(:adventure, adventure)
       |> assign(:group, group)
       |> assign(:game_state, game_state)

@@ -27,7 +27,7 @@ if config_env() == :prod do
     server: true,
     url: [host: host, port: 443, scheme: "https"],
     http: [
-      ip: {0, 0, 0, 0, 0, 0, 0, 0},
+      ip: {127, 0, 0, 1},
       port: port
     ],
     secret_key_base: secret_key_base
