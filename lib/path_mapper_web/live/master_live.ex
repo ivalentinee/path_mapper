@@ -41,7 +41,7 @@ defmodule PathMapperWeb.MasterLive do
 
   def selected_layer_index(%LeftPanelState{left_panel: ["left-panel", "map-manager", index]})
       when is_number(index),
-      do: index - 1
+      do: index
 
   def selected_layer_index(%LeftPanelState{}), do: nil
 

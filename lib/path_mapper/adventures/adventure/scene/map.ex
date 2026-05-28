@@ -19,6 +19,7 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map do
     field(:show_grid, :boolean)
     field(:floors, {:array, :integer})
     embeds_many(:layers, __MODULE__.Layer)
+    embeds_many(:map_objects, __MODULE__.MapObject)
     embeds_one(:grid, __MODULE__.AdditionalLayer)
     embeds_one(:fow, __MODULE__.AdditionalLayer)
   end
@@ -28,6 +29,7 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map do
     |> cast(read_ora_file(params, adventure_zip), [:file, :width, :height])
     |> validate_required([:file, :width, :height])
     |> cast_embed(:layers, required: true)
+    |> cast_embed(:map_objects)
     |> cast_embed(:grid)
     |> cast_embed(:fow)
     |> get_grid_size()

@@ -26,10 +26,28 @@ defmodule PathMapperWeb.Scene.MapComponent do
   end
 
   def map_adventure_layers_to_state(adventure, game_state) do
+    state_layers = game_state.scene.map.layers
+
     adventure
     |> Adventure.get_scene_map(game_state.scene.index)
     |> Map.get(:layers)
-    |> Enum.with_index()
-    |> Enum.map(fn {layer, index} -> {layer, Enum.at(game_state.scene.map.layers, index)} end)
+    |> Enum.map(fn layer ->
+      state = Enum.find(state_layers, &(&1.index == layer.index))
+      {layer, state}
+    end)
+    |> Enum.reject(fn {_, state} -> is_nil(state) end)
+  end
+
+  def layer_images(layer) do
+    case layer do
+      %{images: images} when is_list(images) and images != [] ->
+        Enum.reverse(images)
+
+      %{image: image} when not is_nil(image) ->
+        [%{image: image, x: layer.x, y: layer.y, width: layer.width, height: layer.height}]
+
+      _ ->
+        []
+    end
   end
 end

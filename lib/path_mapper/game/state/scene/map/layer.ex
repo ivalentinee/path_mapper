@@ -12,7 +12,7 @@ defmodule PathMapper.Game.State.Scene.Map.Layer do
     field(:highlight, :boolean)
   end
 
-  def initialize({%AdventureLayer{show: show, light: light}, index}) do
+  def initialize({%AdventureLayer{index: index, show: show, light: light}, _list_position}) do
     %__MODULE__{index: index, show: show, light: light, highlight: false}
   end
 end

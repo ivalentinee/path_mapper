@@ -10,11 +10,17 @@ defmodule PathMapper.Game.Actions do
   def action(%State{active_scene: nil}, [:tokens | _], _data),
     do: {:error, "No active scene"}
 
+  def action(%State{active_scene: nil}, [:map_objects | _], _data),
+    do: {:error, "No active scene"}
+
   def action(%State{} = state, [:map | _rest] = action, data),
     do: __MODULE__.Map.action(state, action, data)
 
   def action(%State{} = state, [:tokens | _rest] = action, data),
     do: __MODULE__.Tokens.action(state, action, data)
+
+  def action(%State{} = state, [:map_objects | _rest] = action, data),
+    do: __MODULE__.MapObjects.action(state, action, data)
 
   def action(%State{} = _state, action, _data) do
     {:error, "Action '#{inspect(action)}' not found"}

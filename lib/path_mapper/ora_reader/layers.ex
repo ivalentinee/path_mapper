@@ -10,7 +10,7 @@ defmodule PathMapper.ORAReader.Layers do
   Record.defrecord(:xmlElement, Record.extract(:xmlElement, from_lib: "xmerl/include/xmerl.hrl"))
 
   @layer_prefix_regex ~r/\[(L)(\d+)\]/
-  @special_prefix_regex ~r/\[([BGF])\]/
+  @special_prefix_regex ~r/\[([GF])\]/
   @tag_regex ~r/\[([^\]]+)\]/
 
   def get_all_layers(document, ora_files) do
@@ -80,31 +80,32 @@ defmodule PathMapper.ORAReader.Layers do
     base_layers = Enum.reverse(base_layers)
     objects = Enum.reverse(objects)
 
-    layer_items =
-      Enum.map(base_layers, fn base ->
-        %{
-          type: :layer,
-          name: base[:name] || group_name,
-          image: base.image,
-          x: base.x,
-          y: base.y,
-          width: base.width,
-          height: base.height,
-          tags: group_tags,
-          index: index
-        }
+    images =
+      Enum.map(base_layers, fn b ->
+        %{image: b.image, x: b.x, y: b.y, width: b.width, height: b.height}
       end)
 
-    # If no [B] layers found, this is a group with no base — just objects
-    layer_items =
-      if Enum.empty?(layer_items) do
-        Logger.warning("ORA: layer group [L#{index}] has no [B] base layer")
-        []
-      else
-        layer_items
+    # Use the first [B] layer's geometry for the layer itself, or zeros for object-only layers
+    {layer_x, layer_y, layer_w, layer_h} =
+      case base_layers do
+        [first | _] -> {first.x, first.y, first.width, first.height}
+        [] -> {0, 0, 0, 0}
       end
 
-    layer_items ++ objects
+    layer_item = %{
+      type: :layer,
+      name: group_name,
+      image: if(base_layers != [], do: List.first(base_layers).image),
+      images: images,
+      x: layer_x,
+      y: layer_y,
+      width: layer_w,
+      height: layer_h,
+      tags: group_tags,
+      index: index
+    }
+
+    [layer_item | objects]
   end
 
   defp classify_group_child(child, {bases, objs}, index, ora_files) do
@@ -115,8 +116,9 @@ defmodule PathMapper.ORAReader.Layers do
           base = build_image_data(child, base_name, ora_files)
           {[base | bases], objs}
         else
-          obj_name = String.trim(child_name)
-          obj = build_object(child, obj_name, index, ora_files)
+          obj_tags = parse_all_tags(child_name)
+          obj_name = strip_prefixes_and_tags(child_name)
+          obj = build_object(child, obj_name, index, obj_tags, ora_files)
           {bases, [obj | objs]}
         end
 
@@ -137,9 +139,9 @@ defmodule PathMapper.ORAReader.Layers do
     Map.merge(data, %{type: type, tags: tags})
   end
 
-  defp build_object(element, name, layer_index, ora_files) do
+  defp build_object(element, name, layer_index, tags, ora_files) do
     data = build_image_data(element, name, ora_files)
-    Map.merge(data, %{type: :map_object, layer_index: layer_index, tags: []})
+    Map.merge(data, %{type: :map_object, layer_index: layer_index, tags: tags})
   end
 
   defp build_image_data(element, name, ora_files) do
@@ -177,6 +179,13 @@ defmodule PathMapper.ORAReader.Layers do
     end
   end
 
+  defp parse_all_tags(name) do
+    # Find all [X] groups — no prefix to skip (used for objects)
+    @tag_regex
+    |> Regex.scan(name)
+    |> Enum.map(fn [_, tag] -> String.trim(tag) end)
+  end
+
   defp strip_prefixes_and_tags(name) do
     name
     |> String.replace(@tag_regex, "")
@@ -186,5 +195,4 @@ defmodule PathMapper.ORAReader.Layers do
 
   defp special_type("G"), do: :grid
   defp special_type("F"), do: :fow
-  defp special_type("B"), do: :base
 end

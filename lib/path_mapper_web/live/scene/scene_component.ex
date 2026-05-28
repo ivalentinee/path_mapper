@@ -2,6 +2,7 @@ defmodule PathMapperWeb.Scene.SceneComponent do
   use PathMapperWeb, :live_component
 
   alias PathMapper.Adventures.Adventure
+  alias PathMapper.Game
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
   alias PathMapper.Geometry.Object, as: GeometryObject
 
@@ -20,6 +21,58 @@ defmodule PathMapperWeb.Scene.SceneComponent do
 
   defp has_viewport_geometry?(socket) do
     Map.has_key?(socket.assigns, :viewport_geometry)
+  end
+
+  # Guard: reject all object events in player view
+  def handle_event("object_" <> _, _, %{assigns: %{opts: opts}} = socket)
+      when not is_map_key(opts, :manage_objects) do
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("object_drag", %{"index" => index, "screen_x" => sx, "screen_y" => sy}, socket) do
+    geo = socket.assigns.map_geometry
+    map_x = GeometryMapper.scale_back(sx, geo)
+    map_y = GeometryMapper.scale_back(sy, geo)
+    Game.run_action([:map_objects, index, :drag], {map_x, map_y})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("object_move", %{"index" => index, "screen_x" => sx, "screen_y" => sy}, socket) do
+    geo = socket.assigns.map_geometry
+    map_x = GeometryMapper.scale_back(sx, geo)
+    map_y = GeometryMapper.scale_back(sy, geo)
+    Game.run_action([:map_objects, index, :move], {map_x, map_y})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("object_context_menu", %{"index" => index, "x" => x, "y" => y}, socket) do
+    {:noreply, assign(socket, object_context_menu: %{index: index, x: x, y: y})}
+  end
+
+  @impl true
+  def handle_event("close_object_context_menu", _, socket) do
+    {:noreply, assign(socket, object_context_menu: nil)}
+  end
+
+  @impl true
+  def handle_event("object_toggle_lock", %{"index" => index_str}, socket) do
+    with_parsed_index(index_str, &Game.run_action([:map_objects, &1, :toggle_lock], nil))
+    {:noreply, assign(socket, object_context_menu: nil)}
+  end
+
+  @impl true
+  def handle_event("object_toggle_show", %{"index" => index_str}, socket) do
+    with_parsed_index(index_str, &Game.run_action([:map_objects, &1, :toggle_show], nil))
+    {:noreply, assign(socket, object_context_menu: nil)}
+  end
+
+  @impl true
+  def handle_event("object_reset_position", %{"index" => index_str}, socket) do
+    with_parsed_index(index_str, &Game.run_action([:map_objects, &1, :reset_position], nil))
+    {:noreply, assign(socket, object_context_menu: nil)}
   end
 
   @impl true
@@ -86,5 +139,53 @@ defmodule PathMapperWeb.Scene.SceneComponent do
     else
       Enum.filter(tokens_with_index, fn {token, _index} -> token.state !== "hidden" end)
     end
+  end
+
+  defp visible_objects(adventure, game_state, opts) do
+    adventure_objects =
+      Adventure.get_scene_map(adventure, game_state.scene.index).map_objects || []
+
+    state_layers = game_state.scene.map.layers
+
+    game_state.scene.map.map_objects
+    |> Enum.map(fn obj_state ->
+      adv_obj = Enum.at(adventure_objects, obj_state.index)
+      layer_state = Enum.find(state_layers, &(&1.index == obj_state.layer_index))
+      {adv_obj, obj_state, layer_state}
+    end)
+    |> Enum.reject(fn {adv, _, layer} -> is_nil(adv) or is_nil(layer) end)
+    |> Enum.filter(fn {_, obj_state, layer_state} ->
+      if opts[:show_hidden] do
+        true
+      else
+        layer_state.show and obj_state.show
+      end
+    end)
+  end
+
+  defp object_style(obj, obj_state, layer_state, map_geometry, opts) do
+    x = GeometryMapper.scale_to(obj_state.drag_x || obj_state.x, map_geometry)
+    y = GeometryMapper.scale_to(obj_state.drag_y || obj_state.y, map_geometry)
+    w = GeometryMapper.scale_map_pixel(obj.width, map_geometry)
+    h = GeometryMapper.scale_map_pixel(obj.height, map_geometry)
+
+    hidden = !layer_state.show or !obj_state.show
+
+    opacity =
+      if hidden and opts[:show_hidden] do
+        "0.3"
+      else
+        "1"
+      end
+
+    serialize_style(%{
+      "position" => "absolute",
+      "left" => "#{x}px",
+      "top" => "#{y}px",
+      "width" => "#{w}px",
+      "height" => "#{h}px",
+      "opacity" => opacity,
+      "z-index" => 50
+    })
   end
 end

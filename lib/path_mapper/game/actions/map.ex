@@ -10,34 +10,25 @@ defmodule PathMapper.Game.Actions.Map do
   end
 
   def action(%State{} = state, [:map, :layer, :toggle_show], index) when is_number(index) do
-    layer = Enum.at(State.scene(state).map.layers, index)
-
-    if layer do
-      updated_layer = Map.put(layer, :show, !layer.show)
-      {:ok, update_layer(state, updated_layer, index)}
+    if layer = find_layer(state, index) do
+      {:ok, update_layer(state, index, Map.put(layer, :show, !layer.show))}
     else
       {:ok, state}
     end
   end
 
   def action(%State{} = state, [:map, :layer, :toggle_light], index) when is_number(index) do
-    layer = Enum.at(State.scene(state).map.layers, index)
-
-    if layer do
+    if layer = find_layer(state, index) do
       light = if layer.light == "bright", do: "dim", else: "bright"
-      updated_layer = Map.put(layer, :light, light)
-      {:ok, update_layer(state, updated_layer, index)}
+      {:ok, update_layer(state, index, Map.put(layer, :light, light))}
     else
       {:ok, state}
     end
   end
 
   def action(%State{} = state, [:map, :layer, :toggle_highlight], index) when is_number(index) do
-    layer = Enum.at(State.scene(state).map.layers, index)
-
-    if layer do
-      updated_layer = Map.put(layer, :highlight, !layer.highlight)
-      {:ok, update_layer(state, updated_layer, index)}
+    if layer = find_layer(state, index) do
+      {:ok, update_layer(state, index, Map.put(layer, :highlight, !layer.highlight))}
     else
       {:ok, state}
     end
@@ -47,9 +38,18 @@ defmodule PathMapper.Game.Actions.Map do
     {:error, "Map action '#{inspect(action)}' not found"}
   end
 
-  defp update_layer(%State{} = state, %Layer{} = new_layer_state, layer_index) do
+  defp find_layer(state, index) do
+    Enum.find(State.scene(state).map.layers, &(&1.index == index))
+  end
+
+  defp update_layer(%State{} = state, index, %Layer{} = updated_layer) do
     scene = State.scene(state)
-    updated_layers = List.replace_at(scene.map.layers, layer_index, new_layer_state)
+
+    updated_layers =
+      Enum.map(scene.map.layers, fn layer ->
+        if layer.index == index, do: updated_layer, else: layer
+      end)
+
     updated_map = Map.put(scene.map, :layers, updated_layers)
     State.put_scene(state, Map.put(scene, :map, updated_map))
   end

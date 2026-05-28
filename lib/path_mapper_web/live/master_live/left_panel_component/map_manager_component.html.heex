@@ -9,16 +9,16 @@
       Grid
     </button>
   </div>
-  <%= for {layer, index} <- Enum.with_index(@game_state.scene.map.layers) do %>
-    <div class="layer item" id={"layer-#{index}"} data-layer-index={index}>
+  <%= for layer <- @game_state.scene.map.layers do %>
+    <div class="layer item" id={"layer-#{layer.index}"} data-layer-index={layer.index}>
       <div class="layer-name item-name">
-        <span class="index">{index + 1}</span>{adventure_layer(@adventure, @game_state, layer).name}
+        <span class="index">{layer.index}</span>{adventure_layer(@adventure, @game_state, layer).name}
       </div>
       <div class="layer-controls">
         <button
           phx-click="toggle_layer_show"
           phx-target={@myself}
-          phx-value-index={index}
+          phx-value-index={layer.index}
           class={"pure-button toggle-layer-show show-#{layer.show}"}
         >
           <span>✓</span>
@@ -27,7 +27,7 @@
         <button
           phx-click="toggle_layer_light"
           phx-target={@myself}
-          phx-value-index={index}
+          phx-value-index={layer.index}
           class={"pure-button toggle-layer-light light-#{layer.light}"}
         >
           <span>💡</span>
@@ -36,12 +36,53 @@
         <button
           phx-click="toggle_layer_highlight"
           phx-target={@myself}
-          phx-value-index={index}
+          phx-value-index={layer.index}
           class={"pure-button toggle-layer-highlight highlight-#{layer.highlight}"}
         >
           <span>☇</span>
         </button>
       </div>
+
+      <% layer_objects = objects_for_layer(layer.index, @game_state, @adventure) %>
+      <%= if Enum.any?(layer_objects) do %>
+        <div class="layer-objects">
+          <button
+            class="toggle-objects-group"
+            phx-click="toggle_objects_group"
+            phx-target={@myself}
+            phx-value-index={layer.index}
+          >
+            {if objects_group_open?(layer.index, assigns), do: "▾", else: "▸"} Objects ({length(
+              layer_objects
+            )})
+          </button>
+          <%= if objects_group_open?(layer.index, assigns) do %>
+            <div class="objects-list">
+              <%= for {obj, obj_state} <- layer_objects do %>
+                <div class="object-item">
+                  <span class="object-name">{obj.name}</span>
+                  <button
+                    phx-click="toggle_object_show"
+                    phx-target={@myself}
+                    phx-value-index={obj_state.index}
+                    class={"object-show show-#{obj_state.show}"}
+                  >
+                    {if obj_state.show, do: "👁", else: "👀"}
+                  </button>
+                  <button
+                    phx-click="toggle_object_lock"
+                    phx-target={@myself}
+                    phx-value-index={obj_state.index}
+                    class={"object-lock lock-#{obj_state.locked}"}
+                  >
+                    {if obj_state.locked, do: "🔒", else: "🔓"}
+                  </button>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
     </div>
   <% end %>
 </div>

@@ -12,6 +12,26 @@
       />
     </div>
 
+    <div class="objects-container" style={map_style(@map_geometry)}>
+      <%= for {obj, obj_state, layer_state} <- visible_objects(@adventure, @game_state, @opts) do %>
+        <div
+          id={"map-object-#{obj_state.index}"}
+          phx-hook={if @opts[:manage_objects], do: "PointerDrag"}
+          phx-target={@myself}
+          data-object-index={obj_state.index}
+          data-locked={to_string(obj_state.locked)}
+          style={object_style(obj, obj_state, layer_state, @map_geometry, @opts)}
+          class="map-object"
+        >
+          <img
+            src={obj.image}
+            draggable="false"
+            style="width: 100%; height: 100%; display: block;"
+          />
+        </div>
+      <% end %>
+    </div>
+
     <div class="tokens-container" style={map_style(@map_geometry)}>
       <%= for {token, index} <- visible_tokens(@game_state, @opts) do %>
         <.live_component
@@ -27,5 +47,36 @@
         />
       <% end %>
     </div>
+    <%= if assigns[:object_context_menu] do %>
+      <div
+        class="token-context-menu"
+        style={"left: #{@object_context_menu.x}px; top: #{@object_context_menu.y}px;"}
+        phx-click-away="close_object_context_menu"
+        phx-target={@myself}
+      >
+        <% obj_state = Enum.at(@game_state.scene.map.map_objects, @object_context_menu.index) %>
+        <button
+          phx-click="object_toggle_lock"
+          phx-value-index={@object_context_menu.index}
+          phx-target={@myself}
+        >
+          {if obj_state && obj_state.locked, do: "🔒", else: "🔓"}
+        </button>
+        <button
+          phx-click="object_toggle_show"
+          phx-value-index={@object_context_menu.index}
+          phx-target={@myself}
+        >
+          {if obj_state && obj_state.show, do: "👁", else: "👀"}
+        </button>
+        <button
+          phx-click="object_reset_position"
+          phx-value-index={@object_context_menu.index}
+          phx-target={@myself}
+        >
+          ↩
+        </button>
+      </div>
+    <% end %>
   <% end %>
 </div>

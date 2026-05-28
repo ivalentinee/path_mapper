@@ -76,6 +76,83 @@ Hooks.Draggable = {
   }
 };
 
+Hooks.PointerDrag = {
+  mounted() {
+    this.dragging = false;
+    this.startX = null;
+    this.startY = null;
+    this.origX = null;
+    this.origY = null;
+
+    this.el.addEventListener("pointerdown", event => {
+      if (event.button !== 0) return; // left button only
+      if (this.el.dataset.locked === "true") return;
+
+      event.preventDefault();
+      this.el.setPointerCapture(event.pointerId);
+      this.dragging = true;
+      this.startX = event.clientX;
+      this.startY = event.clientY;
+      this.origX = parseFloat(this.el.style.left) || 0;
+      this.origY = parseFloat(this.el.style.top) || 0;
+      this.el.style.cursor = "grabbing";
+    });
+
+    this.el.addEventListener("pointermove", event => {
+      if (!this.dragging) return;
+
+      const dx = event.clientX - this.startX;
+      const dy = event.clientY - this.startY;
+      const newLeft = this.origX + dx;
+      const newTop = this.origY + dy;
+
+      // Move the HTML element directly for smooth feedback
+      this.el.style.left = newLeft + "px";
+      this.el.style.top = newTop + "px";
+
+      // Send element screen position (relative to container), not raw mouse coords
+      this.pushEventTo(this.el, "object_drag", {
+        index: parseInt(this.el.dataset.objectIndex),
+        screen_x: newLeft,
+        screen_y: newTop
+      });
+    });
+
+    this.el.addEventListener("pointerup", event => {
+      if (!this.dragging) return;
+      this.dragging = false;
+      this.el.releasePointerCapture(event.pointerId);
+      this.el.style.cursor = "";
+
+      const finalLeft = parseFloat(this.el.style.left) || 0;
+      const finalTop = parseFloat(this.el.style.top) || 0;
+
+      this.pushEventTo(this.el, "object_move", {
+        index: parseInt(this.el.dataset.objectIndex),
+        screen_x: finalLeft,
+        screen_y: finalTop
+      });
+    });
+
+    this.el.addEventListener("contextmenu", event => {
+      event.preventDefault();
+      this.pushEventTo(this.el, "object_context_menu", {
+        index: parseInt(this.el.dataset.objectIndex),
+        x: event.clientX,
+        y: event.clientY
+      });
+    });
+
+    // Show grab cursor on unlocked objects
+    if (this.el.dataset.locked !== "true") {
+      this.el.style.cursor = "grab";
+    }
+  },
+  updated() {
+    this.el.style.cursor = (this.el.dataset.locked !== "true") ? "grab" : "";
+  }
+};
+
 Hooks.LayerHover = {
   mounted() { this.bindLayerEvents(); },
   updated() { this.bindLayerEvents(); },

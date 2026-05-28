@@ -7,6 +7,22 @@
   z-index: 100;
 }
 
+.objects-container {
+  pointer-events: none;
+}
+
+.objects-container .map-object {
+  pointer-events: auto;
+}
+
+.tokens-container {
+  pointer-events: none;
+}
+
+.tokens-container .token {
+  pointer-events: auto;
+}
+
 .token-context-menu {
   position: fixed;
   display: flex;
