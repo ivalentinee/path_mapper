@@ -29,7 +29,7 @@
           phx-click="go_to_add_tokens"
           phx-target={@myself}
         >
-          Add
+          {gettext("Add")}
         </button>
 
         <button
@@ -38,7 +38,7 @@
           phx-click="go_to_add_player_tokens"
           phx-target={@myself}
         >
-          Players
+          {gettext("Players")}
         </button>
 
         <button
@@ -47,11 +47,13 @@
           phx-click="go_to_extra_tokens"
           phx-target={@myself}
         >
-          Extras
+          {gettext("Extras")}
         </button>
 
         <button id="tokens-copy-button" class="pure-button sub-button" phx-hook="Copy">
-          <span class="data" style="display: none">{serialize_tokens(@game_state)}</span> Copy
+          <span class="data" style="display: none">{serialize_tokens(@game_state)}</span> {gettext(
+            "Copy"
+          )}
         </button>
       </div>
 

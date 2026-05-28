@@ -7,7 +7,7 @@
       class="pure-button sub-button"
       disabled={@game_state.scene == nil}
     >
-      Unset
+      {gettext("Unset")}
     </button>
     <button
       id="reset_scene"
@@ -16,7 +16,7 @@
       class={"pure-button sub-button #{if assigns[:confirm_reset], do: "confirm", else: ""}"}
       disabled={@game_state.scene == nil}
     >
-      {if assigns[:confirm_reset], do: "Confirm?", else: "Reset"}
+      {if assigns[:confirm_reset], do: gettext("Confirm?"), else: gettext("Reset")}
     </button>
   </div>
   <%= for {item, index} <- Enum.with_index(@adventure.scenes) do %>

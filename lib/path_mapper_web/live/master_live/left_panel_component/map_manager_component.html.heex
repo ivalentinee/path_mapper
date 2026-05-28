@@ -6,7 +6,7 @@
       phx-target={@myself}
       class={"pure-button sub-button grid-#{@game_state.scene.map.show_grid}"}
     >
-      Grid
+      {gettext("Grid")}
     </button>
   </div>
   <%= for layer <- @game_state.scene.map.layers do %>
@@ -52,7 +52,7 @@
             phx-target={@myself}
             phx-value-index={layer.index}
           >
-            {if objects_group_open?(layer.index, assigns), do: "▾", else: "▸"} Objects ({length(
+            {if objects_group_open?(layer.index, assigns), do: "▾", else: "▸"} {gettext("Objects")} ({length(
               layer_objects
             )})
           </button>

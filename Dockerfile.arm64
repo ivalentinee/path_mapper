@@ -45,6 +45,7 @@ RUN mix deps.get && mix deps.compile
 
 COPY . /app/
 RUN mix compile
+RUN mix gettext.extract
 # NOTE: this one hangs, let's copy externally-built assets
 # RUN mix assets.deploy && mix phx.digest
 COPY ./priv/static /app/priv/static

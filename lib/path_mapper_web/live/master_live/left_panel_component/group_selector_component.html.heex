@@ -4,9 +4,9 @@
       phx-click="reload"
       phx-target={@myself}
       class="pure-button sub-button"
-      title="Refresh group file list from disk"
+      title={gettext("Refresh group file list from disk")}
     >
-      Reload
+      {gettext("Reload")}
     </button>
   </div>
   <%= for {item, index} <- Enum.with_index(@groups, 1) do %>

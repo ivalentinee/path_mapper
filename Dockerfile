@@ -30,6 +30,7 @@ ENV MIX_ENV=prod RELEASE_NAME=${RELEASE_NAME}
 
 RUN mix deps.get && mix deps.compile
 RUN mix compile
+RUN mix gettext.extract
 RUN mix assets.deploy && mix phx.digest
 RUN mix release $RELEASE_NAME
 RUN tar -C "./_build/prod/rel/${RELEASE_NAME}" -cf release.tar ./

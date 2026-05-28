@@ -1,7 +1,7 @@
 <div class="links-panel">
-  <div class="links-title">Links</div>
+  <div class="links-title">{gettext("Links")}</div>
   <%= if Enum.empty?(@adventure.urls) do %>
-    <div class="panel-empty">No links in this adventure</div>
+    <div class="panel-empty">{gettext("No links in this adventure")}</div>
   <% else %>
     <%= for url <- @adventure.urls do %>
       <a class="links-entry" href={url.url} target="_blank" rel="noopener noreferrer">

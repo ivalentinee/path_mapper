@@ -1,13 +1,13 @@
 <div class="left-panel" phx-click="noop" phx-target={@myself}>
   <div class="panel-selector">
     {panel_select_button(%{
-      text: "Adventures",
+      text: gettext("Adventures"),
       panel_name: "adventure-selector",
       myself: @myself,
       left_panel_state: @left_panel_state
     })}
     {panel_select_button(%{
-      text: "Groups",
+      text: gettext("Groups"),
       panel_name: "group-selector",
       myself: @myself,
       left_panel_state: @left_panel_state
@@ -15,7 +15,7 @@
 
     <%= if @group && @game_state do %>
       {panel_select_button(%{
-        text: "Scenes",
+        text: gettext("Scenes"),
         panel_name: "scene-selector",
         myself: @myself,
         left_panel_state: @left_panel_state
@@ -24,7 +24,7 @@
 
     <%= if @game_state && @game_state.scene do %>
       {panel_select_button(%{
-        text: "Map",
+        text: gettext("Map"),
         panel_name: "map-manager",
         myself: @myself,
         left_panel_state: @left_panel_state
@@ -33,7 +33,7 @@
 
     <%= if @game_state && @game_state.scene do %>
       {panel_select_button(%{
-        text: "Tokens",
+        text: gettext("Tokens"),
         panel_name: "tokens",
         myself: @myself,
         left_panel_state: @left_panel_state

@@ -18,9 +18,9 @@
       </div>
     <% end %>
     <%= if Enum.empty?(@group.players) do %>
-      <div class="panel-empty">No players in the group</div>
+      <div class="panel-empty">{gettext("No players in the group")}</div>
     <% end %>
   </div>
 <% else %>
-  <div class="panel-empty">No group loaded</div>
+  <div class="panel-empty">{gettext("No group loaded")}</div>
 <% end %>
