@@ -1,12 +1,24 @@
 <div class="right-panel" phx-click="noop" phx-target={@myself}>
   <div class="panel-selector right-panel-selector">
-    <button
-      class={"right-panel-button #{if @right_panel_state.group_panel_open, do: "active"}"}
-      phx-click="toggle_group_panel"
-      phx-target={@myself}
-    >
-      Group
-    </button>
+    <%= if @group do %>
+      <button
+        class={"right-panel-button #{if @right_panel_state.group_panel_open, do: "active"}"}
+        phx-click="toggle_group_panel"
+        phx-target={@myself}
+      >
+        Group
+      </button>
+    <% end %>
+
+    <%= if @adventure do %>
+      <button
+        class={"right-panel-button #{if @right_panel_state.links_panel_open, do: "active"}"}
+        phx-click="toggle_links_panel"
+        phx-target={@myself}
+      >
+        Links
+      </button>
+    <% end %>
 
     <button
       id="snap-to-grid"
@@ -21,6 +33,12 @@
   <%= if @right_panel_state.group_panel_open do %>
     <div class="panel-content right-panel-content">
       <.group_overview group={@group} />
+    </div>
+  <% end %>
+
+  <%= if @right_panel_state.links_panel_open do %>
+    <div class="panel-content right-panel-content">
+      <.links_panel adventure={@adventure} />
     </div>
   <% end %>
 </div>

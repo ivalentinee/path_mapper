@@ -17,6 +17,7 @@
 .right-panel-content {
   border-right: none;
   border-left: 1px solid #2a2540;
+  overflow-y: auto;
 }
 
 .right-panel-button {
@@ -114,4 +115,33 @@
   color: #5a5575;
   font-size: 0.9rem;
   text-align: center;
+}
+
+/* Links panel */
+
+.links-title {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #1a1528;
+  border-bottom: 1px solid #2a2540;
+  padding: 8px 4px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #c8c8e0;
+}
+
+.links-entry {
+  display: block;
+  padding: 8px;
+  color: #42b8dd;
+  text-decoration: none;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #2a2540;
+  transition: background-color 0.15s;
+}
+
+.links-entry:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #6ad0f0;
 }

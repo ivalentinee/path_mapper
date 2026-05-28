@@ -1,12 +1,24 @@
 defmodule PathMapperWeb.Scene.RightPanelState do
-  defstruct group_panel_open: false
+  defstruct group_panel_open: false, links_panel_open: false
 
   def run_event(%__MODULE__{} = state, :toggle_group_panel) do
-    Map.put(state, :group_panel_open, !state.group_panel_open)
+    if state.group_panel_open do
+      %{state | group_panel_open: false}
+    else
+      %{state | group_panel_open: true, links_panel_open: false}
+    end
+  end
+
+  def run_event(%__MODULE__{} = state, :toggle_links_panel) do
+    if state.links_panel_open do
+      %{state | links_panel_open: false}
+    else
+      %{state | links_panel_open: true, group_panel_open: false}
+    end
   end
 
   def run_event(%__MODULE__{} = state, :close) do
-    Map.put(state, :group_panel_open, false)
+    %{state | group_panel_open: false, links_panel_open: false}
   end
 
   def run_event(%__MODULE__{} = state, _), do: state

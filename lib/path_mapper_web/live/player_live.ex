@@ -28,6 +28,12 @@ defmodule PathMapperWeb.PlayerLive do
   end
 
   @impl true
+  def handle_event("close_panel", _, socket) do
+    send(self(), %{right_panel_update: :close})
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info(%{adventure_loaded: adventure}, socket) do
     {:noreply, assign(socket, :adventure, adventure)}
   end
