@@ -13,6 +13,8 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map.Layer do
     field(:index, :integer)
     field(:x, :integer)
     field(:y, :integer)
+    field(:width, :integer)
+    field(:height, :integer)
     field(:tags, {:array, :string})
     field(:show, :boolean)
     field(:light, :binary)
@@ -21,12 +23,12 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map.Layer do
 
   def changeset(struct, params) do
     struct
-    |> cast(params, [:name, :image, :index, :x, :y, :tags])
+    |> cast(params, [:name, :image, :index, :x, :y, :width, :height, :tags])
     |> FileStorage.store_image(:image)
     |> cast_show()
     |> cast_light()
     |> cast_floor()
-    |> validate_required([:name, :image, :index, :x, :y, :tags, :show, :light])
+    |> validate_required([:name, :image, :index, :x, :y, :width, :height, :tags, :show, :light])
   end
 
   def cast_show(changeset) do

@@ -1,70 +1,190 @@
 defmodule PathMapper.ORAReader.Layers do
+  require Logger
+
   alias PathMapper.ORAReader
   alias PathMapper.ORAReader.Geometry
+  alias PathMapper.ORAReader.Image
   alias PathMapper.ORAReader.XML
 
-  @name_regex ~r/(([0-9]+) - )?([^\[]+) *(\[.+\])?/
-  @tag_trim_regex ~r/[ \[\]]+/
-  @empty_capture ""
+  require Record
+  Record.defrecord(:xmlElement, Record.extract(:xmlElement, from_lib: "xmerl/include/xmerl.hrl"))
 
-  def get_all_layers(element, ora_files) do
-    stack_element = List.first(XML.get_children(element, :stack))
-    layer_xml_elements = XML.get_children(stack_element, :layer)
-    all_layers = Enum.map(layer_xml_elements, &get_layer(&1, ora_files))
-    {:ok, all_layers}
+  @layer_prefix_regex ~r/\[(L)(\d+)\]/
+  @special_prefix_regex ~r/\[([BGF])\]/
+  @tag_regex ~r/\[([^\]]+)\]/
+
+  def get_all_layers(document, ora_files) do
+    stack_element = List.first(XML.get_children(document, :stack))
+    children = XML.get_children(stack_element, :layer) ++ XML.get_children(stack_element, :stack)
+    all_items = Enum.flat_map(children, &classify_element(&1, ora_files))
+    {:ok, all_items}
   end
 
-  def find_layers(all_layers) do
-    all_layers
-    |> Enum.filter(fn %{type: type} -> type == :layer end)
-    |> Enum.sort_by(fn %{index: index} -> index end)
+  def find_layers(all_items) do
+    all_items
+    |> Enum.filter(&(&1.type == :layer))
+    |> Enum.sort_by(& &1.index)
   end
 
-  def find_additional_layer(all_layers, name) do
-    Enum.find(all_layers, fn
-      %{name: layer_name, type: type} -> type == :additional_layer && layer_name == name
-      _ -> false
-    end)
+  def find_additional_layer(all_items, type) when type in [:grid, :fow] do
+    Enum.find(all_items, &(&1.type == type))
   end
 
-  defp get_layer(layer_xml_element, ora_files) do
-    with {:ok, image} <- XML.get_attribute_value(layer_xml_element, :src),
-         {:ok, image_file} <- ORAReader.find_ora_file(ora_files, image),
-         {:ok, name} <- XML.get_attribute_value(layer_xml_element, :name),
-         {:ok, {parsed_name, index, tags}} <- parse_name(name),
-         {:ok, {x, y}} <- Geometry.get_position(layer_xml_element) do
-      if index,
-        do: build_layer(:layer, parsed_name, image_file, x, y, tags, index),
-        else: build_layer(:additional_layer, parsed_name, image_file, x, y, tags)
+  def find_map_objects(all_items) do
+    all_items
+    |> Enum.filter(&(&1.type == :map_object))
+    |> Enum.sort_by(& &1.layer_index)
+  end
+
+  # --- Classification ---
+
+  defp classify_element(element, ora_files) do
+    case XML.get_attribute_value(element, :name) do
+      {:ok, name} -> classify_by_name(element, name, ora_files)
+      _ -> []
+    end
+  end
+
+  defp classify_by_name(element, name, ora_files) do
+    cond do
+      match = Regex.run(@layer_prefix_regex, name) ->
+        [_, _, index_str] = match
+        index = String.to_integer(index_str)
+        tags = parse_suffix_tags(name)
+        display_name = strip_prefixes_and_tags(name)
+
+        case element_type(element) do
+          :stack -> classify_group(element, index, display_name, tags, ora_files)
+          :layer -> [build_flat_layer(element, index, display_name, tags, ora_files)]
+        end
+
+      match = Regex.run(@special_prefix_regex, name) ->
+        [_, letter] = match
+        type = special_type(letter)
+        tags = parse_suffix_tags(name)
+        display_name = strip_prefixes_and_tags(name)
+        [build_special_layer(element, type, display_name, tags, ora_files)]
+
+      true ->
+        Logger.warning("ORA: ignoring layer with unrecognized name: #{inspect(name)}")
+        []
+    end
+  end
+
+  defp classify_group(stack_element, index, group_name, group_tags, ora_files) do
+    children = XML.get_children(stack_element, :layer)
+
+    {base_layers, objects} =
+      Enum.reduce(children, {[], []}, &classify_group_child(&1, &2, index, ora_files))
+
+    base_layers = Enum.reverse(base_layers)
+    objects = Enum.reverse(objects)
+
+    layer_items =
+      Enum.map(base_layers, fn base ->
+        %{
+          type: :layer,
+          name: base[:name] || group_name,
+          image: base.image,
+          x: base.x,
+          y: base.y,
+          width: base.width,
+          height: base.height,
+          tags: group_tags,
+          index: index
+        }
+      end)
+
+    # If no [B] layers found, this is a group with no base — just objects
+    layer_items =
+      if Enum.empty?(layer_items) do
+        Logger.warning("ORA: layer group [L#{index}] has no [B] base layer")
+        []
+      else
+        layer_items
+      end
+
+    layer_items ++ objects
+  end
+
+  defp classify_group_child(child, {bases, objs}, index, ora_files) do
+    case XML.get_attribute_value(child, :name) do
+      {:ok, child_name} ->
+        if String.contains?(child_name, "[B]") do
+          base_name = strip_prefixes_and_tags(child_name)
+          base = build_image_data(child, base_name, ora_files)
+          {[base | bases], objs}
+        else
+          obj_name = String.trim(child_name)
+          obj = build_object(child, obj_name, index, ora_files)
+          {bases, [obj | objs]}
+        end
+
+      _ ->
+        {bases, objs}
+    end
+  end
+
+  # --- Builders ---
+
+  defp build_flat_layer(element, index, name, tags, ora_files) do
+    data = build_image_data(element, name, ora_files)
+    Map.merge(data, %{type: :layer, tags: tags, index: index})
+  end
+
+  defp build_special_layer(element, type, name, tags, ora_files) do
+    data = build_image_data(element, name, ora_files)
+    Map.merge(data, %{type: type, tags: tags})
+  end
+
+  defp build_object(element, name, layer_index, ora_files) do
+    data = build_image_data(element, name, ora_files)
+    Map.merge(data, %{type: :map_object, layer_index: layer_index, tags: []})
+  end
+
+  defp build_image_data(element, name, ora_files) do
+    with {:ok, src} <- XML.get_attribute_value(element, :src),
+         {:ok, image_file} <- ORAReader.find_ora_file(ora_files, src),
+         {:ok, {x, y}} <- Geometry.get_position(element) do
+      {width, height} =
+        case Image.png_dimensions(image_file) do
+          {:ok, dims} -> dims
+          _ -> {0, 0}
+        end
+
+      %{name: name, image: image_file, x: x, y: y, width: width, height: height}
     else
-      error -> error
+      _ -> %{name: name, image: nil, x: 0, y: 0, width: 0, height: 0}
     end
   end
 
-  defp parse_name(full_name) do
-    case Regex.run(@name_regex, full_name) do
-      [_, _, @empty_capture, name] ->
-        {:ok, {String.trim(name), nil, nil}}
+  # --- Parsing helpers ---
 
-      [_, _, @empty_capture, name, tags] ->
-        {:ok, {String.trim(name), nil, parse_tags(tags)}}
-
-      [_, _, index, name] ->
-        {:ok, {String.trim(name), String.to_integer(index), []}}
-
-      [_, _, index, name, tags] ->
-        {:ok, {String.trim(name), String.to_integer(index), parse_tags(tags)}}
+  defp element_type(element) do
+    case xmlElement(element, :name) do
+      :stack -> :stack
+      _ -> :layer
     end
   end
 
-  defp parse_tags(tag_string) do
-    tag_string
-    |> String.replace(@tag_trim_regex, "")
-    |> String.split(",")
-    |> Enum.map(&String.trim/1)
+  defp parse_suffix_tags(name) do
+    # Find all [X] groups, skip the first one (the prefix)
+    all_matches = Regex.scan(@tag_regex, name)
+
+    case all_matches do
+      [_prefix | rest] -> Enum.map(rest, fn [_, tag] -> String.trim(tag) end)
+      _ -> []
+    end
   end
 
-  defp build_layer(type, name, image, x, y, tags, index \\ nil) when is_atom(type) do
-    %{type: type, name: name, image: image, x: x, y: y, tags: tags, index: index}
+  defp strip_prefixes_and_tags(name) do
+    name
+    |> String.replace(@tag_regex, "")
+    |> String.replace(@layer_prefix_regex, "")
+    |> String.trim()
   end
+
+  defp special_type("G"), do: :grid
+  defp special_type("F"), do: :fow
+  defp special_type("B"), do: :base
 end

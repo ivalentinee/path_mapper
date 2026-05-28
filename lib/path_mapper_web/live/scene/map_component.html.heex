@@ -2,10 +2,20 @@
   <svg class="svg-container">
     <%= if fow_layer = additional_map_layer(@adventure, @game_state, :fow) do %>
       <image
-        x="0"
-        y="0"
-        width={@geometry.width}
-        height={@geometry.height}
+        x={GeometryMapper.scale_map_pixel(fow_layer.x, @geometry)}
+        y={GeometryMapper.scale_map_pixel(fow_layer.y, @geometry)}
+        width={
+          GeometryMapper.scale_map_pixel(
+            fow_layer.width || @geometry.width * @geometry.scale,
+            @geometry
+          )
+        }
+        height={
+          GeometryMapper.scale_map_pixel(
+            fow_layer.height || @geometry.height * @geometry.scale,
+            @geometry
+          )
+        }
         class="image"
         href={fow_layer.image}
       />
@@ -13,10 +23,20 @@
 
     <%= for {layer, layer_state} <- map_adventure_layers_to_state(@adventure, @game_state) do %>
       <image
-        x="0"
-        y="0"
-        width={@geometry.width}
-        height={@geometry.height}
+        x={GeometryMapper.scale_map_pixel(layer.x, @geometry)}
+        y={GeometryMapper.scale_map_pixel(layer.y, @geometry)}
+        width={
+          GeometryMapper.scale_map_pixel(
+            layer.width || @geometry.width * @geometry.scale,
+            @geometry
+          )
+        }
+        height={
+          GeometryMapper.scale_map_pixel(
+            layer.height || @geometry.height * @geometry.scale,
+            @geometry
+          )
+        }
         class={"image #{layer_image_class(layer_state, @opts)} #{selected_layer_class(@selected_layer_index, layer_state.index)}"}
         href={layer.image}
       />
@@ -24,10 +44,20 @@
 
     <%= if grid_layer = additional_map_layer(@adventure, @game_state, :grid) do %>
       <image
-        x="0"
-        y="0"
-        width={@geometry.width}
-        height={@geometry.height}
+        x={GeometryMapper.scale_map_pixel(grid_layer.x, @geometry)}
+        y={GeometryMapper.scale_map_pixel(grid_layer.y, @geometry)}
+        width={
+          GeometryMapper.scale_map_pixel(
+            grid_layer.width || @geometry.width * @geometry.scale,
+            @geometry
+          )
+        }
+        height={
+          GeometryMapper.scale_map_pixel(
+            grid_layer.height || @geometry.height * @geometry.scale,
+            @geometry
+          )
+        }
         class="image"
         href={grid_layer.image}
       />

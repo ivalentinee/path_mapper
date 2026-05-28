@@ -3,6 +3,7 @@ defmodule PathMapperWeb.Scene.MapComponent do
 
   alias PathMapper.Adventures.Adventure
   alias PathMapper.Game.State.Scene.Map.Layer
+  alias PathMapper.Geometry.Mapper, as: GeometryMapper
 
   def layer_image_class(%Layer{highlight: true}, _opts), do: "highlight"
   def layer_image_class(%Layer{show: false}, %{show_hidden: true}), do: "darken"

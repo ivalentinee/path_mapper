@@ -11,11 +11,21 @@ defmodule PathMapper.ORAReader do
          {document, _rest} <- :xmerl_scan.file(~c"/tmp/tmp.xml"),
          :ok <- File.rm(@tmp_file_path),
          {:ok, {width, height}} <- Geometry.get_dimensions(document),
-         {:ok, all_layers} <- Layers.get_all_layers(document, ora_files) do
-      layers = Layers.find_layers(all_layers)
-      grid = Layers.find_additional_layer(all_layers, "grid")
-      fow = Layers.find_additional_layer(all_layers, "fow")
-      {:ok, %{layers: layers, grid: grid, fow: fow, width: width, height: height}}
+         {:ok, all_items} <- Layers.get_all_layers(document, ora_files) do
+      layers = Layers.find_layers(all_items)
+      grid = Layers.find_additional_layer(all_items, :grid)
+      fow = Layers.find_additional_layer(all_items, :fow)
+      map_objects = Layers.find_map_objects(all_items)
+
+      {:ok,
+       %{
+         layers: layers,
+         grid: grid,
+         fow: fow,
+         map_objects: map_objects,
+         width: width,
+         height: height
+       }}
     else
       error -> error
     end

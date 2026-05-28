@@ -104,6 +104,16 @@ defmodule PathMapper.Geometry.Mapper do
     {screen_x + map_geometry.x, screen_y + map_geometry.y}
   end
 
+  @doc """
+  Convert a map-pixel value to screen pixels.
+
+  For static adventure-schema coordinates (layer x/y/width/height) that are
+  in plain map pixels, not subpixels. Divides by scale only (no subpixel factor).
+  """
+  def scale_map_pixel(value, %Object{scale: scale}) when is_number(value) do
+    round(value / scale)
+  end
+
   defp calculate_scale(%Object{} = object, %Object{} = viewport) do
     object_width_to_height_relation = object.width / object.height
     viewport_width_to_height_relation = viewport.width / viewport.height
