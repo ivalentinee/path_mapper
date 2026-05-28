@@ -31,7 +31,13 @@ defmodule PathMapper.Adventures.Adventure.Scene.Token do
     end
   end
 
-  def color("enemy"), do: "#db0909"
-  def color("NPC"), do: "#a1a1a1"
+  def color(owner) when is_binary(owner) do
+    case String.downcase(owner) do
+      "enemy" -> "#db0909"
+      "npc" -> "#a1a1a1"
+      _ -> "#000000"
+    end
+  end
+
   def color(_), do: "#000000"
 end

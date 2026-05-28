@@ -47,6 +47,18 @@ defmodule PathMapper.Adventures do
     end
   end
 
+  def reload do
+    case read_adventure_directory() do
+      {:ok, filenames} ->
+        Agent.update(__MODULE__, fn _state -> filenames end)
+        broadcast(%{adventures_list_updated: filenames})
+        :ok
+
+      _ ->
+        :ok
+    end
+  end
+
   def get_loaded, do: LoadedStorage.get()
 
   defp read_adventure_directory do

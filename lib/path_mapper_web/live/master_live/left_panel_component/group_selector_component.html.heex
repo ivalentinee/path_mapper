@@ -1,4 +1,14 @@
 <div id="group-selector" class="group-selector">
+  <div class="sub-buttons">
+    <button
+      phx-click="reload"
+      phx-target={@myself}
+      class="pure-button sub-button"
+      title="Refresh group file list from disk"
+    >
+      Reload
+    </button>
+  </div>
   <%= for {item, index} <- Enum.with_index(@groups, 1) do %>
     <button
       phx-click="select_group"

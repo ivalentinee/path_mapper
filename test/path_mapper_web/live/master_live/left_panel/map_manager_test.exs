@@ -32,10 +32,10 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.MapManagerTest do
 
     view |> element("#map-manager-button") |> render_click()
 
-    view |> element("#layer-0 button.toggle-layer-show") |> render_click()
+    view |> element("#layer-1 button.toggle-layer-show") |> render_click()
     assert first_layer_state().show == false
 
-    view |> element("#layer-0 button.toggle-layer-show") |> render_click()
+    view |> element("#layer-1 button.toggle-layer-show") |> render_click()
     assert first_layer_state().show == true
   end
 
@@ -44,10 +44,10 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.MapManagerTest do
 
     view |> element("#map-manager-button") |> render_click()
 
-    view |> element("#layer-0 button.toggle-layer-light") |> render_click()
+    view |> element("#layer-1 button.toggle-layer-light") |> render_click()
     assert first_layer_state().light == "dim"
 
-    view |> element("#layer-0 button.toggle-layer-light") |> render_click()
+    view |> element("#layer-1 button.toggle-layer-light") |> render_click()
     assert first_layer_state().light == "bright"
   end
 
@@ -56,10 +56,10 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.MapManagerTest do
 
     view |> element("#map-manager-button") |> render_click()
 
-    view |> element("#layer-0 button.toggle-layer-highlight") |> render_click()
+    view |> element("#layer-1 button.toggle-layer-highlight") |> render_click()
     assert first_layer_state().highlight == true
 
-    view |> element("#layer-0 button.toggle-layer-highlight") |> render_click()
+    view |> element("#layer-1 button.toggle-layer-highlight") |> render_click()
     assert first_layer_state().highlight == false
   end
 
@@ -74,5 +74,5 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.MapManagerTest do
     assert Game.get_state().scene.map.show_grid == true
   end
 
-  def first_layer_state, do: Game.get_state().scene.map.layers |> Enum.at(0)
+  def first_layer_state, do: Enum.find(Game.get_state().scene.map.layers, &(&1.index == 1))
 end

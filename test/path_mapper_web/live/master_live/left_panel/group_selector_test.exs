@@ -34,4 +34,16 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.GroupSelectorTest do
 
     assert find_html_element(render(view), "button.item.selected")
   end
+
+  test "reload button refreshes group list", %{view: view} do
+    view |> element("#group-selector-button") |> render_click()
+
+    view
+    |> element("#group-selector button.sub-button", "Reload")
+    |> render_click()
+
+    html = render(view)
+    assert find_html_element(html, "#group-selector")
+    assert find_html_element(html, "#group-selector button.item")
+  end
 end

@@ -8,6 +8,11 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.GroupSelectorComponent do
     {:noreply, socket}
   end
 
+  def handle_event("reload", _, socket) do
+    Groups.reload()
+    {:noreply, socket}
+  end
+
   def select_button_extra_classes(group_filename, selected_group) do
     if selected_group && selected_group.file == group_filename,
       do: "selected",

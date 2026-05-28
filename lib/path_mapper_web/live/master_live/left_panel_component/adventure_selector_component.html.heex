@@ -1,4 +1,14 @@
 <div id="adventure-selector" class="adventure-selector">
+  <div class="sub-buttons">
+    <button
+      phx-click="reload"
+      phx-target={@myself}
+      class="pure-button sub-button"
+      title="Refresh adventure file list from disk"
+    >
+      Reload
+    </button>
+  </div>
   <%= for {item, index} <- Enum.with_index(@adventures, 1) do %>
     <button
       phx-click="select_adventure"

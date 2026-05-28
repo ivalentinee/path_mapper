@@ -34,4 +34,16 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.AdventureSelectorTest do
 
     assert find_html_element(render(view), "button.item.selected")
   end
+
+  test "reload button refreshes adventure list", %{view: view} do
+    view |> element("#adventure-selector-button") |> render_click()
+
+    view
+    |> element("#adventure-selector button.sub-button", "Reload")
+    |> render_click()
+
+    html = render(view)
+    assert find_html_element(html, "#adventure-selector")
+    assert find_html_element(html, "#adventure-selector button.item")
+  end
 end

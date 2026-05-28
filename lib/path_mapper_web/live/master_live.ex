@@ -84,6 +84,16 @@ defmodule PathMapperWeb.MasterLive do
   end
 
   @impl true
+  def handle_info(%{adventures_list_updated: adventures}, socket) do
+    {:noreply, assign(socket, :adventures, adventures)}
+  end
+
+  @impl true
+  def handle_info(%{groups_list_updated: groups}, socket) do
+    {:noreply, assign(socket, :groups, groups)}
+  end
+
+  @impl true
   def handle_info(%{game_update: game_state}, socket) do
     {:noreply, assign(socket, :game_state, game_state)}
   end
