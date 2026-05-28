@@ -1,7 +1,7 @@
 defmodule PathMapperWeb.MasterLive.LeftPanelComponent.SceneSelectorComponent do
   use PathMapperWeb, :live_component
 
-  require PathMapperWeb.MasterLive.UIState
+  require PathMapperWeb.MasterLive.LeftPanelState
 
   alias PathMapper.Game
 

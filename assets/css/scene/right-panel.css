@@ -1,35 +1,117 @@
 .right-panel {
   position: fixed;
   display: flex;
-  flex-direction: column;
+  flex-direction: row-reverse;
+  height: 100%;
+  max-width: 30%;
+  z-index: 100;
   top: 0;
   right: 0;
-  width: 44px;
-  height: 100%;
-  z-index: 100;
-  background: #1a1528;
+}
+
+.right-panel-selector {
+  border-right: none;
   border-left: 1px solid #2a2540;
-  padding: 4px 0;
-  gap: 2px;
+}
+
+.right-panel-content {
+  border-right: none;
+  border-left: 1px solid #2a2540;
 }
 
 .right-panel-button {
   height: auto;
-  writing-mode: sideways-rl;
-  font-weight: 600;
-  font-size: 0.85rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  padding: 16px 4px;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
   background: transparent;
   color: #8a8aaa;
   border: none;
-  border-radius: 0;
-  padding: 16px 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: color 0.15s, background 0.15s;
+  transition: color 0.15s, background-color 0.15s;
+  border-radius: 0;
 }
 
 .right-panel-button:hover {
   color: #c0c0e0;
   background: rgba(255, 255, 255, 0.05);
+}
+
+.right-panel-button.active {
+  color: #e0e0ff;
+  background: #2a2540;
+  border-left: 2px solid #42b8dd;
+}
+
+.right-panel-button.snap-to-grid {
+  margin-top: auto;
+  padding: 12px 4px;
+  font-size: 1.4rem;
+  color: #c8c8e0;
+}
+
+/* Group overview */
+
+.group-title {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #1a1528;
+  border-bottom: 1px solid #2a2540;
+  padding: 8px 4px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #c8c8e0;
+}
+
+.group-character {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  border-bottom: 1px solid #2a2540;
+}
+
+.group-character-portrait {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.group-character-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.group-character-name {
+  font-size: 1.15rem;
+  color: #c8c8e0;
+  word-wrap: break-word;
+}
+
+.group-character-player {
+  font-size: 0.85rem;
+  color: #8a8aaa;
+}
+
+.group-character-class {
+  font-size: 0.85rem;
+  color: #8a8aaa;
+  text-decoration: underline;
+}
+
+.panel-empty {
+  padding: 16px 8px;
+  color: #5a5575;
+  font-size: 0.9rem;
+  text-align: center;
 }

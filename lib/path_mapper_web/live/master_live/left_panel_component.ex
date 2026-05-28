@@ -1,11 +1,11 @@
 defmodule PathMapperWeb.MasterLive.LeftPanelComponent do
   use PathMapperWeb, :live_component
 
-  alias PathMapperWeb.MasterLive.UIState
+  alias PathMapperWeb.MasterLive.LeftPanelState
 
   @impl true
   def handle_event("select_panel", %{"name" => name}, socket) do
-    send(self(), %{ui_update: %{left_panel_select: ["left-panel", name]}})
+    send(self(), %{left_panel_update: %{left_panel_select: ["left-panel", name]}})
     {:noreply, socket}
   end
 
@@ -13,7 +13,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent do
   def handle_event("noop", _, socket), do: {:noreply, socket}
 
   def panel_select_button(assigns) do
-    active = selected_panel(assigns[:ui_state]) == assigns.panel_name
+    active = selected_panel(assigns[:left_panel_state]) == assigns.panel_name
     classes = "left-panel-button pure-button #{if active, do: "active"}"
     assigns = Map.put(assigns, :button_classes, classes)
 
@@ -30,16 +30,16 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent do
     """
   end
 
-  def selected_panel(ui_state) do
-    case ui_state do
+  def selected_panel(left_panel_state) do
+    case left_panel_state do
       %{left_panel: ["left-panel", left_subpanel | _rest]} -> left_subpanel
       _ -> nil
     end
   end
 
-  def select_button_extra_classes(%UIState{left_panel: selected_panel_name}, panel_name)
+  def select_button_extra_classes(%LeftPanelState{left_panel: selected_panel_name}, panel_name)
       when panel_name == selected_panel_name,
       do: "selected"
 
-  def select_button_extra_classes(_ui_state, _panel_name), do: ""
+  def select_button_extra_classes(_left_panel_state, _panel_name), do: ""
 end

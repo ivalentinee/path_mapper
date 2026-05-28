@@ -18,4 +18,12 @@
       selected_token_index={nil}
     />
   <% end %>
+
+  <.live_component
+    module={PathMapperWeb.Scene.RightPanelComponent}
+    id="right-panel"
+    group={@group}
+    scene_state={@scene_state}
+    right_panel_state={@right_panel_state}
+  />
 </div>

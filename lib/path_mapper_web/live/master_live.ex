@@ -5,7 +5,8 @@ defmodule PathMapperWeb.MasterLive do
   alias PathMapper.Adventures
   alias PathMapper.Game
   alias PathMapper.Groups
-  alias PathMapperWeb.MasterLive.UIState
+  alias PathMapperWeb.MasterLive.LeftPanelState
+  alias PathMapperWeb.Scene.RightPanelState
   alias PathMapperWeb.Scene.SceneState
 
   @impl true
@@ -27,46 +28,48 @@ defmodule PathMapperWeb.MasterLive do
       |> assign(:groups, groups)
       |> assign(:group, group)
       |> assign(:game_state, game_state)
-      |> assign(:ui_state, %UIState{})
+      |> assign(:left_panel_state, %LeftPanelState{})
       |> assign(:scene_state, %SceneState{})
+      |> assign(:right_panel_state, %RightPanelState{})
 
     {:ok, socket}
   end
 
-  def selected_layer_index(%UIState{hovered_layer: index})
+  def selected_layer_index(%LeftPanelState{hovered_layer: index})
       when is_number(index),
       do: index
 
-  def selected_layer_index(%UIState{left_panel: ["left-panel", "map-manager", index]})
+  def selected_layer_index(%LeftPanelState{left_panel: ["left-panel", "map-manager", index]})
       when is_number(index),
       do: index - 1
 
-  def selected_layer_index(%UIState{}), do: nil
+  def selected_layer_index(%LeftPanelState{}), do: nil
 
-  def selected_token_index(%UIState{left_panel: ["left-panel", "tokens"]}),
+  def selected_token_index(%LeftPanelState{left_panel: ["left-panel", "tokens"]}),
     do: :all
 
-  def selected_token_index(%UIState{left_panel: ["left-panel", "tokens", index]})
+  def selected_token_index(%LeftPanelState{left_panel: ["left-panel", "tokens", index]})
       when is_number(index),
       do: index - 1
 
-  def selected_token_index(%UIState{}), do: nil
+  def selected_token_index(%LeftPanelState{}), do: nil
 
   @impl true
   def handle_event("navigate", %{"key" => key}, socket) do
-    if key == "Escape", do: send(self(), %{ui_update: %{left_panel_select: []}})
+    if key == "Escape", do: send(self(), %{left_panel_update: %{left_panel_select: []}})
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("close_panel", _, socket) do
-    send(self(), %{ui_update: %{left_panel_select: []}})
+    send(self(), %{left_panel_update: %{left_panel_select: []}})
+    send(self(), %{right_panel_update: :close})
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("open_scene_selector", _, socket) do
-    send(self(), %{ui_update: %{left_panel_select: ["left-panel", "scene-selector"]}})
+    send(self(), %{left_panel_update: %{left_panel_select: ["left-panel", "scene-selector"]}})
     {:noreply, socket}
   end
 
@@ -86,8 +89,23 @@ defmodule PathMapperWeb.MasterLive do
   end
 
   @impl true
-  def handle_info(%{ui_update: ui_update}, socket) do
-    {:noreply, assign(socket, :ui_state, UIState.run_event(socket.assigns.ui_state, ui_update))}
+  def handle_info(%{left_panel_update: left_panel_update}, socket) do
+    {:noreply,
+     assign(
+       socket,
+       :left_panel_state,
+       LeftPanelState.run_event(socket.assigns.left_panel_state, left_panel_update)
+     )}
+  end
+
+  @impl true
+  def handle_info(%{right_panel_update: event}, socket) do
+    {:noreply,
+     assign(
+       socket,
+       :right_panel_state,
+       RightPanelState.run_event(socket.assigns.right_panel_state, event)
+     )}
   end
 
   @impl true

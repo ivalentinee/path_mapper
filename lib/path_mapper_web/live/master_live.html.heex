@@ -16,8 +16,8 @@
       adventure={@adventure}
       game_state={@game_state}
       opts={%{show_hidden: true, manage_tokens: true}}
-      selected_layer_index={selected_layer_index(@ui_state)}
-      selected_token_index={selected_token_index(@ui_state)}
+      selected_layer_index={selected_layer_index(@left_panel_state)}
+      selected_token_index={selected_token_index(@left_panel_state)}
     />
   <% end %>
 
@@ -28,6 +28,14 @@
   <% end %>
 
   <.live_component
+    module={PathMapperWeb.Scene.RightPanelComponent}
+    id="right-panel"
+    group={@group}
+    scene_state={@scene_state}
+    right_panel_state={@right_panel_state}
+  />
+
+  <.live_component
     module={PathMapperWeb.MasterLive.LeftPanelComponent}
     id="left-panel"
     adventures={@adventures}
@@ -35,7 +43,7 @@
     groups={@groups}
     group={@group}
     game_state={@game_state}
-    ui_state={@ui_state}
+    left_panel_state={@left_panel_state}
     scene_state={@scene_state}
   />
 </div>

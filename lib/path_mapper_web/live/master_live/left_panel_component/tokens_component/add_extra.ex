@@ -1,7 +1,7 @@
 defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.AddExtra do
   use PathMapperWeb, :live_component
 
-  require PathMapperWeb.MasterLive.UIState
+  require PathMapperWeb.MasterLive.LeftPanelState
 
   alias PathMapper.Game
 
@@ -9,7 +9,9 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.AddExtra d
     with_parsed_index(
       index_string,
       &send(self(), %{
-        ui_update: %{left_panel_select: ["left-panel", "tokens", "add-extra-token", &1, "add"]}
+        left_panel_update: %{
+          left_panel_select: ["left-panel", "tokens", "add-extra-token", &1, "add"]
+        }
       })
     )
 

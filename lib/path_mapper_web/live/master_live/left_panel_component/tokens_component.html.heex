@@ -1,24 +1,24 @@
 <div id="tokens" class="tokens">
   <%= cond do %>
-    <% selected_panel(@ui_state) == "add-token" -> %>
+    <% selected_panel(@left_panel_state) == "add-token" -> %>
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Add}
         id="add-token"
-        ui_state={@ui_state}
+        left_panel_state={@left_panel_state}
         tokens={@game_state.scene.data.tokens}
       />
-    <% selected_panel(@ui_state) == "add-player-token" -> %>
+    <% selected_panel(@left_panel_state) == "add-player-token" -> %>
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.AddPlayer}
         id="add-player-token"
-        ui_state={@ui_state}
+        left_panel_state={@left_panel_state}
         group={@group}
       />
-    <% selected_panel(@ui_state) == "add-extra-token" -> %>
+    <% selected_panel(@left_panel_state) == "add-extra-token" -> %>
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.AddExtra}
         id="add-extra-token"
-        ui_state={@ui_state}
+        left_panel_state={@left_panel_state}
         group={@group}
       />
     <% true -> %>
@@ -58,7 +58,7 @@
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage}
         id="manage-tokens"
-        ui_state={@ui_state}
+        left_panel_state={@left_panel_state}
         adventure={@adventure}
         game_state={@game_state}
       />

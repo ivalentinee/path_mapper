@@ -10,7 +10,8 @@
 .left-panel-button {
   height: auto;
   padding: 16px 4px;
-  writing-mode: sideways-lr;
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
   background: transparent;
   color: #8a8aaa;
   border: none;

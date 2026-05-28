@@ -4,6 +4,7 @@ defmodule PathMapperWeb.PlayerLive do
   alias PathMapper.Adventures
   alias PathMapper.Game
   alias PathMapper.Groups
+  alias PathMapperWeb.Scene.RightPanelState
   alias PathMapperWeb.Scene.SceneState
   @impl true
   def mount(_params, _session, socket) do
@@ -21,13 +22,34 @@ defmodule PathMapperWeb.PlayerLive do
       |> assign(:group, group)
       |> assign(:game_state, game_state)
       |> assign(:scene_state, %SceneState{})
+      |> assign(:right_panel_state, %RightPanelState{})
 
     {:ok, socket}
   end
 
   @impl true
+  def handle_info(%{adventure_loaded: adventure}, socket) do
+    {:noreply, assign(socket, :adventure, adventure)}
+  end
+
+  @impl true
+  def handle_info(%{group_loaded: group}, socket) do
+    {:noreply, assign(socket, :group, group)}
+  end
+
+  @impl true
   def handle_info(%{game_update: game_state}, socket) do
     {:noreply, assign(socket, :game_state, game_state)}
+  end
+
+  @impl true
+  def handle_info(%{right_panel_update: event}, socket) do
+    {:noreply,
+     assign(
+       socket,
+       :right_panel_state,
+       RightPanelState.run_event(socket.assigns.right_panel_state, event)
+     )}
   end
 
   @impl true

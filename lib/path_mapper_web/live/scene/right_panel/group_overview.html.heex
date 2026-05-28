@@ -1,0 +1,26 @@
+<%= if @group do %>
+  <div class="group-overview">
+    <div class="group-title">{@group.title}</div>
+    <%= for player <- @group.players do %>
+      <div class="group-character">
+        <img
+          class="group-character-portrait"
+          src={player.token}
+          style={"border: 2px solid #{player.color};"}
+        />
+        <div class="group-character-info">
+          <div class="group-character-name">{player.character_name}</div>
+          <div class="group-character-player">{player.player_name}</div>
+          <%= if player.class do %>
+            <div class="group-character-class">{player.class}</div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+    <%= if Enum.empty?(@group.players) do %>
+      <div class="panel-empty">No players in the group</div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="panel-empty">No group loaded</div>
+<% end %>

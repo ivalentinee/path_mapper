@@ -1,5 +1,5 @@
 <div id="manage-tokens" class="manage-tokens">
-  <%= for {token, index} <- selected_tokens(@game_state, @ui_state) do %>
+  <%= for {token, index} <- selected_tokens(@game_state, @left_panel_state) do %>
     <div class="item token">
       <span class="index">{index + 1}</span>
       <span class="name">{token.data.name}</span>
@@ -14,7 +14,7 @@
         </button>
 
         <.manage_state_button
-          ui_state={@ui_state}
+          left_panel_state={@left_panel_state}
           token={token}
           index={index}
           state="alive"
@@ -23,7 +23,7 @@
         />
 
         <.manage_state_button
-          ui_state={@ui_state}
+          left_panel_state={@left_panel_state}
           token={token}
           index={index}
           state="dead"
@@ -32,7 +32,7 @@
         />
 
         <.manage_state_button
-          ui_state={@ui_state}
+          left_panel_state={@left_panel_state}
           token={token}
           index={index}
           state="unconscious"
@@ -41,7 +41,7 @@
         />
 
         <.manage_state_button
-          ui_state={@ui_state}
+          left_panel_state={@left_panel_state}
           token={token}
           index={index}
           state="hidden"

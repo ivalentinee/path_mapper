@@ -27,13 +27,5 @@
         />
       <% end %>
     </div>
-
-    <%= if Enum.any?(@game_state.scene.tokens) do %>
-      <.live_component
-        module={PathMapperWeb.Scene.RightPanelComponent}
-        id="right-panel"
-        scene_state={@scene_state}
-      />
-    <% end %>
   <% end %>
 </div>

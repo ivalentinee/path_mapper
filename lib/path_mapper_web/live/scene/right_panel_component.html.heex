@@ -1,10 +1,26 @@
-<div class="right-panel">
-  <button
-    id="snap-to-grid"
-    class="pure-button right-panel-button"
-    phx-click="snap_to_grid"
-    phx-target={@myself}
-  >
-    {if @scene_state.snap_to_grid, do: "▣", else: "□"}
-  </button>
+<div class="right-panel" phx-click="noop" phx-target={@myself}>
+  <div class="panel-selector right-panel-selector">
+    <button
+      class={"right-panel-button #{if @right_panel_state.group_panel_open, do: "active"}"}
+      phx-click="toggle_group_panel"
+      phx-target={@myself}
+    >
+      Group
+    </button>
+
+    <button
+      id="snap-to-grid"
+      class="right-panel-button snap-to-grid"
+      phx-click="snap_to_grid"
+      phx-target={@myself}
+    >
+      {if @scene_state.snap_to_grid, do: "▣", else: "□"}
+    </button>
+  </div>
+
+  <%= if @right_panel_state.group_panel_open do %>
+    <div class="panel-content right-panel-content">
+      <.group_overview group={@group} />
+    </div>
+  <% end %>
 </div>

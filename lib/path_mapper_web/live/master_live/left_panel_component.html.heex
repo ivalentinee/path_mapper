@@ -4,13 +4,13 @@
       text: "Adventures",
       panel_name: "adventure-selector",
       myself: @myself,
-      ui_state: @ui_state
+      left_panel_state: @left_panel_state
     })}
     {panel_select_button(%{
       text: "Groups",
       panel_name: "group-selector",
       myself: @myself,
-      ui_state: @ui_state
+      left_panel_state: @left_panel_state
     })}
 
     <%= if @group && @game_state do %>
@@ -18,7 +18,7 @@
         text: "Scenes",
         panel_name: "scene-selector",
         myself: @myself,
-        ui_state: @ui_state
+        left_panel_state: @left_panel_state
       })}
     <% end %>
 
@@ -27,7 +27,7 @@
         text: "Map",
         panel_name: "map-manager",
         myself: @myself,
-        ui_state: @ui_state
+        left_panel_state: @left_panel_state
       })}
     <% end %>
 
@@ -36,12 +36,12 @@
         text: "Tokens",
         panel_name: "tokens",
         myself: @myself,
-        ui_state: @ui_state
+        left_panel_state: @left_panel_state
       })}
     <% end %>
   </div>
 
-  <%= if selected_panel(@ui_state) == "adventure-selector" do %>
+  <%= if selected_panel(@left_panel_state) == "adventure-selector" do %>
     <div class="panel-content">
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.AdventureSelectorComponent}
@@ -52,7 +52,7 @@
     </div>
   <% end %>
 
-  <%= if selected_panel(@ui_state) == "group-selector" do %>
+  <%= if selected_panel(@left_panel_state) == "group-selector" do %>
     <div class="panel-content">
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.GroupSelectorComponent}
@@ -63,36 +63,36 @@
     </div>
   <% end %>
 
-  <%= if @group && @adventure && @game_state && selected_panel(@ui_state) == "scene-selector" do %>
+  <%= if @group && @adventure && @game_state && selected_panel(@left_panel_state) == "scene-selector" do %>
     <div class="panel-content">
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.SceneSelectorComponent}
         id="scene-selector"
-        ui_state={@ui_state}
+        left_panel_state={@left_panel_state}
         adventure={@adventure}
         game_state={@game_state}
       />
     </div>
   <% end %>
 
-  <%= if @game_state && @game_state.scene && selected_panel(@ui_state) == "map-manager" do %>
+  <%= if @game_state && @game_state.scene && selected_panel(@left_panel_state) == "map-manager" do %>
     <div class="panel-content">
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent}
         id="map-manager"
-        ui_state={@ui_state}
+        left_panel_state={@left_panel_state}
         adventure={@adventure}
         game_state={@game_state}
       />
     </div>
   <% end %>
 
-  <%= if @adventure && @game_state && selected_panel(@ui_state) == "tokens" do %>
+  <%= if @adventure && @game_state && selected_panel(@left_panel_state) == "tokens" do %>
     <div class="panel-content">
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent}
         id="tokens"
-        ui_state={@ui_state}
+        left_panel_state={@left_panel_state}
         adventure={@adventure}
         game_state={@game_state}
         group={@group}

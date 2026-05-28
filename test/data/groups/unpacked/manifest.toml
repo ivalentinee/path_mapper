@@ -4,6 +4,7 @@ title="Test group"
 character_name = "Character 1"
 player_name = "Player 1"
 color = "#328546"
+class = "Fighter"
 token = "player-1/player-1.png"
 extra_tokens = [
     { image = "player-1/some-marker.png", name = "Some marker" },

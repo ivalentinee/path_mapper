@@ -1,8 +1,8 @@
 defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage do
   use PathMapperWeb, :live_component
 
-  require PathMapperWeb.MasterLive.UIState
-  alias PathMapperWeb.MasterLive.UIState
+  require PathMapperWeb.MasterLive.LeftPanelState
+  alias PathMapperWeb.MasterLive.LeftPanelState
 
   require PathMapper.TokenStates
   import PathMapper.TokenStates, only: [states: 0]
@@ -13,7 +13,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage do
 
   def handle_event("delete_token", %{"index" => index_string}, socket) do
     with_parsed_index(index_string, &Game.run_action([:tokens, :delete], &1))
-    unset_selected_token(socket.assigns.ui_state)
+    unset_selected_token(socket.assigns.left_panel_state)
     {:noreply, socket}
   end
 
@@ -29,13 +29,13 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage do
     if token, do: [token], else: tokens_with_index
   end
 
-  def selected_tokens(game_state, _ui_state) do
+  def selected_tokens(game_state, _left_panel_state) do
     Enum.with_index(game_state.scene.tokens)
   end
 
-  defp unset_selected_token(%UIState{left_panel: ["left-panel", "tokens", _index]}) do
-    send(self(), %{ui_update: %{left_panel_select: ["left-panel", "tokens"]}})
+  defp unset_selected_token(%LeftPanelState{left_panel: ["left-panel", "tokens", _index]}) do
+    send(self(), %{left_panel_update: %{left_panel_select: ["left-panel", "tokens"]}})
   end
 
-  defp unset_selected_token(%UIState{}), do: nil
+  defp unset_selected_token(%LeftPanelState{}), do: nil
 end

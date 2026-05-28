@@ -109,7 +109,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
     with_parsed_index(index, fn index_number ->
       send(
         self(),
-        %{ui_update: %{left_panel_select: ["left-panel", "tokens", index_number + 1]}}
+        %{left_panel_update: %{left_panel_select: ["left-panel", "tokens", index_number + 1]}}
       )
     end)
 
