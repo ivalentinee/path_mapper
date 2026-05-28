@@ -64,6 +64,12 @@ defmodule PathMapperWeb.PlayerLive do
      assign(socket, :scene_state, SceneState.run_event(socket.assigns.scene_state, scene_update))}
   end
 
+  @impl true
+  def handle_info(%{adventure_load_error: _}, socket), do: {:noreply, socket}
+
+  @impl true
+  def handle_info(%{group_load_error: _}, socket), do: {:noreply, socket}
+
   defp get_selected_adventure do
     case Adventures.get_loaded() do
       {:ok, adventure} -> adventure

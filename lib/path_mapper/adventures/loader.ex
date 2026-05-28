@@ -37,8 +37,8 @@ defmodule PathMapper.Adventures.Loader do
   defp parse_manifest(adventure_manifest_file) do
     case :tomerl.parse(adventure_manifest_file) do
       {:ok, adventure_manifest} -> {:ok, adventure_manifest}
-      {:error, error} -> {:toml_parse_error, error}
-      error -> {:toml_parse_error, error}
+      {:error, error} -> {:error, {:toml_parse_error, error}}
+      error -> {:error, {:toml_parse_error, error}}
     end
   end
 end

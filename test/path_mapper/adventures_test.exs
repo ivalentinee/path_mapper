@@ -7,6 +7,23 @@ defmodule PathMapper.AdventuresTest do
     assert {:ok, _adventure} = Adventures.load_adventure("adventure-1.zip")
   end
 
+  describe "load error broadcast" do
+    test "broadcasts adventure_load_error on malformed ZIP" do
+      Adventures.subscribe()
+      Adventures.load_adventure("bad-adventure.zip")
+      assert_receive %{adventure_load_error: errors}
+      assert is_list(errors)
+      assert length(errors) > 0
+    end
+
+    test "does not broadcast error on valid ZIP" do
+      Adventures.subscribe()
+      Adventures.load_adventure("adventure-1.zip")
+      refute_receive %{adventure_load_error: _}
+      assert_receive %{adventure_loaded: _}
+    end
+  end
+
   describe "reload/0" do
     test "updates Agent state with current directory contents" do
       original = Adventures.get()

@@ -2,7 +2,6 @@ defmodule PathMapper.Adventures do
   use Agent
 
   require Logger
-  alias Ecto.Changeset
   alias PathMapper.Adventures.LoadedStorage
   alias PathMapper.Adventures.Loader
   alias Phoenix.PubSub
@@ -31,18 +30,14 @@ defmodule PathMapper.Adventures do
     with {:ok, filename} <- get_filename(filename),
          {:ok, adventure} <- Loader.load(filename),
          :ok <- LoadedStorage.store(adventure) do
+      PathMapper.FileStorage.cleanup("adventure", adventure)
       broadcast(%{@adventure_loaded_event => adventure})
       {:ok, adventure}
     else
-      {:error, %Changeset{} = changeset} ->
-        Logger.error(
-          "Failed to load adventure: #{inspect(PathMapper.Errors.display_errors(changeset))}"
-        )
-
-        {:error, changeset}
-
       error ->
-        Logger.error("Failed to load adventure: #{inspect(error)}")
+        errors = PathMapper.Errors.format_load_error(error)
+        Logger.error("Failed to load adventure: #{inspect(errors)}")
+        broadcast(%{adventure_load_error: errors})
         error
     end
   end

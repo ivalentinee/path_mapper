@@ -35,6 +35,27 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.AdventureSelectorTest do
     assert find_html_element(render(view), "button.item.selected")
   end
 
+  test "loading malformed adventure shows error overlay", %{view: view} do
+    view |> element("#adventure-selector-button") |> render_click()
+
+    view
+    |> element("#adventure-selector button.item", "bad-adventure.zip")
+    |> render_click()
+
+    html = render(view)
+    assert find_html_element(html, ".load-errors-overlay")
+    assert find_html_element(html, ".load-error-item")
+  end
+
+  test "dismiss button clears error overlay", %{view: view} do
+    view |> element("#adventure-selector-button") |> render_click()
+    view |> element("#adventure-selector button.item", "bad-adventure.zip") |> render_click()
+    assert find_html_element(render(view), ".load-errors-overlay")
+
+    view |> element(".load-errors-dismiss") |> render_click()
+    refute find_html_element(render(view), ".load-errors-overlay")
+  end
+
   test "reload button refreshes adventure list", %{view: view} do
     view |> element("#adventure-selector-button") |> render_click()
 

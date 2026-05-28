@@ -25,6 +25,14 @@ defmodule PathMapperWeb.Endpoint do
     gzip: false,
     only: PathMapperWeb.static_paths()
 
+  # Serve extracted adventure/group files from priv/unpacked/
+  # (outside priv/static/ to avoid triggering the dev live reload watcher)
+  plug Plug.Static,
+    at: "/",
+    from: {:path_mapper, "priv/unpacked"},
+    gzip: false,
+    only: ~w(adventure group)
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do

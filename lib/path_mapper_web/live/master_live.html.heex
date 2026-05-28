@@ -47,4 +47,18 @@
     left_panel_state={@left_panel_state}
     scene_state={@scene_state}
   />
+
+  <%= if @load_errors != [] do %>
+    <div class="load-errors-overlay">
+      <div class="load-errors-panel">
+        <div class="load-errors-header">
+          <span class="load-errors-title">{gettext("Load errors")}</span>
+          <button class="load-errors-dismiss" phx-click="dismiss_load_errors">✕</button>
+        </div>
+        <%= for error <- @load_errors do %>
+          <div class="load-error-item">{error}</div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 </div>

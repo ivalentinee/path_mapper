@@ -117,6 +117,7 @@ msgstr ""
 msgid "Path Mapper"
 msgstr ""
 
+#: lib/path_mapper/errors.ex:50
 #: lib/path_mapper_web/live/player_live.ex:20
 #, elixir-autogen, elixir-format
 msgid "Player"
@@ -182,4 +183,64 @@ msgstr ""
 #: lib/path_mapper_web/components/core_components.ex:130
 #, elixir-autogen, elixir-format
 msgid "close"
+msgstr ""
+
+#: lib/path_mapper/errors.ex:52
+#, elixir-autogen, elixir-format
+msgid "Extra token"
+msgstr ""
+
+#: lib/path_mapper/errors.ex:18
+#, elixir-autogen, elixir-format
+msgid "Failed to parse manifest.toml at line %{line}, column %{col}: %{message}"
+msgstr ""
+
+#: lib/path_mapper/errors.ex:28
+#, elixir-autogen, elixir-format
+msgid "Failed to parse manifest.toml: %{error}"
+msgstr ""
+
+#: lib/path_mapper/errors.ex:12
+#, elixir-autogen, elixir-format
+msgid "Failed to read ZIP file: %{reason}"
+msgstr ""
+
+#: lib/path_mapper/errors.ex:53
+#, elixir-autogen, elixir-format
+msgid "Layer"
+msgstr ""
+
+#: lib/path_mapper_web/live/master_live.html.heex:55
+#, elixir-autogen, elixir-format
+msgid "Load errors"
+msgstr ""
+
+#: lib/path_mapper/errors.ex:54
+#, elixir-autogen, elixir-format
+msgid "Map object"
+msgstr ""
+
+#: lib/path_mapper/errors.ex:49
+#, elixir-autogen, elixir-format
+msgid "Placed token"
+msgstr ""
+
+#: lib/path_mapper/errors.ex:47
+#, elixir-autogen, elixir-format
+msgid "Scene"
+msgstr ""
+
+#: lib/path_mapper/errors.ex:48
+#, elixir-autogen, elixir-format
+msgid "Token"
+msgstr ""
+
+#: lib/path_mapper/errors.ex:51
+#, elixir-autogen, elixir-format
+msgid "URL"
+msgstr ""
+
+#: lib/path_mapper/errors.ex:36
+#, elixir-autogen, elixir-format
+msgid "Unknown error: %{error}"
 msgstr ""

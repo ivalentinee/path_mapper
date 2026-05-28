@@ -1,6 +1,7 @@
 defmodule PathMapper.Groups do
   use Agent
 
+  require Logger
   alias PathMapper.Groups.LoadedStorage
   alias PathMapper.Groups.Loader
   alias Phoenix.PubSub
@@ -29,10 +30,15 @@ defmodule PathMapper.Groups do
     with {:ok, filename} <- get_filename(filename),
          {:ok, group} <- Loader.load(filename),
          :ok <- LoadedStorage.store(group) do
+      PathMapper.FileStorage.cleanup("group", group)
       broadcast(%{@group_loaded_event => group})
       {:ok, group}
     else
-      error -> error
+      error ->
+        errors = PathMapper.Errors.format_load_error(error)
+        Logger.error("Failed to load group: #{inspect(errors)}")
+        broadcast(%{group_load_error: errors})
+        error
     end
   end
 

@@ -20,6 +20,23 @@ defmodule PathMapper.GroupsTest do
     assert player_without_class.class == nil
   end
 
+  describe "load error broadcast" do
+    test "broadcasts group_load_error on malformed ZIP" do
+      Groups.subscribe()
+      Groups.load_group("bad-group.zip")
+      assert_receive %{group_load_error: errors}
+      assert is_list(errors)
+      assert length(errors) > 0
+    end
+
+    test "does not broadcast error on valid ZIP" do
+      Groups.subscribe()
+      Groups.load_group("group-1.zip")
+      refute_receive %{group_load_error: _}
+      assert_receive %{group_loaded: _}
+    end
+  end
+
   describe "reload/0" do
     test "updates Agent state with current directory contents" do
       original = Groups.get()

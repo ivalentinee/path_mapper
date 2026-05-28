@@ -31,6 +31,7 @@ defmodule PathMapperWeb.MasterLive do
       |> assign(:left_panel_state, %LeftPanelState{})
       |> assign(:scene_state, %SceneState{})
       |> assign(:right_panel_state, %RightPanelState{})
+      |> assign(:load_errors, [])
 
     {:ok, socket}
   end
@@ -68,6 +69,11 @@ defmodule PathMapperWeb.MasterLive do
   end
 
   @impl true
+  def handle_event("dismiss_load_errors", _, socket) do
+    {:noreply, assign(socket, :load_errors, [])}
+  end
+
+  @impl true
   def handle_event("open_scene_selector", _, socket) do
     send(self(), %{left_panel_update: %{left_panel_select: ["left-panel", "scene-selector"]}})
     {:noreply, socket}
@@ -81,6 +87,16 @@ defmodule PathMapperWeb.MasterLive do
   @impl true
   def handle_info(%{group_loaded: group}, socket) do
     {:noreply, assign(socket, :group, group)}
+  end
+
+  @impl true
+  def handle_info(%{adventure_load_error: errors}, socket) do
+    {:noreply, assign(socket, :load_errors, errors)}
+  end
+
+  @impl true
+  def handle_info(%{group_load_error: errors}, socket) do
+    {:noreply, assign(socket, :load_errors, errors)}
   end
 
   @impl true

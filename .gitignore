@@ -36,7 +36,6 @@ npm-debug.log
 /assets/node_modules/
 
 /adventures
-/priv/static/adventure/
+/priv/unpacked/
 /groups
-/priv/static/group/
 /release.tar
