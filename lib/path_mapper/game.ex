@@ -4,7 +4,9 @@ defmodule PathMapper.Game do
   use Agent
 
   alias __MODULE__.Actions
+  alias __MODULE__.Initialize
   alias __MODULE__.State
+  alias PathMapper.Adventures.Adventure
   alias Phoenix.PubSub
 
   @update_pubsub_topic "game"
@@ -23,16 +25,21 @@ defmodule PathMapper.Game do
 
   def get_state do
     Agent.get(__MODULE__, fn
-      %__MODULE__{state: state} -> state
+      %__MODULE__{state: %State{} = state} -> %{scene: State.scene(state)}
       _ -> nil
     end)
   end
 
-  def reset do
-    Agent.get_and_update(__MODULE__, fn _ ->
-      empty_state = %State{}
-      {{:ok, empty_state}, %__MODULE__{state: empty_state}}
-    end)
+  def reset(%Adventure{} = adventure) do
+    state =
+      Agent.get_and_update(__MODULE__, fn _ ->
+        scenes = Initialize.build_all(adventure)
+        state = %State{scenes: scenes}
+        {state, %__MODULE__{state: state}}
+      end)
+
+    broadcast_game_update(state)
+    {:ok, state}
   end
 
   def run_action(action, data) when is_atom(action) or is_list(action) do
@@ -59,5 +66,7 @@ defmodule PathMapper.Game do
     end)
   end
 
-  defp broadcast_game_update(%State{} = state), do: broadcast(%{game_update: state})
+  defp broadcast_game_update(%State{} = state) do
+    broadcast(%{game_update: %{scene: State.scene(state)}})
+  end
 end

@@ -4,6 +4,12 @@ defmodule PathMapper.Game.Actions do
   def action(%State{} = state, [:scene | _rest] = action, data),
     do: __MODULE__.Scene.action(state, action, data)
 
+  def action(%State{active_scene: nil}, [:map | _], _data),
+    do: {:error, "No active scene"}
+
+  def action(%State{active_scene: nil}, [:tokens | _], _data),
+    do: {:error, "No active scene"}
+
   def action(%State{} = state, [:map | _rest] = action, data),
     do: __MODULE__.Map.action(state, action, data)
 

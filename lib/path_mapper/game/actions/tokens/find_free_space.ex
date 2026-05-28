@@ -3,14 +3,18 @@ defmodule PathMapper.Game.Actions.Tokens.FindFreeSpace do
   alias PathMapper.Game.Actions.Tokens.Point
   alias PathMapper.Game.State
 
-  def find_free_space(%State{} = state, token_size) when is_number(token_size) do
-    occupied_spaces = get_occupied_spaces(state)
-    grid_size = state.scene.map.grid_size
-    map_size = get_map_size(state, token_size)
+  def find_free_space(%State.Scene{} = scene, token_size) when is_number(token_size) do
+    occupied_spaces = get_occupied_spaces(scene)
+    grid_size = scene.map.grid_size
+    map_size = get_map_size(scene, token_size)
     iterate_through_possible_token_positions(grid_size, map_size, occupied_spaces)
   end
 
-  defp get_occupied_spaces(%State{scene: %{tokens: tokens}}) do
+  def find_free_space(%State{} = state, token_size) when is_number(token_size) do
+    find_free_space(State.scene(state), token_size)
+  end
+
+  defp get_occupied_spaces(%State.Scene{tokens: tokens}) do
     Enum.map(tokens, fn token ->
       %OccupiedSpace{
         from: %Point{x: token.x, y: token.y},
@@ -44,8 +48,8 @@ defmodule PathMapper.Game.Actions.Tokens.FindFreeSpace do
     end
   end
 
-  defp get_map_size(%State{} = state, token_size),
-    do: {state.scene.data.map.width - token_size, state.scene.data.map.height - token_size}
+  defp get_map_size(%State.Scene{data: %{map: map}}, token_size),
+    do: {map.width - token_size, map.height - token_size}
 
   defp occupies(%OccupiedSpace{from: from, to: to}, {x, y} = _position) do
     from.x <= x && from.y <= y && to.x >= x && to.y >= y

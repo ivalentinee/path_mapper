@@ -32,8 +32,8 @@ defmodule PathMapper.Adventures do
     with {:ok, filename} <- get_filename(filename),
          {:ok, adventure} <- Loader.load(filename),
          :ok <- LoadedStorage.store(adventure) do
+      Game.reset(adventure)
       broadcast(%{@adventure_loaded_event => adventure})
-      Game.reset()
       {:ok, adventure}
     else
       {:error, %Changeset{} = changeset} ->

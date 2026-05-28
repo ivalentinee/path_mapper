@@ -30,7 +30,7 @@ defmodule PathMapper.Game.Actions.Tokens.Move do
   end
 
   defp snap_position(%State{} = state, x, y) do
-    grid_size = state.scene.map.grid_size
+    grid_size = State.scene(state).map.grid_size
 
     {
       round(x / grid_size) * grid_size,

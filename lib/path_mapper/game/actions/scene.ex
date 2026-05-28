@@ -1,33 +1,29 @@
 defmodule PathMapper.Game.Actions.Scene do
-  alias PathMapper.Adventures
-  alias PathMapper.Adventures.Adventure.Scene
-  alias PathMapper.Game.Actions
+  alias PathMapper.Game.Initialize
   alias PathMapper.Game.State
 
-  def action(%State{} = state, [:scene, :select], index) when is_number(index) do
-    with {:ok, adventure} <- Adventures.get_loaded(),
-         {:ok, adventure_scene} <- Adventures.Adventure.get_scene(adventure, index) do
-      new_state = Map.put(state, :scene, State.Scene.initialize(adventure_scene, index))
-      place_tokens(new_state, adventure_scene)
+  def action(%State{active_scene: index} = state, [:scene, :select], index)
+      when is_integer(index) do
+    {:ok, state}
+  end
+
+  def action(%State{} = state, [:scene, :select], index) when is_integer(index) do
+    if Map.has_key?(state.scenes, index) do
+      {:ok, Map.put(state, :active_scene, index)}
     else
-      error -> {:error, error}
+      {:error, "Scene #{index} not found in initialized scenes"}
     end
   end
 
   def action(%State{} = state, [:scene, :unset], _) do
-    new_state = Map.put(state, :scene, nil)
-    {:ok, new_state}
+    {:ok, Map.put(state, :active_scene, nil)}
   end
 
-  defp place_tokens(%State{} = state, %Scene{place_tokens: place_tokens})
-       when is_list(place_tokens) do
-    Enum.reduce(place_tokens, {:ok, state}, &place_token/2)
+  def action(%State{active_scene: nil} = state, [:scene, :reset], _), do: {:ok, state}
+
+  def action(%State{active_scene: index} = state, [:scene, :reset], _) do
+    adventure_scene = State.scene(state).data
+    new_scene = Initialize.build_scene(adventure_scene, index)
+    {:ok, State.put_scene(state, new_scene)}
   end
-
-  defp place_tokens(state, _scene), do: {:ok, state}
-
-  defp place_token(place_token, {:ok, state}),
-    do: Actions.action(state, [:tokens, :add], {place_token.name, Map.from_struct(place_token)})
-
-  defp place_token(_place_token, {:error, error}), do: {:error, error}
 end

@@ -15,6 +15,11 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.SceneSelectorComponent do
     {:noreply, socket}
   end
 
+  def handle_event("reset_scene", _, socket) do
+    Game.run_action([:scene, :reset], nil)
+    {:noreply, socket}
+  end
+
   def select_button_extra_classes(scene_index, selected_scene) do
     if selected_scene && selected_scene.index == scene_index, do: "selected", else: ""
   end

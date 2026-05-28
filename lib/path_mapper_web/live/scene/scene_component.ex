@@ -6,12 +6,19 @@ defmodule PathMapperWeb.Scene.SceneComponent do
 
   @impl true
   def update(assigns, socket) do
+    scene_changed = scene_was_updated?(socket, assigns)
+    socket = assign(socket, assigns)
+
     socket =
-      if scene_was_updated?(socket, assigns),
-        do: build_map_geometry(assign(socket, assigns)),
-        else: assign(socket, assigns)
+      if scene_changed and has_viewport_geometry?(socket),
+        do: build_map_geometry(socket),
+        else: socket
 
     {:ok, socket}
+  end
+
+  defp has_viewport_geometry?(socket) do
+    Map.has_key?(socket.assigns, :viewport_geometry)
   end
 
   @impl true
@@ -50,10 +57,10 @@ defmodule PathMapperWeb.Scene.SceneComponent do
   end
 
   defp scene_was_updated?(
-         %{assigns: %{game_state: %{scene: scene}}} = _socket,
-         %{game_state: %{scene: new_scene}} = _new_assigns
+         %{assigns: %{game_state: %{scene: %{index: old_index}}}},
+         %{game_state: %{scene: %{index: new_index}}}
        ) do
-    scene.index != new_scene.index
+    old_index != new_index
   end
 
   defp scene_was_updated?(_socket, _new_assigns), do: false

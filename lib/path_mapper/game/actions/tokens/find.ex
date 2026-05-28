@@ -6,15 +6,15 @@ defmodule PathMapper.Game.Actions.Tokens.Find do
   alias PathMapper.Groups.Group.Player.ExtraToken
 
   def token_exists(%State{} = state, name) when is_binary(name) do
-    Enum.find(state.scene.tokens, &(&1.data.name == name))
+    Enum.find(State.scene(state).tokens, &(&1.data.name == name))
   end
 
   def find_adventure_token(%State{} = state, index) when is_number(index) do
-    Enum.at(state.scene.data.tokens, index)
+    Enum.at(State.scene(state).data.tokens, index)
   end
 
   def find_adventure_token(%State{} = state, name) when is_binary(name) do
-    Enum.find(state.scene.data.tokens, fn token -> token.name == name end)
+    Enum.find(State.scene(state).data.tokens, fn token -> token.name == name end)
   end
 
   def find_player_token(character_name_or_index)

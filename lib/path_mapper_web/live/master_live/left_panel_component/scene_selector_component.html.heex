@@ -5,8 +5,18 @@
       phx-click="unset_scene"
       phx-target={@myself}
       class="pure-button sub-button"
+      disabled={@game_state.scene == nil}
     >
       Unset
+    </button>
+    <button
+      id="reset_scene"
+      phx-click="reset_scene"
+      phx-target={@myself}
+      class="pure-button sub-button"
+      disabled={@game_state.scene == nil}
+    >
+      Reset
     </button>
   </div>
   <%= for {item, index} <- Enum.with_index(@adventure.scenes) do %>

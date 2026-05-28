@@ -31,13 +31,13 @@ defmodule PathMapper.Game.Actions.Tokens do
   end
 
   def action(%State{} = state, [:tokens, :delete], index) when is_number(index) do
-    updated_tokens = List.delete_at(state.scene.tokens, index)
+    updated_tokens = List.delete_at(State.scene(state).tokens, index)
     update_tokens(state, updated_tokens)
   end
 
   def action(%State{} = state, [:tokens, index, :set_state], token_state)
       when is_integer(index) and token_state in GameToken.states() do
-    case Enum.at(state.scene.tokens, index) do
+    case Enum.at(State.scene(state).tokens, index) do
       %GameToken{} = game_token ->
         update_token(state, index, Map.put(game_token, :state, token_state))
 
@@ -48,7 +48,7 @@ defmodule PathMapper.Game.Actions.Tokens do
 
   def action(%State{} = state, [:tokens, index, :drag], {drag_x, drag_y, opts})
       when is_number(index) and is_number(drag_x) and is_number(drag_y) and is_map(opts) do
-    case Enum.at(state.scene.tokens, index) do
+    case Enum.at(State.scene(state).tokens, index) do
       %GameToken{} = game_token ->
         update_token(state, index, drag_token(state, game_token, drag_x, drag_y, opts))
 
@@ -59,7 +59,7 @@ defmodule PathMapper.Game.Actions.Tokens do
 
   def action(%State{} = state, [:tokens, index, :move], {x, y, opts})
       when is_number(index) and is_number(x) and is_number(y) and is_map(opts) do
-    case Enum.at(state.scene.tokens, index) do
+    case Enum.at(State.scene(state).tokens, index) do
       %GameToken{} = game_token ->
         update_token(state, index, move_token(state, game_token, x, y, opts))
 
@@ -85,7 +85,7 @@ defmodule PathMapper.Game.Actions.Tokens do
 
     case GameToken.build(params, token) do
       {:ok, game_token} ->
-        updated_tokens = state.scene.tokens ++ [game_token]
+        updated_tokens = State.scene(state).tokens ++ [game_token]
         update_tokens(state, updated_tokens)
 
       {:error, %Changeset{} = changeset} ->
@@ -96,22 +96,21 @@ defmodule PathMapper.Game.Actions.Tokens do
     end
   end
 
-  def initial_token_geometry(%State{scene: %{map: %{grid_size: grid_size}}} = state, %Token{
-        size: size
-      }) do
+  def initial_token_geometry(%State{} = state, %Token{size: size}) do
+    grid_size = State.scene(state).map.grid_size
     token_size = grid_size * size
     {x, y} = FindFreeSpace.find_free_space(state, token_size)
     {x, y, token_size}
   end
 
-  def update_tokens(%State{scene: scene} = state, updated_tokens) when is_list(updated_tokens) do
-    updated_scene = Map.put(scene, :tokens, updated_tokens)
-    {:ok, Map.put(state, :scene, updated_scene)}
+  def update_tokens(%State{} = state, updated_tokens) when is_list(updated_tokens) do
+    updated_scene = Map.put(State.scene(state), :tokens, updated_tokens)
+    {:ok, State.put_scene(state, updated_scene)}
   end
 
   defp update_token(%State{} = state, index, %GameToken{} = updated_token)
        when is_number(index) do
-    updated_tokens = List.replace_at(state.scene.tokens, index, updated_token)
+    updated_tokens = List.replace_at(State.scene(state).tokens, index, updated_token)
     update_tokens(state, updated_tokens)
   end
 end

@@ -3,13 +3,14 @@ defmodule PathMapper.Game.Actions.Map do
   alias PathMapper.Game.State.Scene.Map.Layer
 
   def action(%State{} = state, [:map, :toggle_grid], _) do
-    updated_map = Map.put(state.scene.map, :show_grid, !state.scene.map.show_grid)
-    updated_scene = Map.put(state.scene, :map, updated_map)
-    {:ok, Map.put(state, :scene, updated_scene)}
+    scene = State.scene(state)
+    updated_map = Map.put(scene.map, :show_grid, !scene.map.show_grid)
+    updated_scene = Map.put(scene, :map, updated_map)
+    {:ok, State.put_scene(state, updated_scene)}
   end
 
   def action(%State{} = state, [:map, :layer, :toggle_show], index) when is_number(index) do
-    layer = Enum.at(state.scene.map.layers, index)
+    layer = Enum.at(State.scene(state).map.layers, index)
 
     if layer do
       updated_layer = Map.put(layer, :show, !layer.show)
@@ -20,7 +21,7 @@ defmodule PathMapper.Game.Actions.Map do
   end
 
   def action(%State{} = state, [:map, :layer, :toggle_light], index) when is_number(index) do
-    layer = Enum.at(state.scene.map.layers, index)
+    layer = Enum.at(State.scene(state).map.layers, index)
 
     if layer do
       light = if layer.light == "bright", do: "dim", else: "bright"
@@ -32,7 +33,7 @@ defmodule PathMapper.Game.Actions.Map do
   end
 
   def action(%State{} = state, [:map, :layer, :toggle_highlight], index) when is_number(index) do
-    layer = Enum.at(state.scene.map.layers, index)
+    layer = Enum.at(State.scene(state).map.layers, index)
 
     if layer do
       updated_layer = Map.put(layer, :highlight, !layer.highlight)
@@ -46,10 +47,10 @@ defmodule PathMapper.Game.Actions.Map do
     {:error, "Map action '#{inspect(action)}' not found"}
   end
 
-  defp update_layer(%State{} = state, %Layer{} = new_layer_state, index) do
-    updated_layers = List.replace_at(state.scene.map.layers, index, new_layer_state)
-    updated_map = Map.put(state.scene.map, :layers, updated_layers)
-    updated_scene = Map.put(state.scene, :map, updated_map)
-    Map.put(state, :scene, updated_scene)
+  defp update_layer(%State{} = state, %Layer{} = new_layer_state, layer_index) do
+    scene = State.scene(state)
+    updated_layers = List.replace_at(scene.map.layers, layer_index, new_layer_state)
+    updated_map = Map.put(scene.map, :layers, updated_layers)
+    State.put_scene(state, Map.put(scene, :map, updated_map))
   end
 end

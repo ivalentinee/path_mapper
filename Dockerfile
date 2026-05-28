@@ -1,19 +1,19 @@
-FROM elixir:1.18.2-slim AS dev
+FROM elixir:1.19.5-slim AS dev
 
 EXPOSE 4000
 
-RUN useradd --uid 1000 -U -ms /bin/bash elixir
-
 RUN apt-get update && \
-    apt-get install -y apt-utils openssl ca-certificates inotify-tools build-essential locales && \
+    apt-get install -y apt-utils openssl ca-certificates inotify-tools build-essential locales zip unzip git && \
     locale-gen && \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
     apt-get clean
 
 ENV LANG="en_US.UTF-8" LANGUAGE="en_US:en" LC_ALL="en_US.UTF-8"
 
-RUN mix local.hex --force && mix local.rebar --force && \
-    su -l elixir -c "mix local.hex --force && mix local.rebar --force"
+RUN mix local.hex --force && mix local.rebar --force
+
+COPY ./docker/setup-dev-user.sh /tmp/setup-dev-user.sh
+RUN bash /tmp/setup-dev-user.sh
 
 RUN mkdir /app
 WORKDIR /app
@@ -35,7 +35,7 @@ RUN mix release $RELEASE_NAME
 RUN tar -C "./_build/prod/rel/${RELEASE_NAME}" -cf release.tar ./
 
 ## Release
-FROM elixir:1.18.2 AS release
+FROM elixir:1.19.5-slim AS release
 
 RUN mkdir /app
 WORKDIR /app
