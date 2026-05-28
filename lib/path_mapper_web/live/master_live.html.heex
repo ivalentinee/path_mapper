@@ -1,4 +1,4 @@
-<div class="master-container">
+<div class="master-container" phx-click="close_panel">
   <div phx-window-keydown="navigate"></div>
 
   <.live_component
@@ -15,10 +15,16 @@
       scene_state={@scene_state}
       adventure={@adventure}
       game_state={@game_state}
-      opts={%{show_hidden: true}}
+      opts={%{show_hidden: true, manage_tokens: true}}
       selected_layer_index={selected_layer_index(@ui_state)}
       selected_token_index={selected_token_index(@ui_state)}
     />
+  <% end %>
+
+  <%= if @game_state && @game_state.scene do %>
+    <div class="scene-indicator" phx-click="open_scene_selector">
+      {@game_state.scene.data.name}
+    </div>
   <% end %>
 
   <.live_component

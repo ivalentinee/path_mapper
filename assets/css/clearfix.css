@@ -2,4 +2,35 @@ body {
   padding: 0;
   margin: 0;
   background: black;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #c8c8e0;
+}
+
+button, .pure-button {
+  background: #2a2540;
+  color: #c8c8e0;
+  border: 1px solid #3a3555;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+button:hover, .pure-button:hover {
+  background: #3a3555;
+  border-color: #5a5575;
+}
+
+button:active, .pure-button:active {
+  background: #1a1a3e;
+}
+
+button:disabled, .pure-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }

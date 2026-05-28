@@ -33,6 +33,10 @@ defmodule PathMapperWeb.MasterLive do
     {:ok, socket}
   end
 
+  def selected_layer_index(%UIState{hovered_layer: index})
+      when is_number(index),
+      do: index
+
   def selected_layer_index(%UIState{left_panel: ["left-panel", "map-manager", index]})
       when is_number(index),
       do: index - 1
@@ -51,6 +55,18 @@ defmodule PathMapperWeb.MasterLive do
   @impl true
   def handle_event("navigate", %{"key" => key}, socket) do
     if key == "Escape", do: send(self(), %{ui_update: %{left_panel_select: []}})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("close_panel", _, socket) do
+    send(self(), %{ui_update: %{left_panel_select: []}})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("open_scene_selector", _, socket) do
+    send(self(), %{ui_update: %{left_panel_select: ["left-panel", "scene-selector"]}})
     {:noreply, socket}
   end
 
@@ -79,6 +95,30 @@ defmodule PathMapperWeb.MasterLive do
     {:noreply,
      assign(socket, :scene_state, SceneState.run_event(socket.assigns.scene_state, scene_update))}
   end
+
+  @impl true
+  def handle_info({:close_all_context_menus, except_id}, socket) do
+    close_other_context_menus(socket, except_id)
+    {:noreply, socket}
+  end
+
+  defp close_other_context_menus(
+         %{assigns: %{game_state: %{scene: %{tokens: tokens}}}},
+         except_id
+       )
+       when is_list(tokens) do
+    tokens
+    |> Enum.with_index()
+    |> Enum.reject(fn {_token, index} -> "token-#{index}" == except_id end)
+    |> Enum.each(fn {_token, index} ->
+      send_update(PathMapperWeb.Scene.TokenComponent,
+        id: "token-#{index}",
+        close_context_menu: true
+      )
+    end)
+  end
+
+  defp close_other_context_menus(_socket, _except_id), do: :ok
 
   defp get_selected_adventure do
     case Adventures.get_loaded() do

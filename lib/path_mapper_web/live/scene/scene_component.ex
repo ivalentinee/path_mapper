@@ -1,6 +1,7 @@
 defmodule PathMapperWeb.Scene.SceneComponent do
   use PathMapperWeb, :live_component
 
+  alias PathMapper.Adventures.Adventure
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
   alias PathMapper.Geometry.Object, as: GeometryObject
 
@@ -50,10 +51,7 @@ defmodule PathMapperWeb.Scene.SceneComponent do
   end
 
   defp get_map(assigns) do
-    assigns.adventure
-    |> Map.get(:scenes)
-    |> Enum.at(assigns.game_state.scene.index)
-    |> Map.get(:map)
+    Adventure.get_scene_map(assigns.adventure, assigns.game_state.scene.index)
   end
 
   defp scene_was_updated?(

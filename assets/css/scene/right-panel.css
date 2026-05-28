@@ -1,18 +1,35 @@
 .right-panel {
   position: fixed;
   display: flex;
-  flex-direction: row;
-  height: 100%;
-  max-width: 30%;
-  z-index: 100;
-  opacity: 90%;
-  filter: brightness(110%);
+  flex-direction: column;
   top: 0;
   right: 0;
+  width: 44px;
+  height: 100%;
+  z-index: 100;
+  background: #1a1528;
+  border-left: 1px solid #2a2540;
+  padding: 4px 0;
+  gap: 2px;
 }
 
 .right-panel-button {
-  height: 100%;
+  height: auto;
   writing-mode: sideways-rl;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: transparent;
+  color: #8a8aaa;
+  border: none;
+  border-radius: 0;
+  padding: 16px 4px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.right-panel-button:hover {
+  color: #c0c0e0;
+  background: rgba(255, 255, 255, 0.05);
 }

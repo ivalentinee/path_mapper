@@ -1,10 +1,8 @@
 defmodule PathMapper.Game.Actions.Tokens.Player do
   alias PathMapper.Game.Actions.Tokens
   alias PathMapper.Game.State
-  alias PathMapper.Game.State.Scene.Token, as: GameToken
   alias PathMapper.Groups
 
-  require GameToken
   import PathMapper.Game.Actions.Tokens.Find
 
   def action(%State{} = state, [:tokens, :player, :add], index_or_name)

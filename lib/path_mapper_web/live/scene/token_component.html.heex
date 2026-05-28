@@ -4,24 +4,21 @@
     phx-hook="Draggable"
     draggable="true"
     phx-target={@myself}
-    style={token_shape_style(@token, @token_geometry, !!assigns[:dragged_token_geometry])}
+    data-token-index={if @opts[:manage_tokens], do: @index}
+    style={
+      token_container_style(
+        @token_geometry,
+        @grid_line_padding,
+        !!assigns[:dragged_token_geometry]
+      )
+    }
   >
-    <img
-      style={token_image_style(@token, @token_geometry)}
-      title={@token.data.name}
-      src={@token.data.image}
-      phx-click="token_click"
-      phx-value-index={@index}
-      phx-target={@myself}
-    />
+    <div style={token_shape_style()}>
+      <img style={token_image_style()} title={@token.data.name} src={@token.data.image} />
 
-    <div
-      style={token_state_style(@token, @token_geometry)}
-      class="token-state-marker"
-      phx-click="token_click"
-      phx-value-index={@index}
-      phx-target={@myself}
-    >
+      <div style={token_border_style(@token, @token_geometry)}></div>
+
+      <div style={token_state_style(@token)} class="token-state-marker"></div>
     </div>
     <%= if show_index(@selected_token_index, @index) do %>
       <div class="token-index">{@index + 1}</div>
@@ -31,13 +28,16 @@
   <%= if @dragged_token_geometry && !assigns[:own_drag] do %>
     <div
       id={"#{@id}_dragged_token"}
-      style={token_shape_style(@token, @dragged_token_geometry, true)}
+      style={token_container_style(@dragged_token_geometry, @grid_line_padding, true)}
     >
-      <img
-        style={token_image_style(@token, @dragged_token_geometry)}
-        title={@token.data.name}
-        src={@token.data.image}
-      />
+      <div style={token_shape_style()}>
+        <img style={token_image_style()} title={@token.data.name} src={@token.data.image} />
+        <div style={token_border_style(@token, @dragged_token_geometry)}></div>
+      </div>
     </div>
+  <% end %>
+
+  <%= if assigns[:context_menu] do %>
+    <.token_context_menu x={@context_menu.x} y={@context_menu.y} token={@token} target={@myself} />
   <% end %>
 </div>

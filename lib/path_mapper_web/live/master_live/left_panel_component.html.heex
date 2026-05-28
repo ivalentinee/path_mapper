@@ -1,26 +1,43 @@
-<div class="left-panel">
+<div class="left-panel" phx-click="noop" phx-target={@myself}>
   <div class="panel-selector">
     {panel_select_button(%{
       text: "Adventures",
       panel_name: "adventure-selector",
-      myself: @myself
+      myself: @myself,
+      ui_state: @ui_state
     })}
     {panel_select_button(%{
       text: "Groups",
       panel_name: "group-selector",
-      myself: @myself
+      myself: @myself,
+      ui_state: @ui_state
     })}
 
     <%= if @group && @game_state do %>
-      {panel_select_button(%{text: "Scenes", panel_name: "scene-selector", myself: @myself})}
+      {panel_select_button(%{
+        text: "Scenes",
+        panel_name: "scene-selector",
+        myself: @myself,
+        ui_state: @ui_state
+      })}
     <% end %>
 
     <%= if @game_state && @game_state.scene do %>
-      {panel_select_button(%{text: "Map", panel_name: "map-manager", myself: @myself})}
+      {panel_select_button(%{
+        text: "Map",
+        panel_name: "map-manager",
+        myself: @myself,
+        ui_state: @ui_state
+      })}
     <% end %>
 
     <%= if @game_state && @game_state.scene do %>
-      {panel_select_button(%{text: "Tokens", panel_name: "tokens", myself: @myself})}
+      {panel_select_button(%{
+        text: "Tokens",
+        panel_name: "tokens",
+        myself: @myself,
+        ui_state: @ui_state
+      })}
     <% end %>
   </div>
 

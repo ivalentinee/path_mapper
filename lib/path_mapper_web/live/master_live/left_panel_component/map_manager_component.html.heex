@@ -1,16 +1,16 @@
-<div id="map-manager" class="map-manager">
+<div id="map-manager" class="map-manager" phx-hook="LayerHover" phx-target={@myself}>
   <div class="sub-buttons">
     <button
       id="toggle_grid"
       phx-click="toggle_grid"
       phx-target={@myself}
-      class="pure-button sub-button"
+      class={"pure-button sub-button grid-#{@game_state.scene.map.show_grid}"}
     >
-      Grid (toggle)
+      Grid
     </button>
   </div>
   <%= for {layer, index} <- Enum.with_index(@game_state.scene.map.layers) do %>
-    <div class="layer item" id={"layer-#{index}"}>
+    <div class="layer item" id={"layer-#{index}"} data-layer-index={index}>
       <div class="layer-name item-name">
         <span class="index">{index + 1}</span>{adventure_layer(@adventure, @game_state, layer).name}
       </div>

@@ -23,6 +23,13 @@ defmodule PathMapper.Adventures.Adventure do
     end
   end
 
+  def get_scene_map(%__MODULE__{scenes: scenes}, scene_index) when is_number(scene_index) do
+    case Enum.at(scenes, scene_index) do
+      nil -> nil
+      scene -> scene.map
+    end
+  end
+
   def changeset(struct, params, adventure_zip) do
     struct
     |> cast(read_manifest_files(params, adventure_zip), [:title, :wallpaper, :file])

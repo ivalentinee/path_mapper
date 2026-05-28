@@ -3,6 +3,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent do
 
   require PathMapperWeb.MasterLive.UIState
 
+  alias PathMapper.Adventures.Adventure
   alias PathMapper.Game
 
   def handle_event("toggle_grid", _, socket) do
@@ -25,15 +26,23 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent do
     {:noreply, socket}
   end
 
+  def handle_event("hover_layer", %{"index" => index_string}, socket) do
+    with_parsed_index(index_string, &send(self(), %{ui_update: %{hover_layer: &1}}))
+    {:noreply, socket}
+  end
+
+  def handle_event("unhover_layer", _, socket) do
+    send(self(), %{ui_update: %{hover_layer: nil}})
+    {:noreply, socket}
+  end
+
   def button_extra_classes(map_name, selected_map) do
     if map_name == selected_map, do: "selected", else: ""
   end
 
   def adventure_layer(adventure, game_state, layer_state) do
     adventure
-    |> Map.get(:scenes)
-    |> Enum.at(game_state.scene.index)
-    |> Map.get(:map)
+    |> Adventure.get_scene_map(game_state.scene.index)
     |> Map.get(:layers)
     |> Enum.at(layer_state.index)
   end

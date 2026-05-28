@@ -4,11 +4,13 @@ defmodule PathMapper.Game.Actions.Tokens do
   alias PathMapper.Game.Actions.Tokens.FindFreeSpace
   alias PathMapper.Game.State
   alias PathMapper.Game.State.Scene.Token, as: GameToken
+  alias PathMapper.Geometry.Mapper, as: GeometryMapper
 
-  require GameToken
+  require PathMapper.TokenStates
   import PathMapper.Errors
   import PathMapper.Game.Actions.Tokens.Find
   import PathMapper.Game.Actions.Tokens.Move
+  import PathMapper.TokenStates, only: [states: 0]
 
   def action(%State{} = state, [:tokens, :player | _rest] = action, data),
     do: __MODULE__.Player.action(state, action, data)
@@ -36,7 +38,7 @@ defmodule PathMapper.Game.Actions.Tokens do
   end
 
   def action(%State{} = state, [:tokens, index, :set_state], token_state)
-      when is_integer(index) and token_state in GameToken.states() do
+      when is_integer(index) and token_state in states() do
     case Enum.at(State.scene(state).tokens, index) do
       %GameToken{} = game_token ->
         update_token(state, index, Map.put(game_token, :state, token_state))
@@ -74,10 +76,19 @@ defmodule PathMapper.Game.Actions.Tokens do
 
   def add_token(%State{} = state, token, params \\ %{}) when is_map(params) do
     {x, y, size} = initial_token_geometry(state, token)
+    source_subpixel = params[:subpixel]
 
     params = %{
-      x: params[:x] || x,
-      y: params[:y] || y,
+      x:
+        if(params[:x],
+          do: GeometryMapper.coordinate_to_subpixels(params[:x], source_subpixel),
+          else: x
+        ),
+      y:
+        if(params[:y],
+          do: GeometryMapper.coordinate_to_subpixels(params[:y], source_subpixel),
+          else: y
+        ),
       size: size,
       color: token.color,
       state: params[:state] || "alive"
@@ -97,10 +108,7 @@ defmodule PathMapper.Game.Actions.Tokens do
   end
 
   def initial_token_geometry(%State{} = state, %Token{size: size}) do
-    grid_size = State.scene(state).map.grid_size
-    token_size = grid_size * size
-    {x, y} = FindFreeSpace.find_free_space(state, token_size)
-    {x, y, token_size}
+    FindFreeSpace.initial_token_geometry(State.scene(state), size)
   end
 
   def update_tokens(%State{} = state, updated_tokens) when is_list(updated_tokens) do

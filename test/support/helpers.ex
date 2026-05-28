@@ -4,4 +4,9 @@ defmodule PathMapperWeb.TestHelpers do
     found_elements = Floki.find(document, selector)
     List.first(found_elements)
   end
+
+  def load_adventure(filename) do
+    PathMapper.Game.load(filename)
+    :ok
+  end
 end

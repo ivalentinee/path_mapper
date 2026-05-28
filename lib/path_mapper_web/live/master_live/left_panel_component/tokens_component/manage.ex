@@ -2,9 +2,10 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage do
   use PathMapperWeb, :live_component
 
   require PathMapperWeb.MasterLive.UIState
-  require PathMapper.Game.State.Scene.Token
   alias PathMapperWeb.MasterLive.UIState
-  import PathMapper.Game.State.Scene.Token, only: [states: 0]
+
+  require PathMapper.TokenStates
+  import PathMapper.TokenStates, only: [states: 0]
 
   alias PathMapper.Game
 

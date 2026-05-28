@@ -10,6 +10,10 @@ config :path_mapper,
        Application.get_env(:path_mapper, :group_base_path) ||
          System.get_env("GROUP_BASE_PATH") || "groups"
 
+config :path_mapper,
+       :subpixel_factor,
+       Application.get_env(:path_mapper, :subpixel_factor) || 10
+
 if config_env() == :prod do
   secret_key_base =
     System.get_env("SECRET_KEY_BASE") ||

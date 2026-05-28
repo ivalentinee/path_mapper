@@ -5,42 +5,78 @@
   height: 100%;
   max-width: 30%;
   z-index: 100;
-  opacity: 90%;
-  filter: brightness(110%);
 }
 
 .left-panel-button {
-  height: 100%;
+  height: auto;
+  padding: 16px 4px;
   writing-mode: sideways-lr;
+  background: transparent;
+  color: #8a8aaa;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.15s, background-color 0.15s;
+  border-radius: 0;
+}
+
+.left-panel-button:hover {
+  color: #c0c0e0;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.left-panel-button.active {
+  color: #e0e0ff;
+  background: #2a2540;
+  border-right: 2px solid #42b8dd;
 }
 
 .left-panel .panel-content {
-  width: 15vw;
+  max-width: 25vw;
   height: 100%;
+  overflow-y: auto;
 }
 
 .left-panel .item {
   text-align: start;
   width: 100%;
+  color: #c8c8e0;
+  font-size: 1.15rem;
 }
 
 .left-panel .item .item-name {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
 }
 
 .left-panel .item .index {
-  -webkit-text-stroke-width: 1px;
-  -webkit-text-stroke-color: black;
-  font-size: 150%;
-  font-weight: bold;
-  margin-right: 5px;
-  font-weight: lighter;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #5a5575;
+  margin-right: 8px;
 }
 
 .left-panel .sub-buttons {
-  margin-bottom: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #1a1528;
+  border-bottom: 1px solid #2a2540;
+  margin-bottom: 8px;
+  padding: 6px 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .left-panel .sub-button {
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: fit-content;
+  padding: 5px 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }

@@ -8,12 +8,14 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map do
   @primary_key false
   @default_grid_size 50
   @grid_tag_regex ~r/grid-([0-9]+)/
+  @grid_line_tag_regex ~r/grid-line-([0-9]+)/
 
   embedded_schema do
     field(:file, :string)
     field(:width, :integer)
     field(:height, :integer)
     field(:grid_size, :integer)
+    field(:grid_line_width, :integer)
     field(:show_grid, :boolean)
     field(:floors, {:array, :integer})
     embeds_many(:layers, __MODULE__.Layer)
@@ -29,9 +31,10 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map do
     |> cast_embed(:grid)
     |> cast_embed(:fow)
     |> get_grid_size()
+    |> get_grid_line_width()
     |> get_show_grid()
     |> cast_floors()
-    |> validate_required([:grid_size, :show_grid, :floors])
+    |> validate_required([:grid_size, :grid_line_width, :show_grid, :floors])
   end
 
   defp read_ora_file(params, adventure_zip) when is_map(params) do
@@ -50,6 +53,15 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map do
       put_change(changeset, :grid_size, grid_size)
     else
       _ -> put_change(changeset, :grid_size, @default_grid_size)
+    end
+  end
+
+  defp get_grid_line_width(changeset) do
+    with [_, line_width_string] <- get_grid_tag(changeset, @grid_line_tag_regex),
+         {line_width, _} <- Integer.parse(line_width_string) do
+      put_change(changeset, :grid_line_width, line_width)
+    else
+      _ -> put_change(changeset, :grid_line_width, 1)
     end
   end
 

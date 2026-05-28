@@ -4,5 +4,39 @@
 }
 
 .selected {
-  background: rgb(66, 184, 221);
+  background: rgba(66, 184, 221, 0.2);
+  color: #42b8dd;
+  border-left: 3px solid #42b8dd;
+}
+
+.confirm {
+  background: #9b2335 !important;
+  color: #ffd0d6;
+  border-color: #c93a4e;
+}
+
+.confirm:hover {
+  background: #b82e42 !important;
+}
+
+.scene-indicator {
+  position: fixed;
+  top: 10px;
+  left: 56px;
+  z-index: 99;
+  background: rgba(26, 21, 40, 0.85);
+  color: #c8c8e0;
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  border: 1px solid rgba(42, 37, 64, 0.6);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background 0.15s;
+}
+
+.scene-indicator:hover {
+  background: rgba(26, 21, 40, 0.95);
+  color: #e0e0ff;
 }

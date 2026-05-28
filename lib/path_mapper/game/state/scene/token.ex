@@ -2,9 +2,12 @@ defmodule PathMapper.Game.State.Scene.Token do
   use Ecto.Schema
 
   import Ecto.Changeset
-  alias PathMapper.Adventures.Adventure.Scene.Token, as: AdventureToken
 
-  @states ["alive", "unconscious", "dead", "hidden"]
+  require PathMapper.TokenStates
+  import PathMapper.TokenStates, only: [states: 0]
+
+  alias PathMapper.Adventures.Adventure.Scene.Token, as: AdventureToken
+  alias PathMapper.Geometry.Mapper, as: GeometryMapper
 
   @primary_key false
 
@@ -18,8 +21,6 @@ defmodule PathMapper.Game.State.Scene.Token do
     field(:color, :string)
     embeds_one(:data, AdventureToken)
   end
-
-  defmacro states, do: @states
 
   def build(params, %AdventureToken{} = data) do
     %__MODULE__{}
@@ -36,7 +37,7 @@ defmodule PathMapper.Game.State.Scene.Token do
 
   defp to_place_record(%__MODULE__{} = token) do
     token_object =
-      "{ name = \"#{token.data.name}\", x = #{token.x}, y = #{token.y}, state = \"#{token.state}\" }"
+      "{ name = \"#{token.data.name}\", x = #{token.x}, y = #{token.y}, state = \"#{token.state}\", subpixel = #{GeometryMapper.subpixel_factor()} }"
 
     indent = "        "
     "#{indent}#{token_object}"

@@ -5,31 +5,47 @@ defmodule PathMapperWeb.Scene.TokenComponent do
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
   alias PathMapper.Geometry.Object, as: GeometryObject
 
+  require PathMapper.TokenStates
+  import PathMapper.TokenStates, only: [states: 0]
+
+  embed_templates "token_context_menu*"
+
   @border_size 0.05
-  @token_size_multiplier 1 - @border_size
 
   @impl true
+  def update(%{close_context_menu: true}, socket) do
+    {:ok, assign(socket, context_menu: nil)}
+  end
+
   def update(assigns, socket) do
     %{size: size, x: x, y: y, drag_x: drag_x, drag_y: drag_y} = assigns.token
 
     token_geometry = build_token_geometry(assigns, size, x, y)
     dragged_token_geometry = build_token_geometry(assigns, size, drag_x, drag_y)
+    grid_line_padding = grid_line_padding(assigns)
 
     socket =
       socket
       |> assign(assigns)
       |> assign(:token_geometry, token_geometry)
       |> assign(:dragged_token_geometry, dragged_token_geometry)
+      |> assign(:grid_line_padding, grid_line_padding)
 
     {:ok, socket}
   end
 
   @impl true
-  def handle_event("dragstart", %{"x" => mouse_offset_x, "y" => mouse_offset_y}, socket) do
+  def handle_event("dragstart", %{"x" => mouse_x, "y" => mouse_y}, socket) do
+    map_geo = socket.assigns.map_geometry
+    token_geo = socket.assigns.token_geometry
+
+    {token_viewport_x, token_viewport_y} =
+      GeometryMapper.map_screen_to_viewport(token_geo.x, token_geo.y, map_geo)
+
     socket =
       socket
-      |> assign(:mouse_offset_x, mouse_offset_x - socket.assigns.token_geometry.x)
-      |> assign(:mouse_offset_y, mouse_offset_y - socket.assigns.token_geometry.y)
+      |> assign(:mouse_offset_x, mouse_x - token_viewport_x)
+      |> assign(:mouse_offset_y, mouse_y - token_viewport_y)
       |> assign(:own_drag, true)
 
     {:noreply, socket}
@@ -44,25 +60,19 @@ defmodule PathMapperWeb.Scene.TokenComponent do
       {socket.assigns.token.drag_x, socket.assigns.token.drag_y, %{snap: snap_to_grid}}
     )
 
-    socket =
-      socket
-      |> assign(:mouse_offset_x, nil)
-      |> assign(:mouse_offset_y, nil)
-      |> assign(:own_drag, nil)
-
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("drag", %{"x" => x, "y" => y, "id" => _id} = _event, socket) do
     if socket.assigns[:mouse_offset_x] do
-      x = x - if socket.assigns[:mouse_offset_x], do: socket.assigns[:mouse_offset_x], else: 0
-      y = y - if socket.assigns[:mouse_offset_y], do: socket.assigns[:mouse_offset_y], else: 0
+      viewport_x = x - socket.assigns.mouse_offset_x
+      viewport_y = y - socket.assigns.mouse_offset_y
 
-      scaled_x = GeometryMapper.scale_back(x, socket.assigns.map_geometry)
-      scaled_y = GeometryMapper.scale_back(y, socket.assigns.map_geometry)
+      {map_x, map_y} =
+        GeometryMapper.viewport_to_map(viewport_x, viewport_y, socket.assigns.map_geometry)
 
-      Game.run_action([:tokens, socket.assigns.index, :drag], {scaled_x, scaled_y, %{}})
+      Game.run_action([:tokens, socket.assigns.index, :drag], {map_x, map_y, %{}})
 
       {:noreply, socket}
     else
@@ -71,16 +81,40 @@ defmodule PathMapperWeb.Scene.TokenComponent do
   end
 
   @impl true
-  def handle_event("token_click", %{"ctrlKey" => true, "index" => index}, socket) do
+  def handle_event("context_menu", %{"x" => x, "y" => y}, socket) do
+    send(self(), {:close_all_context_menus, socket.assigns.id})
+    {:noreply, assign(socket, context_menu: %{x: x, y: y})}
+  end
+
+  @impl true
+  def handle_event("close_context_menu", _, socket) do
+    {:noreply, assign(socket, context_menu: nil)}
+  end
+
+  @impl true
+  def handle_event("context_set_state", %{"state" => state}, socket)
+      when state in states() do
+    Game.run_action([:tokens, socket.assigns.index, :set_state], state)
+    {:noreply, assign(socket, context_menu: nil)}
+  end
+
+  @impl true
+  def handle_event("context_delete", _, socket) do
+    Game.run_action([:tokens, :delete], socket.assigns.index)
+    {:noreply, assign(socket, context_menu: nil)}
+  end
+
+  @impl true
+  def handle_event("token_select", %{"index" => index}, socket) do
     with_parsed_index(index, fn index_number ->
-      send(self(), %{ui_update: %{left_panel_select: ["left-panel", "tokens", index_number + 1]}})
+      send(
+        self(),
+        %{ui_update: %{left_panel_select: ["left-panel", "tokens", index_number + 1]}}
+      )
     end)
 
     {:noreply, socket}
   end
-
-  @impl true
-  def handle_event("token_click", _, socket), do: {:noreply, socket}
 
   def show_index(selected_token_index, token_index) when selected_token_index == token_index,
     do: true
@@ -88,66 +122,91 @@ defmodule PathMapperWeb.Scene.TokenComponent do
   def show_index(:all, _token_index), do: true
   def show_index(_selected_token_index, _token_index), do: false
 
-  def token_shape_style(token, token_geometry, transparent) do
-    size = token_geometry.width * @token_size_multiplier
-    radius = ceil(size / 2)
-    border_width = ceil(size * @border_size)
-    # NOTE: I have no idea why it works
-    position_offset = border_width / 4
-
+  def token_container_style(token_geometry, grid_line_padding, transparent) do
+    size = token_geometry.width
     opacity = if transparent, do: 0.5, else: 1
 
-    style = %{
+    serialize_style(%{
       "position" => "absolute",
-      "left" => "#{token_geometry.x - position_offset}px",
-      "top" => "#{token_geometry.y - position_offset}px",
-      "border-radius" => "#{radius}px",
-      "border" => if(no_owner?(token), do: "", else: "#{border_width}px solid #{token.color}"),
+      "left" => "#{token_geometry.x}px",
+      "top" => "#{token_geometry.y}px",
+      "box-sizing" => "border-box",
+      "padding" => "#{grid_line_padding}px",
       "width" => "#{size}px",
       "height" => "#{size}px",
       "z-index" => 200,
       "opacity" => opacity
-    }
-
-    serialize_style(style)
+    })
   end
 
-  def token_image_style(_token, token_geometry) do
-    size = token_geometry.width * @token_size_multiplier
+  def token_shape_style do
+    serialize_style(%{
+      "position" => "relative",
+      "width" => "100%",
+      "height" => "100%",
+      "border-radius" => "50%",
+      "overflow" => "hidden"
+    })
+  end
 
-    style = %{
+  def token_border_style(token, token_geometry) do
+    size = token_geometry.width
+    border_width = ceil(size * @border_size)
+
+    if no_owner?(token) do
+      "display: none;"
+    else
+      serialize_style(%{
+        "position" => "absolute",
+        "left" => "0px",
+        "top" => "0px",
+        "width" => "100%",
+        "height" => "100%",
+        "border-radius" => "50%",
+        "box-shadow" => "inset 0 0 0 #{border_width}px #{token.color}",
+        "z-index" => 210,
+        "pointer-events" => "none"
+      })
+    end
+  end
+
+  def token_image_style do
+    serialize_style(%{
+      "width" => "100%",
+      "height" => "100%",
+      "display" => "block"
+    })
+  end
+
+  def token_state_style(%{state: "hidden"}) do
+    serialize_style(%{
       "position" => "absolute",
       "left" => "0px",
       "top" => "0px",
-      "width" => "#{size}px",
-      "height" => "#{size}px"
-    }
-
-    serialize_style(style)
+      "border-radius" => "50%",
+      "background" =>
+        "repeating-linear-gradient(-45deg, transparent, transparent 4px, rgba(0,0,0,0.7) 4px, rgba(0,0,0,0.7) 8px)",
+      "width" => "100%",
+      "height" => "100%",
+      "z-index" => 250,
+      "opacity" => 0.8
+    })
   end
 
-  def token_state_style(token, token_geometry) do
-    size = token_geometry.width
-    radius = round(size / 2)
-
-    border_width = ceil(size * @border_size)
-    # NOTE: I have no idea why it works
-    position_offset = border_width / 2
+  def token_state_style(token) do
     opacity = if token.state == "alive", do: 0, else: 0.5
 
-    style = %{
+    serialize_style(%{
       "position" => "absolute",
-      "left" => "#{-position_offset}px",
-      "top" => "#{-position_offset}px",
-      "border-radius" => "#{radius}px",
+      "left" => "0px",
+      "top" => "0px",
+      "border-radius" => "50%",
       "background" => token_state_color(token),
-      "width" => "#{size}px",
-      "height" => "#{size}px",
+      "width" => "100%",
+      "height" => "100%",
       "z-index" => 250,
       "opacity" => opacity
-    }
-
-    serialize_style(style)
+    })
   end
 
   defp build_token_geometry(assigns, size, x, y) when is_number(x) and is_number(y) do
@@ -161,11 +220,18 @@ defmodule PathMapperWeb.Scene.TokenComponent do
 
   defp token_state_color(token) do
     case token.state do
-      "dead" -> "#db5164"
-      "unconscious" -> "#57d5ff"
-      "hidden" -> "black"
+      "dead" -> "#c93a4e"
+      "unconscious" -> "#4a9ec7"
+      "hidden" -> "#1a1528"
       _ -> "white"
     end
+  end
+
+  defp grid_line_padding(%{grid_line_width: line_width, map_geometry: map_geometry}) do
+    GeometryMapper.scale_to(
+      GeometryMapper.to_subpixels(ceil(line_width / 2.0)),
+      map_geometry
+    )
   end
 
   defp no_owner?(token), do: token.data.owner == "none"

@@ -1,6 +1,7 @@
 defmodule PathMapperWeb.Scene.MapComponent do
   use PathMapperWeb, :live_component
 
+  alias PathMapper.Adventures.Adventure
   alias PathMapper.Game.State.Scene.Map.Layer
 
   def layer_image_class(%Layer{highlight: true}, _opts), do: "highlight"
@@ -19,17 +20,13 @@ defmodule PathMapperWeb.Scene.MapComponent do
 
   def additional_map_layer(adventure, game_state, name) when is_atom(name) do
     adventure
-    |> Map.get(:scenes)
-    |> Enum.at(game_state.scene.index)
-    |> Map.get(:map)
+    |> Adventure.get_scene_map(game_state.scene.index)
     |> Map.get(name)
   end
 
   def map_adventure_layers_to_state(adventure, game_state) do
     adventure
-    |> Map.get(:scenes)
-    |> Enum.at(game_state.scene.index)
-    |> Map.get(:map)
+    |> Adventure.get_scene_map(game_state.scene.index)
     |> Map.get(:layers)
     |> Enum.with_index()
     |> Enum.map(fn {layer, index} -> {layer, Enum.at(game_state.scene.map.layers, index)} end)

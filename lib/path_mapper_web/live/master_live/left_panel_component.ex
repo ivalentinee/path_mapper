@@ -9,9 +9,13 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent do
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_event("noop", _, socket), do: {:noreply, socket}
+
   def panel_select_button(assigns) do
-    button_classes = "left-panel-button pure-button"
-    assigns = Map.put(assigns, :button_classes, button_classes)
+    active = selected_panel(assigns[:ui_state]) == assigns.panel_name
+    classes = "left-panel-button pure-button #{if active, do: "active"}"
+    assigns = Map.put(assigns, :button_classes, classes)
 
     ~H"""
     <button

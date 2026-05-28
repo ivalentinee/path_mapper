@@ -1,10 +1,10 @@
 defmodule PathMapperWeb.MasterLive.LeftPanelComponent.AdventureSelectorComponent do
   use PathMapperWeb, :live_component
 
-  alias PathMapper.Adventures
+  alias PathMapper.Game
 
   def handle_event("select_adventure", %{"name" => name}, socket) do
-    Adventures.load_adventure(name)
+    Game.load(name)
     {:noreply, socket}
   end
 

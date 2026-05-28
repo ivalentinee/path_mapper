@@ -1,0 +1,42 @@
+<div
+  class="token-context-menu"
+  style={"left: #{@x}px; top: #{@y}px;"}
+  phx-click-away="close_context_menu"
+  phx-target={@target}
+>
+  <button
+    class={"alive #{if @token.state == "alive", do: "active", else: ""}"}
+    phx-click="context_set_state"
+    phx-value-state="alive"
+    phx-target={@target}
+  >
+    💕
+  </button>
+  <button
+    class={"dead #{if @token.state == "dead", do: "active", else: ""}"}
+    phx-click="context_set_state"
+    phx-value-state="dead"
+    phx-target={@target}
+  >
+    🗡
+  </button>
+  <button
+    class={"unconscious #{if @token.state == "unconscious", do: "active", else: ""}"}
+    phx-click="context_set_state"
+    phx-value-state="unconscious"
+    phx-target={@target}
+  >
+    💤
+  </button>
+  <button
+    class={"hidden #{if @token.state == "hidden", do: "active", else: ""}"}
+    phx-click="context_set_state"
+    phx-value-state="hidden"
+    phx-target={@target}
+  >
+    👀
+  </button>
+  <button class="delete" phx-click="context_delete" phx-target={@target}>
+    ✕
+  </button>
+</div>

@@ -7,7 +7,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
   alias PathMapper.Groups
 
   setup %{conn: conn} do
-    {:ok, _adventure_name} = Adventures.load_adventure("adventure-1.zip")
+    load_adventure("adventure-1.zip")
     {:ok, _group} = Groups.load_group("group-1.zip")
 
     conn = get(conn, "/master")
@@ -52,8 +52,8 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
 
     assert Enum.count(Game.get_state().scene.tokens) === 3
     first_token = Enum.at(Game.get_state().scene.tokens, 0)
-    assert first_token.x == 10
-    assert first_token.y == 20
+    assert first_token.x == 100
+    assert first_token.y == 200
     assert first_token.state == "unconscious"
   end
 
@@ -129,7 +129,8 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
     Game.run_action([:tokens, :add], "monster 1")
     assert Enum.count(Game.get_state().scene.tokens) === initial_token_count + 1
 
-    # Reset
+    # Reset (first click shows confirmation, second executes)
+    view |> element("#reset_scene") |> render_click()
     view |> element("#reset_scene") |> render_click()
     assert Enum.count(Game.get_state().scene.tokens) === initial_token_count
   end
@@ -142,6 +143,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
 
     # Add a token then reset
     Game.run_action([:tokens, :add], "monster 1")
+    view |> element("#reset_scene") |> render_click()
     view |> element("#reset_scene") |> render_click()
 
     # Switch away and back

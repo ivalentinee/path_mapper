@@ -5,6 +5,7 @@ defmodule PathMapper.Game.Initialize do
   alias PathMapper.Game.Actions.Tokens.FindFreeSpace
   alias PathMapper.Game.State
   alias PathMapper.Game.State.Scene.Token, as: GameToken
+  alias PathMapper.Geometry.Mapper, as: GeometryMapper
 
   def build_all(%Adventure{scenes: adventure_scenes}) do
     adventure_scenes
@@ -43,10 +44,19 @@ defmodule PathMapper.Game.Initialize do
 
   defp build_and_add_token(%State.Scene{} = scene, %AdventureToken{} = token, params) do
     {x, y, size} = token_geometry(scene, token)
+    source_subpixel = params[:subpixel]
 
     build_params = %{
-      x: params[:x] || x,
-      y: params[:y] || y,
+      x:
+        if(params[:x],
+          do: GeometryMapper.coordinate_to_subpixels(params[:x], source_subpixel),
+          else: x
+        ),
+      y:
+        if(params[:y],
+          do: GeometryMapper.coordinate_to_subpixels(params[:y], source_subpixel),
+          else: y
+        ),
       size: size,
       color: token.color,
       state: params[:state] || "alive"
@@ -61,11 +71,7 @@ defmodule PathMapper.Game.Initialize do
     end
   end
 
-  defp token_geometry(%State.Scene{map: %{grid_size: grid_size}} = scene, %AdventureToken{
-         size: size
-       }) do
-    token_size = grid_size * size
-    {x, y} = FindFreeSpace.find_free_space(scene, token_size)
-    {x, y, token_size}
+  defp token_geometry(%State.Scene{} = scene, %AdventureToken{size: size}) do
+    FindFreeSpace.initial_token_geometry(scene, size)
   end
 end

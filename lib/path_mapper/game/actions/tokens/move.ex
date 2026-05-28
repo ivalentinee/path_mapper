@@ -1,6 +1,7 @@
 defmodule PathMapper.Game.Actions.Tokens.Move do
   alias PathMapper.Game.State
   alias PathMapper.Game.State.Scene.Token, as: GameToken
+  alias PathMapper.Geometry.Mapper, as: GeometryMapper
 
   def drag_token(%State{} = state, %GameToken{} = game_token, x, y, %{snap: true})
       when is_number(x) and is_number(y) do
@@ -9,8 +10,7 @@ defmodule PathMapper.Game.Actions.Tokens.Move do
   end
 
   def drag_token(%State{}, %GameToken{} = game_token, x, y, opts)
-      when is_number(x) and is_number(y)
-      when is_map(opts) do
+      when is_number(x) and is_number(y) and is_map(opts) do
     game_token |> Map.put(:drag_x, x) |> Map.put(:drag_y, y)
   end
 
@@ -30,7 +30,7 @@ defmodule PathMapper.Game.Actions.Tokens.Move do
   end
 
   defp snap_position(%State{} = state, x, y) do
-    grid_size = State.scene(state).map.grid_size
+    grid_size = GeometryMapper.to_subpixels(State.scene(state).map.grid_size)
 
     {
       round(x / grid_size) * grid_size,

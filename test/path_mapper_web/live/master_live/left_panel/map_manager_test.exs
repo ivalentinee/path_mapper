@@ -2,12 +2,11 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.MapManagerTest do
   use PathMapperWeb.ConnCase
   import Phoenix.LiveViewTest
 
-  alias PathMapper.Adventures
   alias PathMapper.Game
   alias PathMapper.Groups
 
   setup %{conn: conn} do
-    {:ok, adventure} = Adventures.load_adventure("adventure-1.zip")
+    load_adventure("adventure-1.zip")
     {:ok, _group} = Groups.load_group("group-1.zip")
     :ok = Game.run_action([:scene, :select], 0)
 
@@ -15,7 +14,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.MapManagerTest do
     assert html_response(conn, 200)
     {:ok, view, html} = live(conn)
 
-    {:ok, %{conn: conn, view: view, html: html, adventure: adventure}}
+    {:ok, %{conn: conn, view: view, html: html}}
   end
 
   test "opens and closes 'map manager' with a click", %{view: view, html: html} do
@@ -74,9 +73,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.MapManagerTest do
     view |> element("#toggle_grid") |> render_click()
     assert Game.get_state().scene.map.show_grid == true
   end
-
-  def first_layer(adventure),
-    do: adventure.scenes |> Enum.at(0) |> get_in([:map, :layers]) |> Enum.at(0)
 
   def first_layer_state, do: Game.get_state().scene.map.layers |> Enum.at(0)
 end

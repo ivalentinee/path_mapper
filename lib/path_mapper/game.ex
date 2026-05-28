@@ -6,6 +6,7 @@ defmodule PathMapper.Game do
   alias __MODULE__.Actions
   alias __MODULE__.Initialize
   alias __MODULE__.State
+  alias PathMapper.Adventures
   alias PathMapper.Adventures.Adventure
   alias Phoenix.PubSub
 
@@ -30,6 +31,13 @@ defmodule PathMapper.Game do
     end)
   end
 
+  def load(adventure_filename) when is_binary(adventure_filename) do
+    with {:ok, adventure} <- Adventures.load_adventure(adventure_filename) do
+      reset(adventure)
+      {:ok, adventure}
+    end
+  end
+
   def reset(%Adventure{} = adventure) do
     state =
       Agent.get_and_update(__MODULE__, fn _ ->
@@ -42,7 +50,7 @@ defmodule PathMapper.Game do
     {:ok, state}
   end
 
-  def run_action(action, data) when is_atom(action) or is_list(action) do
+  def run_action(action, data) when is_list(action) do
     case run_action_in_agent_update(action, data) do
       {:ok, state} ->
         broadcast_game_update(state)
@@ -53,7 +61,7 @@ defmodule PathMapper.Game do
     end
   end
 
-  defp run_action_in_agent_update(action, data) when is_atom(action) or is_list(action) do
+  defp run_action_in_agent_update(action, data) when is_list(action) do
     Agent.get_and_update(__MODULE__, fn
       %__MODULE__{state: %State{} = state} = game ->
         case Actions.action(state, action, data) do

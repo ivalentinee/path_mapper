@@ -5,7 +5,6 @@ defmodule PathMapper.Adventures do
   alias Ecto.Changeset
   alias PathMapper.Adventures.LoadedStorage
   alias PathMapper.Adventures.Loader
-  alias PathMapper.Game
   alias Phoenix.PubSub
 
   @update_pubsub_topic "adventures"
@@ -32,7 +31,6 @@ defmodule PathMapper.Adventures do
     with {:ok, filename} <- get_filename(filename),
          {:ok, adventure} <- Loader.load(filename),
          :ok <- LoadedStorage.store(adventure) do
-      Game.reset(adventure)
       broadcast(%{@adventure_loaded_event => adventure})
       {:ok, adventure}
     else
@@ -41,7 +39,7 @@ defmodule PathMapper.Adventures do
           "Failed to load adventure: #{inspect(PathMapper.Errors.display_errors(changeset))}"
         )
 
-        changeset
+        {:error, changeset}
 
       error ->
         Logger.error("Failed to load adventure: #{inspect(error)}")

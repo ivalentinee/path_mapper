@@ -8,7 +8,8 @@
 import Config
 
 config :path_mapper,
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  subpixel_factor: 10
 
 # Configures the endpoint
 config :path_mapper, PathMapperWeb.Endpoint,

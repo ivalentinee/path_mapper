@@ -2,12 +2,11 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.AddExtraTest do
   use PathMapperWeb.ConnCase
   import Phoenix.LiveViewTest
 
-  alias PathMapper.Adventures
   alias PathMapper.Game
   alias PathMapper.Groups
 
   setup %{conn: conn} do
-    {:ok, adventure} = Adventures.load_adventure("adventure-1.zip")
+    load_adventure("adventure-1.zip")
     {:ok, _group} = Groups.load_group("group-1.zip")
     :ok = Game.run_action([:scene, :select], 0)
 
@@ -15,7 +14,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.AddExtraTest do
     assert html_response(conn, 200)
     {:ok, view, html} = live(conn)
 
-    {:ok, %{conn: conn, view: view, html: html, adventure: adventure}}
+    {:ok, %{conn: conn, view: view, html: html}}
   end
 
   test "adds an extra token with a click", %{view: view, html: html} do

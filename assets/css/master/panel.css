@@ -1,24 +1,35 @@
-.side-panel {
-  display: flex;
-  flex-direction: row;
-  height: 100%;
-}
-
 .panel-content {
-  background-color: #cccccc;
-  border-right: 1px solid;
-  border-left: 1px solid;
+  background-color: #1a1833;
+  border-right: 1px solid #2a2540;
+  border-left: 1px solid #2a2540;
+  padding: 0 8px;
+  color: #c8c8e0;
 }
 
 .panel-content > * {
   width: 100%;
-  height: 100%;
+}
+
+.panel-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.panel-content::-webkit-scrollbar-track {
+  background: #0f0d1a;
+}
+
+.panel-content::-webkit-scrollbar-thumb {
+  background: #3a3a5a;
+  border-radius: 3px;
 }
 
 .panel-selector {
-  background-color: #aaaaaa;
-  width: 50px;
+  background-color: #1a1528;
+  width: 44px;
   height: 100%;
   display: flex;
   flex-direction: column;
+  border-right: 1px solid #2a2540;
+  gap: 2px;
+  padding: 4px 0;
 }

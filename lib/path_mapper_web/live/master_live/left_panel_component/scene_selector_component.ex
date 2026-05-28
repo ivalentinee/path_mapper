@@ -7,17 +7,21 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.SceneSelectorComponent do
 
   def handle_event("select_scene", %{"index" => index_string}, socket) do
     with_parsed_index(index_string, &Game.run_action([:scene, :select], &1))
-    {:noreply, socket}
+    {:noreply, assign(socket, :confirm_reset, false)}
   end
 
   def handle_event("unset_scene", _, socket) do
     Game.run_action([:scene, :unset], nil)
-    {:noreply, socket}
+    {:noreply, assign(socket, :confirm_reset, false)}
   end
 
   def handle_event("reset_scene", _, socket) do
-    Game.run_action([:scene, :reset], nil)
-    {:noreply, socket}
+    if socket.assigns[:confirm_reset] do
+      Game.run_action([:scene, :reset], nil)
+      {:noreply, assign(socket, :confirm_reset, false)}
+    else
+      {:noreply, assign(socket, :confirm_reset, true)}
+    end
   end
 
   def select_button_extra_classes(scene_index, selected_scene) do

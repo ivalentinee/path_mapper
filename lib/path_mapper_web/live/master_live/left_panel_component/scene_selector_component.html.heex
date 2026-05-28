@@ -13,10 +13,10 @@
       id="reset_scene"
       phx-click="reset_scene"
       phx-target={@myself}
-      class="pure-button sub-button"
+      class={"pure-button sub-button #{if assigns[:confirm_reset], do: "confirm", else: ""}"}
       disabled={@game_state.scene == nil}
     >
-      Reset
+      {if assigns[:confirm_reset], do: "Confirm?", else: "Reset"}
     </button>
   </div>
   <%= for {item, index} <- Enum.with_index(@adventure.scenes) do %>
