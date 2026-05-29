@@ -31,14 +31,50 @@
       </button>
     <% end %>
 
-    <button
-      id="snap-to-grid"
-      class="right-panel-button snap-to-grid"
-      phx-click="snap_to_grid"
-      phx-target={@myself}
-    >
-      {if @scene.snap_to_grid, do: "▣", else: "□"}
-    </button>
+    <div class="tool-buttons">
+      <button
+        class={"tool-button #{if @scene.active_tool == nil, do: "active"}"}
+        phx-click="deselect_tool"
+        phx-target={@myself}
+        title={gettext("No tool")}
+      >
+        ↖
+      </button>
+      <%= for {tool, icon} <- [ruler: "📏", pointer: "📍", burst: "💥", emanation: "⭕", cone: "🔺", line: "➖"] do %>
+        <button
+          class={"tool-button #{if @scene.active_tool == tool, do: "active"}"}
+          phx-click="select_tool"
+          phx-value-tool={tool}
+          phx-target={@myself}
+          title={Atom.to_string(tool)}
+        >
+          {icon}
+        </button>
+      <% end %>
+
+      <div class="tool-separator"></div>
+
+      <%= if assigns[:is_player] do %>
+        <button
+          class={"tool-button #{if @scene.grid_override, do: "active"}"}
+          phx-click="toggle_grid_override"
+          phx-target={@myself}
+          title={gettext("Show grid")}
+        >
+          #
+        </button>
+      <% end %>
+
+      <button
+        id="snap-to-grid"
+        class="tool-button"
+        phx-click="snap_to_grid"
+        phx-target={@myself}
+        title={gettext("Snap to grid")}
+      >
+        {if @scene.snap_to_grid, do: "▣", else: "□"}
+      </button>
+    </div>
   </div>
 
   <%= if @right_panel.group_panel_open do %>

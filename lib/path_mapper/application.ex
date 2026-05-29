@@ -17,6 +17,7 @@ defmodule PathMapper.Application do
       PathMapper.Adventures,
       PathMapper.Groups,
       PathMapper.Game,
+      PathMapper.MapTools,
       PathMapperWeb.Endpoint
     ]
 

@@ -17,9 +17,12 @@ defmodule PathMapperWeb.Scene.MapComponent do
 
   def selected_layer_class(_selected_layer_index, _layer_index), do: ""
 
-  def additional_map_layer(_adventure, %{scene: %{map: %{show_grid: false}}}, :grid), do: nil
+  def additional_map_layer(adventure, game_state, name, override \\ false)
 
-  def additional_map_layer(adventure, game_state, name) when is_atom(name) do
+  def additional_map_layer(_adventure, %{scene: %{map: %{show_grid: false}}}, :grid, false),
+    do: nil
+
+  def additional_map_layer(adventure, game_state, name, _override) when is_atom(name) do
     adventure
     |> Adventure.get_scene_map(game_state.scene.index)
     |> Map.get(name)

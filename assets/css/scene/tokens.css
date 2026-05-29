@@ -11,6 +11,12 @@
   pointer-events: none;
 }
 
+.grid-container {
+  position: absolute;
+  pointer-events: none;
+  z-index: 60;
+}
+
 .objects-container .map-object {
   pointer-events: auto;
 }

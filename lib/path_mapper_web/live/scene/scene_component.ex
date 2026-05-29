@@ -3,8 +3,10 @@ defmodule PathMapperWeb.Scene.SceneComponent do
 
   alias PathMapper.Adventures.Adventure
   alias PathMapper.Game
+  alias PathMapper.Game.Palette
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
   alias PathMapper.Geometry.Object, as: GeometryObject
+  alias PathMapperWeb.Scene.MapComponent
 
   @impl true
   def update(assigns, socket) do
@@ -85,6 +87,19 @@ defmodule PathMapperWeb.Scene.SceneComponent do
       |> build_map_geometry()
 
     {:noreply, socket}
+  end
+
+  defp tool_color(assigns) do
+    cond do
+      assigns[:opts][:manage_tokens] ->
+        "#db0909"
+
+      assigns[:opts][:my_player_name] ->
+        Palette.resolve(assigns[:opts][:my_player_name]) || "#808080"
+
+      true ->
+        "#808080"
+    end
   end
 
   def map_style(geometry) do

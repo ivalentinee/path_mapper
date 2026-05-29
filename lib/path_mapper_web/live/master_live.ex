@@ -24,8 +24,10 @@ defmodule PathMapperWeb.MasterLive do
     Adventures.subscribe()
     Groups.subscribe()
     Game.subscribe()
+    PathMapper.MapTools.subscribe()
 
     session_state = SessionState.new(@plugins)
+    session_id = inspect(self())
 
     socket =
       socket
@@ -36,6 +38,8 @@ defmodule PathMapperWeb.MasterLive do
       |> assign(:group, group)
       |> assign(:game_state, game_state)
       |> assign(:session_state, session_state)
+      |> assign(:session_id, session_id)
+      |> assign(:tool_draws, PathMapper.MapTools.get_all())
       |> SessionState.assign_partitions(session_state)
 
     {:ok, socket}
@@ -120,6 +124,23 @@ defmodule PathMapperWeb.MasterLive do
     {:noreply, assign(socket, :game_state, game_state)}
   end
 
+  # Map tool broadcasts — store remote tools only, rendered as elements in template
+  @impl true
+  def handle_info(%{tool_update: tool_data}, socket) do
+    sid = tool_data["session_id"]
+
+    if sid == socket.assigns.session_id do
+      {:noreply, socket}
+    else
+      {:noreply, assign(socket, :tool_draws, Map.put(socket.assigns.tool_draws, sid, tool_data))}
+    end
+  end
+
+  @impl true
+  def handle_info(%{tool_clear: session_id}, socket) do
+    {:noreply, assign(socket, :tool_draws, Map.delete(socket.assigns.tool_draws, session_id))}
+  end
+
   # Unified session event dispatch
   @impl true
   def handle_info(%{session_event: event}, socket) do
@@ -139,6 +160,12 @@ defmodule PathMapperWeb.MasterLive do
 
   @impl true
   def handle_info({:close_all_context_menus, _}, socket), do: {:noreply, socket}
+
+  @impl true
+  def terminate(_reason, socket) do
+    PathMapper.MapTools.clear(socket.assigns[:session_id])
+    :ok
+  end
 
   defp get_selected_adventure do
     case Adventures.get_loaded() do

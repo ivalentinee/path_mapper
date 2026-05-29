@@ -1,4 +1,8 @@
+import { MapTool } from "./map_tool_hook";
+
 export let Hooks = {};
+
+Hooks.MapTool = MapTool;
 
 Hooks.Draggable = {
   mounted() {

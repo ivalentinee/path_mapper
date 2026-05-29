@@ -1,0 +1,58 @@
+/* Tool buttons in right panel selector bar */
+
+.tool-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0;
+  border-top: 1px solid #2a2540;
+}
+
+.tool-button {
+  width: 36px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8a8aaa;
+  transition: background-color 0.15s;
+  margin: 0 auto;
+}
+
+.tool-button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #c0c0e0;
+}
+
+.tool-button.active {
+  background: #2a2540;
+  color: #e0e0ff;
+  border-left: 2px solid #42b8dd;
+}
+
+.tool-separator {
+  height: 1px;
+  background: #2a2540;
+  margin: 2px 6px;
+}
+
+/* SVG tools overlay */
+
+.tools-overlay {
+  position: absolute;
+  pointer-events: none;
+  z-index: 350;
+  overflow: visible;
+}
+
+.tools-overlay.active {
+  pointer-events: all;
+  cursor: crosshair;
+  user-select: none;
+  -webkit-user-select: none;
+}

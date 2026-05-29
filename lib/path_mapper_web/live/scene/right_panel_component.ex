@@ -59,6 +59,24 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   end
 
   @impl true
+  def handle_event("select_tool", %{"tool" => tool}, socket) do
+    send(self(), %{session_event: {:select_tool, String.to_existing_atom(tool)}})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("deselect_tool", _, socket) do
+    send(self(), %{session_event: :deselect_tool})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("toggle_grid_override", _, socket) do
+    send(self(), %{session_event: :toggle_grid_override})
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("snap_to_grid", _, socket) do
     send(self(), %{session_event: :snap_to_grid})
     {:noreply, socket}

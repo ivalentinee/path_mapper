@@ -1,0 +1,18 @@
+<svg
+  id="tools-overlay"
+  phx-hook="MapTool"
+  phx-target={@myself}
+  class={"tools-overlay #{if @active_tool, do: "active"}"}
+  style={@overlay_style}
+  data-grid-size={@grid_size}
+  data-scale={@map_geometry.scale}
+  data-active-tool={@active_tool}
+  data-tool-color={@tool_color}
+  data-snap={to_string(@snap_to_grid)}
+>
+  <%= for {sid, tool} <- all_tool_draws(assigns) do %>
+    <g id={"tool-#{sid}"}>
+      <.tool_shape tool={tool} map_geometry={@map_geometry} grid_size={@grid_size} />
+    </g>
+  <% end %>
+</svg>

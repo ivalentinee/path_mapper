@@ -43,26 +43,5 @@
         />
       <% end %>
     <% end %>
-
-    <%= if grid_layer = additional_map_layer(@adventure, @game_state, :grid) do %>
-      <image
-        x={GeometryMapper.scale_map_pixel(grid_layer.x, @geometry)}
-        y={GeometryMapper.scale_map_pixel(grid_layer.y, @geometry)}
-        width={
-          GeometryMapper.scale_map_pixel(
-            grid_layer.width || @geometry.width * @geometry.scale,
-            @geometry
-          )
-        }
-        height={
-          GeometryMapper.scale_map_pixel(
-            grid_layer.height || @geometry.height * @geometry.scale,
-            @geometry
-          )
-        }
-        class="image"
-        href={grid_layer.image}
-      />
-    <% end %>
   </svg>
 </div>
