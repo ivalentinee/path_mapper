@@ -196,6 +196,37 @@ Hooks.Geometry = {
   }
 };
 
+Hooks.Download = {
+  mounted() {
+    this.handleEvent("download", ({ data, filename }) => {
+      const blob = new Blob([data], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  },
+};
+
+Hooks.FileUpload = {
+  mounted() {
+    this.el.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const target = this.el.dataset.target;
+        const event = this.el.dataset.event;
+        this.pushEventTo(target, event, { content: reader.result });
+        this.el.value = "";
+      };
+      reader.readAsText(file);
+    });
+  },
+};
+
 Hooks.Copy = {
   mounted() {
     const element = this.el;

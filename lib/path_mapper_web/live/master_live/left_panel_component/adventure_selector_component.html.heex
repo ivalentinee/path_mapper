@@ -1,4 +1,4 @@
-<div id="adventure-selector" class="adventure-selector">
+<div id="adventure-selector" class="adventure-selector" phx-hook="Download">
   <div class="sub-buttons">
     <button
       phx-click="reload"
@@ -18,5 +18,32 @@
     >
       <span class="index">{index}</span> {item}
     </button>
+  <% end %>
+
+  <%= if @adventure do %>
+    <div class="sub-buttons state-buttons">
+      <button phx-click="dump_state" phx-target={@myself} class="pure-button sub-button">
+        {gettext("Save state")}
+      </button>
+      <label class="pure-button sub-button restore-label">
+        {gettext("Restore state")}
+        <input
+          type="file"
+          accept=".json"
+          class="restore-file-input"
+          phx-hook="FileUpload"
+          id="state-restore-input"
+          data-target={@myself}
+          data-event="restore_state"
+        />
+      </label>
+      <button
+        phx-click="reset_all"
+        phx-target={@myself}
+        class={"pure-button sub-button danger #{if assigns[:confirm_reset], do: "confirm"}"}
+      >
+        {if assigns[:confirm_reset], do: gettext("Confirm?"), else: gettext("Reset all")}
+      </button>
+    </div>
   <% end %>
 </div>

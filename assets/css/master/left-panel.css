@@ -81,3 +81,36 @@
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
+
+.state-buttons {
+  position: sticky;
+  bottom: 0;
+  top: auto;
+  margin-bottom: 0;
+  margin-top: auto;
+  border-top: 1px solid #2a2540;
+  border-bottom: none;
+}
+
+.restore-label {
+  cursor: pointer;
+  text-align: center;
+}
+
+.restore-file-input {
+  display: none;
+}
+
+.sub-button.danger {
+  border-color: #d4726a;
+  color: #d4726a;
+}
+
+.sub-button.danger:hover {
+  background: rgba(212, 114, 106, 0.15);
+}
+
+.sub-button.danger.confirm {
+  background: #d4726a;
+  color: #1a1528;
+}
