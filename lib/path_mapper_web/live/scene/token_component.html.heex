@@ -4,7 +4,7 @@
     phx-hook="Draggable"
     draggable="true"
     phx-target={@myself}
-    data-token-index={if @opts[:manage_tokens], do: @index}
+    data-token-index={@index}
     style={
       token_container_style(
         @token_geometry,

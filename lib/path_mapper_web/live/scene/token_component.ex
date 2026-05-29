@@ -82,8 +82,12 @@ defmodule PathMapperWeb.Scene.TokenComponent do
 
   @impl true
   def handle_event("context_menu", %{"x" => x, "y" => y}, socket) do
-    send(self(), {:close_all_context_menus, socket.assigns.id})
-    {:noreply, assign(socket, context_menu: %{x: x, y: y})}
+    if can_manage_token?(socket.assigns) do
+      send(self(), {:close_all_context_menus, socket.assigns.id})
+      {:noreply, assign(socket, context_menu: %{x: x, y: y})}
+    else
+      {:noreply, socket}
+    end
   end
 
   @impl true
@@ -105,7 +109,11 @@ defmodule PathMapperWeb.Scene.TokenComponent do
   end
 
   @impl true
-  def handle_event("token_select", %{"index" => index}, socket) do
+  def handle_event(
+        "token_select",
+        %{"index" => index},
+        %{assigns: %{opts: %{manage_tokens: true}}} = socket
+      ) do
     with_parsed_index(index, fn index_number ->
       send(
         self(),
@@ -115,6 +123,17 @@ defmodule PathMapperWeb.Scene.TokenComponent do
 
     {:noreply, socket}
   end
+
+  @impl true
+  def handle_event("token_select", _, socket), do: {:noreply, socket}
+
+  defp can_manage_token?(%{opts: %{manage_tokens: true}}), do: true
+
+  defp can_manage_token?(%{my_player_name: name, token: token}) when is_binary(name) do
+    token.data.owner == name
+  end
+
+  defp can_manage_token?(_), do: false
 
   def show_index(selected_token_index, token_index) when selected_token_index == token_index,
     do: true

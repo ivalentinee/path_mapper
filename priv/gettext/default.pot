@@ -17,6 +17,7 @@ msgid "Actions"
 msgstr ""
 
 #: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:32
+#: lib/path_mapper_web/live/scene/right_panel/character_menu.html.heex:54
 #, elixir-autogen, elixir-format
 msgid "Add"
 msgstr ""
@@ -56,7 +57,7 @@ msgstr ""
 msgid "Extras"
 msgstr ""
 
-#: lib/path_mapper_web/live/master_live.ex:25
+#: lib/path_mapper_web/live/master_live.ex:26
 #, elixir-autogen, elixir-format
 msgid "GM"
 msgstr ""
@@ -82,7 +83,7 @@ msgid "Hang in there while we get back on track"
 msgstr ""
 
 #: lib/path_mapper_web/live/scene/right_panel/links_panel.html.heex:2
-#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:19
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:30
 #, elixir-autogen, elixir-format
 msgid "Links"
 msgstr ""
@@ -92,7 +93,7 @@ msgstr ""
 msgid "Map"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/right_panel/group_overview.html.heex:25
+#: lib/path_mapper_web/live/scene/right_panel/group_overview.html.heex:35
 #, elixir-autogen, elixir-format
 msgid "No group loaded"
 msgstr ""
@@ -102,7 +103,7 @@ msgstr ""
 msgid "No links in this adventure"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/right_panel/group_overview.html.heex:21
+#: lib/path_mapper_web/live/scene/right_panel/group_overview.html.heex:31
 #, elixir-autogen, elixir-format
 msgid "No players in the group"
 msgstr ""
@@ -118,7 +119,7 @@ msgid "Path Mapper"
 msgstr ""
 
 #: lib/path_mapper/errors.ex:50
-#: lib/path_mapper_web/live/player_live.ex:20
+#: lib/path_mapper_web/live/player_live.ex:22
 #, elixir-autogen, elixir-format
 msgid "Player"
 msgstr ""
@@ -210,7 +211,7 @@ msgstr ""
 msgid "Layer"
 msgstr ""
 
-#: lib/path_mapper_web/live/master_live.html.heex:55
+#: lib/path_mapper_web/live/master_live.html.heex:57
 #, elixir-autogen, elixir-format
 msgid "Load errors"
 msgstr ""
@@ -243,4 +244,29 @@ msgstr ""
 #: lib/path_mapper/errors.ex:36
 #, elixir-autogen, elixir-format
 msgid "Unknown error: %{error}"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel/character_menu.html.heex:35
+#, elixir-autogen, elixir-format
+msgid "Add to map"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:20
+#, elixir-autogen, elixir-format
+msgid "Character"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel/character_menu.html.heex:42
+#, elixir-autogen, elixir-format
+msgid "Extra tokens"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel/character_menu.html.heex:25
+#, elixir-autogen, elixir-format
+msgid "Remove from map"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel/group_overview.html.heex:25
+#, elixir-autogen, elixir-format
+msgid "That's me!"
 msgstr ""

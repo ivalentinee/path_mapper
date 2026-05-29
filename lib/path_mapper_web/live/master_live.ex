@@ -6,6 +6,7 @@ defmodule PathMapperWeb.MasterLive do
   alias PathMapper.Game
   alias PathMapper.Groups
   alias PathMapperWeb.MasterLive.LeftPanelState
+  alias PathMapperWeb.Scene.ContextMenuHelper
   alias PathMapperWeb.Scene.RightPanelState
   alias PathMapperWeb.Scene.SceneState
 
@@ -142,27 +143,10 @@ defmodule PathMapperWeb.MasterLive do
 
   @impl true
   def handle_info({:close_all_context_menus, except_id}, socket) do
-    close_other_context_menus(socket, except_id)
+    tokens = get_in(socket.assigns, [:game_state, :scene, :tokens]) || []
+    ContextMenuHelper.close_other_context_menus(tokens, except_id)
     {:noreply, socket}
   end
-
-  defp close_other_context_menus(
-         %{assigns: %{game_state: %{scene: %{tokens: tokens}}}},
-         except_id
-       )
-       when is_list(tokens) do
-    tokens
-    |> Enum.with_index()
-    |> Enum.reject(fn {_token, index} -> "token-#{index}" == except_id end)
-    |> Enum.each(fn {_token, index} ->
-      send_update(PathMapperWeb.Scene.TokenComponent,
-        id: "token-#{index}",
-        close_context_menu: true
-      )
-    end)
-  end
-
-  defp close_other_context_menus(_socket, _except_id), do: :ok
 
   defp get_selected_adventure do
     case Adventures.get_loaded() do

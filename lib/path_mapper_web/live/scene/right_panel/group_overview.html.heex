@@ -2,7 +2,7 @@
   <div class="group-overview">
     <div class="group-title">{@group.title}</div>
     <%= for player <- @group.players do %>
-      <div class="group-character">
+      <div class={"group-character #{if @my_player && @my_player.character_name == player.character_name, do: "claimed"}"}>
         <img
           class="group-character-portrait"
           src={player.token}
@@ -15,6 +15,16 @@
             <div class="group-character-class">{player.class}</div>
           <% end %>
         </div>
+        <%= if @is_player && !@my_player do %>
+          <button
+            class="claim-character-button"
+            phx-click="claim_character"
+            phx-value-name={player.character_name}
+            phx-target={assigns[:myself]}
+          >
+            {gettext("That's me!")}
+          </button>
+        <% end %>
       </div>
     <% end %>
     <%= if Enum.empty?(@group.players) do %>

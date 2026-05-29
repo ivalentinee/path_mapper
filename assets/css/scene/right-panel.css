@@ -145,3 +145,136 @@
   background-color: rgba(255, 255, 255, 0.05);
   color: #6ad0f0;
 }
+
+/* Character claim */
+
+.group-character.claimed {
+  border-left: 3px solid #42b8dd;
+}
+
+.claim-character-button {
+  background: transparent;
+  border: 1px solid #42b8dd;
+  color: #42b8dd;
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.claim-character-button:hover {
+  background: #42b8dd;
+  color: #1a1528;
+}
+
+/* Character menu */
+
+.character-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  border-bottom: 1px solid #2a2540;
+}
+
+.character-menu-portrait {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.character-menu-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.character-menu-name {
+  font-size: 1rem;
+  color: #c8c8e0;
+  word-wrap: break-word;
+}
+
+.character-menu-class {
+  font-size: 0.85rem;
+  color: #8a8aaa;
+}
+
+.character-menu-section {
+  padding: 8px 4px;
+  border-bottom: 1px solid #2a2540;
+}
+
+.character-menu-section-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #8a8aaa;
+  margin-bottom: 6px;
+}
+
+.character-menu-button {
+  width: 100%;
+  background: transparent;
+  border: 1px solid #42b8dd;
+  color: #42b8dd;
+  padding: 6px 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.character-menu-button:hover {
+  background: rgba(66, 184, 221, 0.15);
+}
+
+.character-menu-button.on-map {
+  border-color: #d4726a;
+  color: #d4726a;
+}
+
+.character-menu-button.on-map:hover {
+  background: rgba(212, 114, 106, 0.15);
+}
+
+.character-menu-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.character-menu-extra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.character-menu-extra-name {
+  font-size: 0.85rem;
+  color: #c8c8e0;
+}
+
+.character-menu-extra-add {
+  background: transparent;
+  border: 1px solid #42b8dd;
+  color: #42b8dd;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.character-menu-extra-add:hover {
+  background: rgba(66, 184, 221, 0.15);
+}
+
+.character-menu-extra-add:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

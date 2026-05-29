@@ -1,6 +1,8 @@
 defmodule PathMapperWeb.Scene.RightPanelComponent do
   use PathMapperWeb, :live_component
 
+  alias PathMapper.Game
+
   embed_templates "right_panel/*"
 
   @impl true
@@ -10,8 +12,49 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   end
 
   @impl true
+  def handle_event("toggle_character_panel", _, socket) do
+    send(self(), %{right_panel_update: :toggle_character_panel})
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("toggle_links_panel", _, socket) do
     send(self(), %{right_panel_update: :toggle_links_panel})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("claim_character", %{"name" => name}, socket) do
+    if socket.assigns[:is_player] do
+      send(self(), %{player_update: {:claim_character, name}})
+    end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("add_player_token", %{"name" => name}, socket) do
+    Game.run_action([:tokens, :player, :add], name)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("remove_player_token", %{"name" => name}, socket) do
+    case find_token_index_by_name(name) do
+      nil -> :ok
+      index -> Game.run_action([:tokens, :delete], index)
+    end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("add_extra_token", %{"name" => name, "index" => index_str}, socket) do
+    case Integer.parse(index_str) do
+      {index, _} -> Game.run_action([:tokens, :player, :add_extra], {name, index})
+      _ -> :ok
+    end
+
     {:noreply, socket}
   end
 
@@ -23,4 +66,13 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
 
   @impl true
   def handle_event("noop", _, socket), do: {:noreply, socket}
+
+  defp find_token_index_by_name(name) do
+    game_state = Game.get_state()
+    tokens = get_in(game_state || %{}, [:scene, :tokens]) || []
+
+    Enum.find_value(Enum.with_index(tokens), fn {token, index} ->
+      if token.data.name == name, do: index
+    end)
+  end
 end

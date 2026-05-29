@@ -1,0 +1,60 @@
+<div class="character-menu">
+  <div class="character-menu-header">
+    <img
+      class="character-menu-portrait"
+      src={@my_player.token}
+      style={"border: 2px solid #{@my_player.color};"}
+    />
+    <div class="character-menu-info">
+      <div class="character-menu-name">{@my_player.character_name}</div>
+      <%= if @my_player.class do %>
+        <div class="character-menu-class">{@my_player.class}</div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="character-menu-section">
+    <%= if @my_token_on_map do %>
+      <button
+        class="pure-button character-menu-button on-map"
+        phx-click="remove_player_token"
+        phx-value-name={@my_player.character_name}
+        phx-target={assigns[:myself]}
+        disabled={!@has_scene}
+      >
+        {gettext("Remove from map")}
+      </button>
+    <% else %>
+      <button
+        class="pure-button character-menu-button"
+        phx-click="add_player_token"
+        phx-value-name={@my_player.character_name}
+        phx-target={assigns[:myself]}
+        disabled={!@has_scene}
+      >
+        {gettext("Add to map")}
+      </button>
+    <% end %>
+  </div>
+
+  <%= if @my_player.extra_tokens && @my_player.extra_tokens != [] do %>
+    <div class="character-menu-section">
+      <div class="character-menu-section-title">{gettext("Extra tokens")}</div>
+      <%= for {extra, index} <- Enum.with_index(@my_player.extra_tokens) do %>
+        <div class="character-menu-extra">
+          <span class="character-menu-extra-name">{extra.name}</span>
+          <button
+            class="pure-button character-menu-extra-add"
+            phx-click="add_extra_token"
+            phx-value-name={@my_player.character_name}
+            phx-value-index={index}
+            phx-target={assigns[:myself]}
+            disabled={!@has_scene}
+          >
+            {gettext("Add")}
+          </button>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
