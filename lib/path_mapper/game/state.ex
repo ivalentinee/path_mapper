@@ -6,6 +6,7 @@ defmodule PathMapper.Game.State do
   embedded_schema do
     field(:active_scene, :integer)
     field(:scenes, :map, default: %{})
+    field(:initiative, {:array, :map}, default: [])
   end
 
   def scene(%__MODULE__{active_scene: nil}), do: nil

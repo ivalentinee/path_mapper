@@ -21,6 +21,16 @@
       </button>
     <% end %>
 
+    <%= if assigns[:game_state] do %>
+      <button
+        class={"right-panel-button #{if @right_panel.initiative_panel_open, do: "active"}"}
+        phx-click="toggle_initiative_panel"
+        phx-target={@myself}
+      >
+        {gettext("Initiative")}
+      </button>
+    <% end %>
+
     <%= if @adventure do %>
       <button
         class={"right-panel-button #{if @right_panel.links_panel_open, do: "active"}"}
@@ -102,6 +112,16 @@
   <%= if @right_panel.links_panel_open do %>
     <div class="panel-content right-panel-content">
       <.links_panel adventure={@adventure} />
+    </div>
+  <% end %>
+
+  <%= if @right_panel.initiative_panel_open && assigns[:game_state] do %>
+    <div class="panel-content right-panel-content">
+      <.initiative_panel
+        initiative={@game_state[:initiative] || []}
+        my_player={assigns[:my_player]}
+        myself={@myself}
+      />
     </div>
   <% end %>
 </div>

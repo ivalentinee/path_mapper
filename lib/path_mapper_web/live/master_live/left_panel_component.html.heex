@@ -39,6 +39,15 @@
         left_panel_state: @left_panel
       })}
     <% end %>
+
+    <%= if @game_state do %>
+      {panel_select_button(%{
+        text: gettext("Initiative"),
+        panel_name: "initiative",
+        myself: @myself,
+        left_panel_state: @left_panel
+      })}
+    <% end %>
   </div>
 
   <%= if selected_panel(@left_panel) == "adventure-selector" do %>
@@ -96,6 +105,16 @@
         adventure={@adventure}
         game_state={@game_state}
         group={@group}
+      />
+    </div>
+  <% end %>
+
+  <%= if @game_state && selected_panel(@left_panel) == "initiative" do %>
+    <div class="panel-content">
+      <.live_component
+        module={PathMapperWeb.MasterLive.LeftPanelComponent.InitiativeComponent}
+        id="initiative"
+        game_state={@game_state}
       />
     </div>
   <% end %>

@@ -2,6 +2,7 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   use PathMapperWeb, :live_component
 
   alias PathMapper.Game
+  alias PathMapper.Game.Palette
 
   embed_templates "right_panel/*"
 
@@ -83,7 +84,33 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   end
 
   @impl true
+  def handle_event("toggle_initiative_panel", _, socket) do
+    send(self(), %{session_event: :toggle_initiative_panel})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("submit_initiative", %{"value" => value_str}, socket) do
+    with {value, _} <- Integer.parse(value_str),
+         %{character_name: name} <- socket.assigns[:my_player] do
+      Game.run_action([:initiative, :add], %{name: name, value: value, owner: name})
+    end
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("noop", _, socket), do: {:noreply, socket}
+
+  defp my_initiative_value(initiative, character_name) do
+    case Enum.find(initiative, &(&1.owner == character_name)) do
+      %{value: value} -> value
+      _ -> nil
+    end
+  end
+
+  defp initiative_color(nil), do: "#808080"
+  defp initiative_color(owner), do: Palette.resolve(owner)
 
   defp find_token_index_by_name(name) do
     tokens = scene_tokens()

@@ -65,10 +65,12 @@ defmodule PathMapperWeb.MasterLive do
   def selected_token_index(_), do: nil
 
   @impl true
-  def handle_event("navigate", %{"key" => key}, socket) do
-    if key == "Escape", do: send(self(), %{session_event: %{left_panel_select: []}})
+  def handle_event("navigate", %{"key" => "Escape"}, socket) do
+    send(self(), %{session_event: %{left_panel_select: []}})
     {:noreply, socket}
   end
+
+  def handle_event("navigate", _, socket), do: {:noreply, socket}
 
   @impl true
   def handle_event("close_panel", _, socket) do

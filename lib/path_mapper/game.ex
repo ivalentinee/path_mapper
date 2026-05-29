@@ -28,8 +28,11 @@ defmodule PathMapper.Game do
 
   def get_state do
     Agent.get(__MODULE__, fn
-      %__MODULE__{state: %State{} = state} -> %{scene: State.scene(state)}
-      _ -> nil
+      %__MODULE__{state: %State{} = state} ->
+        %{scene: State.scene(state), initiative: state.initiative}
+
+      _ ->
+        nil
     end)
   end
 
@@ -88,6 +91,6 @@ defmodule PathMapper.Game do
   end
 
   defp broadcast_game_update(%State{} = state) do
-    broadcast(%{game_update: %{scene: State.scene(state)}})
+    broadcast(%{game_update: %{scene: State.scene(state), initiative: state.initiative}})
   end
 end

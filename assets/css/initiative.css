@@ -1,0 +1,150 @@
+/* Initiative tracker */
+
+.initiative-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.initiative-title {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #1a1528;
+  border-bottom: 1px solid #2a2540;
+  padding: 8px 4px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #c8c8e0;
+}
+
+.initiative-input-section {
+  padding: 8px 4px;
+  border-bottom: 1px solid #2a2540;
+}
+
+.initiative-input-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.initiative-add-form {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 8px 4px;
+  border-bottom: 1px solid #2a2540;
+}
+
+.initiative-name-input {
+  flex: 1;
+  min-width: 0;
+  background: #0f0d1a;
+  border: 1px solid #2a2540;
+  color: #c8c8e0;
+  padding: 4px 6px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+}
+
+.initiative-name-input:focus {
+  border-color: #42b8dd;
+  outline: none;
+}
+
+.initiative-input {
+  width: 52px;
+  background: #0f0d1a;
+  border: 1px solid #2a2540;
+  color: #c8c8e0;
+  padding: 4px 6px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  text-align: center;
+}
+
+.initiative-input:focus {
+  border-color: #42b8dd;
+  outline: none;
+}
+
+.initiative-owner-select {
+  background: #0f0d1a;
+  border: 1px solid #2a2540;
+  color: #c8c8e0;
+  padding: 4px 2px;
+  font-size: 0.8rem;
+  border-radius: 3px;
+}
+
+.initiative-submit {
+  background: transparent;
+  border: 1px solid #42b8dd;
+  color: #42b8dd;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.initiative-submit:hover {
+  background: rgba(66, 184, 221, 0.15);
+}
+
+.initiative-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-bottom: 1px solid #2a2540;
+}
+
+.initiative-name {
+  flex: 1;
+  font-size: 0.95rem;
+  color: #c8c8e0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.initiative-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #e0e0ff;
+  min-width: 28px;
+  text-align: right;
+}
+
+.initiative-remove {
+  background: transparent;
+  border: none;
+  color: #d4726a;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.initiative-remove:hover {
+  color: #ff8a7a;
+}
+
+.initiative-reset {
+  margin: 8px 4px;
+  background: transparent;
+  border: 1px solid #d4726a;
+  color: #d4726a;
+  padding: 6px 8px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  cursor: pointer;
+  width: calc(100% - 8px);
+}
+
+.initiative-reset:hover {
+  background: rgba(212, 114, 106, 0.15);
+}

@@ -1,0 +1,41 @@
+<div class="initiative-panel">
+  <div class="initiative-title">{gettext("Initiative")}</div>
+
+  <form phx-submit="add_initiative" phx-target={@myself} class="initiative-add-form">
+    <input type="text" name="name" placeholder={gettext("Name")} class="initiative-name-input" />
+    <input type="number" name="value" placeholder={gettext("Roll")} class="initiative-input" />
+    <select name="owner" class="initiative-owner-select">
+      <option value="enemy">{gettext("Enemy")}</option>
+      <option value="npc">{gettext("NPC")}</option>
+    </select>
+    <button type="submit" class="initiative-submit">{gettext("Add")}</button>
+  </form>
+
+  <%= if (@game_state[:initiative] || []) == [] do %>
+    <div class="panel-empty">{gettext("No initiative entries")}</div>
+  <% else %>
+    <%= for entry <- @game_state[:initiative] || [] do %>
+      <div
+        class="initiative-entry"
+        style={"border-left: 3px solid #{initiative_color(entry.owner)}"}
+      >
+        <span class="initiative-name">{entry.name}</span>
+        <span class="initiative-value">{entry.value}</span>
+        <button
+          class="initiative-remove"
+          phx-click="remove_initiative"
+          phx-value-id={entry.id}
+          phx-target={@myself}
+        >
+          ×
+        </button>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%= if (@game_state[:initiative] || []) != [] do %>
+    <button class="initiative-reset" phx-click="reset_initiative" phx-target={@myself}>
+      {gettext("Reset")}
+    </button>
+  <% end %>
+</div>

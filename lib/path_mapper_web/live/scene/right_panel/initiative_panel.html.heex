@@ -1,0 +1,36 @@
+<div class="initiative-panel">
+  <div class="initiative-title">{gettext("Initiative")}</div>
+
+  <%= if assigns[:my_player] do %>
+    <div class="initiative-input-section">
+      <form phx-submit="submit_initiative" phx-target={@myself}>
+        <div class="initiative-input-row">
+          <input
+            type="number"
+            name="value"
+            placeholder={gettext("Roll")}
+            class="initiative-input"
+            value={my_initiative_value(@initiative, @my_player.character_name)}
+          />
+          <button type="submit" class="initiative-submit">
+            {gettext("Set")}
+          </button>
+        </div>
+      </form>
+    </div>
+  <% end %>
+
+  <%= if @initiative == [] do %>
+    <div class="panel-empty">{gettext("No initiative entries")}</div>
+  <% else %>
+    <%= for entry <- @initiative do %>
+      <div
+        class="initiative-entry"
+        style={"border-left: 3px solid #{initiative_color(entry.owner)}"}
+      >
+        <span class="initiative-name">{entry.name}</span>
+        <span class="initiative-value">{entry.value}</span>
+      </div>
+    <% end %>
+  <% end %>
+</div>
