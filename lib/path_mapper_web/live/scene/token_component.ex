@@ -2,6 +2,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
   use PathMapperWeb, :live_component
 
   alias PathMapper.Game
+  alias PathMapper.Game.Palette
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
   alias PathMapper.Geometry.Object, as: GeometryObject
 
@@ -130,7 +131,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
   defp can_manage_token?(%{opts: %{manage_tokens: true}}), do: true
 
   defp can_manage_token?(%{my_player_name: name, token: token}) when is_binary(name) do
-    token.data.owner == name
+    token.owner == name
   end
 
   defp can_manage_token?(_), do: false
@@ -182,7 +183,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
         "width" => "100%",
         "height" => "100%",
         "border-radius" => "50%",
-        "box-shadow" => "inset 0 0 0 #{border_width}px #{token.color}",
+        "box-shadow" => "inset 0 0 0 #{border_width}px #{Palette.resolve(token.owner)}",
         "z-index" => 210,
         "pointer-events" => "none"
       })
@@ -253,5 +254,5 @@ defmodule PathMapperWeb.Scene.TokenComponent do
     )
   end
 
-  defp no_owner?(token), do: token.data.owner == "none"
+  defp no_owner?(token), do: token.owner == "none"
 end

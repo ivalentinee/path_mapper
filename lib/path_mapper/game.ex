@@ -5,9 +5,11 @@ defmodule PathMapper.Game do
 
   alias __MODULE__.Actions
   alias __MODULE__.Initialize
+  alias __MODULE__.Palette
   alias __MODULE__.State
   alias PathMapper.Adventures
   alias PathMapper.Adventures.Adventure
+  alias PathMapper.Groups
   alias Phoenix.PubSub
 
   @update_pubsub_topic "game"
@@ -34,8 +36,19 @@ defmodule PathMapper.Game do
   def load(adventure_filename) when is_binary(adventure_filename) do
     with {:ok, adventure} <- Adventures.load_adventure(adventure_filename) do
       reset(adventure)
+      rebuild_palette()
       {:ok, adventure}
     end
+  end
+
+  defp rebuild_palette do
+    group =
+      case Groups.get_loaded() do
+        {:ok, group} -> group
+        _ -> nil
+      end
+
+    Palette.build(group) |> Palette.store()
   end
 
   def reset(%Adventure{} = adventure) do

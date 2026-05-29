@@ -20,13 +20,12 @@ defmodule PathMapper.Game.Actions.Tokens.Find do
   def find_player_token(character_name_or_index)
       when is_binary(character_name_or_index) or is_number(character_name_or_index) do
     case find_player(character_name_or_index) do
-      %Player{character_name: character_name, token: token_image, color: color} ->
+      %Player{character_name: character_name, token: token_image} ->
         %Token{
           name: character_name,
           owner: character_name,
           image: token_image,
-          size: 1,
-          color: color
+          size: 1
         }
 
       _ ->
@@ -37,15 +36,14 @@ defmodule PathMapper.Game.Actions.Tokens.Find do
   def find_player_extra_token(character_name_or_index, extra_token_index)
       when (is_binary(character_name_or_index) or is_number(character_name_or_index)) and
              is_number(extra_token_index) do
-    with %Player{character_name: character_name, color: color, extra_tokens: extra_tokens} <-
+    with %Player{character_name: character_name, extra_tokens: extra_tokens} <-
            find_player(character_name_or_index),
          %ExtraToken{name: name, image: image} <- Enum.at(extra_tokens, extra_token_index) do
       %Token{
         name: "[#{character_name}] #{name}",
         owner: character_name,
         image: image,
-        size: 1,
-        color: color
+        size: 1
       }
     else
       _ -> nil

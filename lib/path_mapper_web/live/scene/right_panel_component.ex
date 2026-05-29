@@ -68,11 +68,17 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   def handle_event("noop", _, socket), do: {:noreply, socket}
 
   defp find_token_index_by_name(name) do
-    game_state = Game.get_state()
-    tokens = get_in(game_state || %{}, [:scene, :tokens]) || []
+    tokens = scene_tokens()
 
     Enum.find_value(Enum.with_index(tokens), fn {token, index} ->
       if token.data.name == name, do: index
     end)
+  end
+
+  defp scene_tokens do
+    case Game.get_state() do
+      %{scene: %{tokens: tokens}} when is_list(tokens) -> tokens
+      _ -> []
+    end
   end
 end

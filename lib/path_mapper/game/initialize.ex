@@ -58,7 +58,7 @@ defmodule PathMapper.Game.Initialize do
           else: y
         ),
       size: size,
-      color: token.color,
+      owner: token.owner,
       state: params[:state] || "alive"
     }
 

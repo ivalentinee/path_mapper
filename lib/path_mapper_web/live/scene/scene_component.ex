@@ -140,7 +140,7 @@ defmodule PathMapperWeb.Scene.SceneComponent do
 
       opts[:my_player_name] ->
         Enum.filter(tokens_with_index, fn {token, _index} ->
-          token.state !== "hidden" or token.data.owner == opts[:my_player_name]
+          token.state !== "hidden" or token.owner == opts[:my_player_name]
         end)
 
       true ->

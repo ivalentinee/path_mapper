@@ -88,11 +88,17 @@ defmodule PathMapperWeb.PlayerLive do
   end
 
   @impl true
-  def handle_info({:close_all_context_menus, except_id}, socket) do
-    tokens = get_in(socket.assigns, [:game_state, :scene, :tokens]) || []
+  def handle_info(
+        {:close_all_context_menus, except_id},
+        %{assigns: %{game_state: %{scene: %{tokens: tokens}}}} = socket
+      )
+      when is_list(tokens) do
     ContextMenuHelper.close_other_context_menus(tokens, except_id)
     {:noreply, socket}
   end
+
+  @impl true
+  def handle_info({:close_all_context_menus, _}, socket), do: {:noreply, socket}
 
   @impl true
   def handle_info(%{adventure_load_error: _}, socket), do: {:noreply, socket}

@@ -2,6 +2,7 @@ defmodule PathMapper.Groups do
   use Agent
 
   require Logger
+  alias PathMapper.Game.Palette
   alias PathMapper.Groups.LoadedStorage
   alias PathMapper.Groups.Loader
   alias Phoenix.PubSub
@@ -31,6 +32,7 @@ defmodule PathMapper.Groups do
          {:ok, group} <- Loader.load(filename),
          :ok <- LoadedStorage.store(group) do
       PathMapper.FileStorage.cleanup("group", group)
+      Palette.build(group) |> Palette.store()
       broadcast(%{@group_loaded_event => group})
       {:ok, group}
     else

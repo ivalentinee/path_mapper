@@ -18,13 +18,14 @@ defmodule PathMapper.Game.State.Scene.Token do
     field(:drag_x, :integer)
     field(:drag_y, :integer)
     field(:size, :integer)
-    field(:color, :string)
+    field(:owner, :string)
     embeds_one(:data, AdventureToken)
   end
 
   def build(params, %AdventureToken{} = data) do
     %__MODULE__{}
-    |> cast(params, [:x, :y, :state, :size, :color])
+    |> cast(params, [:x, :y, :state, :size, :owner])
+    |> validate_required([:owner])
     |> validate_inclusion(:state, states())
     |> put_embed(:data, data)
     |> apply_action(:insert)
@@ -36,8 +37,15 @@ defmodule PathMapper.Game.State.Scene.Token do
   end
 
   defp to_place_record(%__MODULE__{} = token) do
+    owner_part =
+      if token.owner != token.data.owner do
+        ", owner = \"#{token.owner}\""
+      else
+        ""
+      end
+
     token_object =
-      "{ name = \"#{token.data.name}\", x = #{token.x}, y = #{token.y}, state = \"#{token.state}\", subpixel = #{GeometryMapper.subpixel_factor()} }"
+      "{ name = \"#{token.data.name}\", x = #{token.x}, y = #{token.y}, state = \"#{token.state}\", subpixel = #{GeometryMapper.subpixel_factor()}#{owner_part} }"
 
     indent = "        "
     "#{indent}#{token_object}"

@@ -90,7 +90,7 @@ defmodule PathMapper.Game.Actions.Tokens do
           else: y
         ),
       size: size,
-      color: token.color,
+      owner: token.owner,
       state: params[:state] || "alive"
     }
 

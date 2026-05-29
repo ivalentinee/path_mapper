@@ -11,33 +11,12 @@ defmodule PathMapper.Adventures.Adventure.Scene.Token do
     field(:owner, :string)
     field(:image, :string)
     field(:size, :integer)
-    field(:color, :binary)
   end
 
   def changeset(struct, params, adventure_zip) do
     struct
-    |> cast(params, [:name, :owner, :image, :size, :color])
-    |> cast_color()
+    |> cast(params, [:name, :owner, :image, :size])
     |> FileStorage.store_image_from_zip(:image, adventure_zip)
-    |> validate_required([:name, :owner, :image, :size, :color])
+    |> validate_required([:name, :owner, :image, :size])
   end
-
-  def cast_color(changeset) do
-    if get_change(changeset, :color) do
-      changeset
-    else
-      owner = get_change(changeset, :owner)
-      put_change(changeset, :color, color(owner))
-    end
-  end
-
-  def color(owner) when is_binary(owner) do
-    case String.downcase(owner) do
-      "enemy" -> "#db0909"
-      "npc" -> "#a1a1a1"
-      _ -> "#000000"
-    end
-  end
-
-  def color(_), do: "#000000"
 end
