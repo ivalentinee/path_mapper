@@ -2,7 +2,7 @@
   <div class="panel-selector right-panel-selector">
     <%= if @group do %>
       <button
-        class={"right-panel-button #{if @right_panel_state.group_panel_open, do: "active"}"}
+        class={"right-panel-button #{if @right_panel.group_panel_open, do: "active"}"}
         phx-click="toggle_group_panel"
         phx-target={@myself}
       >
@@ -12,7 +12,7 @@
 
     <%= if assigns[:my_player] do %>
       <button
-        class={"right-panel-button #{if @right_panel_state.character_panel_open, do: "active"}"}
+        class={"right-panel-button #{if @right_panel.character_panel_open, do: "active"}"}
         style={"background: linear-gradient(to left, #{@my_player.color}22, transparent)"}
         phx-click="toggle_character_panel"
         phx-target={@myself}
@@ -23,7 +23,7 @@
 
     <%= if @adventure do %>
       <button
-        class={"right-panel-button #{if @right_panel_state.links_panel_open, do: "active"}"}
+        class={"right-panel-button #{if @right_panel.links_panel_open, do: "active"}"}
         phx-click="toggle_links_panel"
         phx-target={@myself}
       >
@@ -37,11 +37,11 @@
       phx-click="snap_to_grid"
       phx-target={@myself}
     >
-      {if @scene_state.snap_to_grid, do: "▣", else: "□"}
+      {if @scene.snap_to_grid, do: "▣", else: "□"}
     </button>
   </div>
 
-  <%= if @right_panel_state.group_panel_open do %>
+  <%= if @right_panel.group_panel_open do %>
     <div class="panel-content right-panel-content">
       <.group_overview
         group={@group}
@@ -52,7 +52,7 @@
     </div>
   <% end %>
 
-  <%= if @right_panel_state.character_panel_open && assigns[:my_player] do %>
+  <%= if @right_panel.character_panel_open && assigns[:my_player] do %>
     <div class="panel-content right-panel-content">
       <.character_menu
         my_player={@my_player}
@@ -63,7 +63,7 @@
     </div>
   <% end %>
 
-  <%= if @right_panel_state.links_panel_open do %>
+  <%= if @right_panel.links_panel_open do %>
     <div class="panel-content right-panel-content">
       <.links_panel adventure={@adventure} />
     </div>

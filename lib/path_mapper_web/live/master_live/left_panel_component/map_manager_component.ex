@@ -49,12 +49,12 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent do
   end
 
   def handle_event("hover_layer", %{"index" => index_string}, socket) do
-    with_parsed_index(index_string, &send(self(), %{left_panel_update: %{hover_layer: &1}}))
+    with_parsed_index(index_string, &send(self(), %{session_event: %{hover_layer: &1}}))
     {:noreply, socket}
   end
 
   def handle_event("unhover_layer", _, socket) do
-    send(self(), %{left_panel_update: %{hover_layer: nil}})
+    send(self(), %{session_event: %{hover_layer: nil}})
     {:noreply, socket}
   end
 

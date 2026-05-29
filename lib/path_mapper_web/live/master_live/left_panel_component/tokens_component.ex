@@ -6,14 +6,14 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent do
   alias PathMapper.Game.State.Scene.Token
 
   def handle_event("go_to_add_tokens", _, socket) do
-    send(self(), %{left_panel_update: %{left_panel_select: ["left-panel", "tokens", "add-token"]}})
+    send(self(), %{session_event: %{left_panel_select: ["left-panel", "tokens", "add-token"]}})
 
     {:noreply, socket}
   end
 
   def handle_event("go_to_add_player_tokens", _, socket) do
     send(self(), %{
-      left_panel_update: %{left_panel_select: ["left-panel", "tokens", "add-player-token"]}
+      session_event: %{left_panel_select: ["left-panel", "tokens", "add-player-token"]}
     })
 
     {:noreply, socket}
@@ -21,7 +21,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent do
 
   def handle_event("go_to_extra_tokens", _, socket) do
     send(self(), %{
-      left_panel_update: %{left_panel_select: ["left-panel", "tokens", "add-extra-token"]}
+      session_event: %{left_panel_select: ["left-panel", "tokens", "add-extra-token"]}
     })
 
     {:noreply, socket}

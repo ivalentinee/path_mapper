@@ -9,7 +9,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.AddExtra d
     with_parsed_index(
       index_string,
       &send(self(), %{
-        left_panel_update: %{
+        session_event: %{
           left_panel_select: ["left-panel", "tokens", "add-extra-token", &1, "add"]
         }
       })

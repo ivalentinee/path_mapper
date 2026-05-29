@@ -9,7 +9,7 @@
         id={"add-extra-token-player-#{player_index}"}
       >
         <span class="index">{player_index + 1}</span> {player.character_name}
-        <%= if show_tokens?(@left_panel_state, player_index) do %>
+        <%= if show_tokens?(@left_panel, player_index) do %>
           <div class="add-extra-token-player-tokens">
             <%= for {extra_token, index} <- Enum.with_index(player.extra_tokens) do %>
               <div class="item">

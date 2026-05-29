@@ -13,7 +13,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage do
 
   def handle_event("delete_token", %{"index" => index_string}, socket) do
     with_parsed_index(index_string, &Game.run_action([:tokens, :delete], &1))
-    unset_selected_token(socket.assigns.left_panel_state)
+    unset_selected_token(socket.assigns.left_panel)
     {:noreply, socket}
   end
 
@@ -34,7 +34,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage do
   end
 
   defp unset_selected_token(%LeftPanelState{left_panel: ["left-panel", "tokens", _index]}) do
-    send(self(), %{left_panel_update: %{left_panel_select: ["left-panel", "tokens"]}})
+    send(self(), %{session_event: %{left_panel_select: ["left-panel", "tokens"]}})
   end
 
   defp unset_selected_token(%LeftPanelState{}), do: nil

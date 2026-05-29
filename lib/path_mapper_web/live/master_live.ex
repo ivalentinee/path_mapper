@@ -5,10 +5,14 @@ defmodule PathMapperWeb.MasterLive do
   alias PathMapper.Adventures
   alias PathMapper.Game
   alias PathMapper.Groups
-  alias PathMapperWeb.MasterLive.LeftPanelState
   alias PathMapperWeb.Scene.ContextMenuHelper
-  alias PathMapperWeb.Scene.RightPanelState
-  alias PathMapperWeb.Scene.SceneState
+  alias PathMapperWeb.SessionState
+  alias PathMapperWeb.SessionState.Feedback
+  alias PathMapperWeb.SessionState.LeftPanel
+  alias PathMapperWeb.SessionState.RightPanel
+  alias PathMapperWeb.SessionState.Scene
+
+  @plugins [LeftPanel, RightPanel, Scene, Feedback]
 
   @impl true
   def mount(_params, _session, socket) do
@@ -21,6 +25,8 @@ defmodule PathMapperWeb.MasterLive do
     Groups.subscribe()
     Game.subscribe()
 
+    session_state = SessionState.new(@plugins)
+
     socket =
       socket
       |> assign(:page_title, gettext("GM"))
@@ -29,57 +35,56 @@ defmodule PathMapperWeb.MasterLive do
       |> assign(:groups, groups)
       |> assign(:group, group)
       |> assign(:game_state, game_state)
-      |> assign(:left_panel_state, %LeftPanelState{})
-      |> assign(:scene_state, %SceneState{})
-      |> assign(:right_panel_state, %RightPanelState{})
-      |> assign(:load_errors, [])
+      |> assign(:session_state, session_state)
+      |> SessionState.assign_partitions(session_state)
 
     {:ok, socket}
   end
 
-  def selected_layer_index(%LeftPanelState{hovered_layer: index})
+  def selected_layer_index(%{hovered_layer: index})
       when is_number(index),
       do: index
 
-  def selected_layer_index(%LeftPanelState{left_panel: ["left-panel", "map-manager", index]})
+  def selected_layer_index(%{left_panel: ["left-panel", "map-manager", index]})
       when is_number(index),
       do: index
 
-  def selected_layer_index(%LeftPanelState{}), do: nil
+  def selected_layer_index(_), do: nil
 
-  def selected_token_index(%LeftPanelState{left_panel: ["left-panel", "tokens"]}),
+  def selected_token_index(%{left_panel: ["left-panel", "tokens"]}),
     do: :all
 
-  def selected_token_index(%LeftPanelState{left_panel: ["left-panel", "tokens", index]})
+  def selected_token_index(%{left_panel: ["left-panel", "tokens", index]})
       when is_number(index),
       do: index - 1
 
-  def selected_token_index(%LeftPanelState{}), do: nil
+  def selected_token_index(_), do: nil
 
   @impl true
   def handle_event("navigate", %{"key" => key}, socket) do
-    if key == "Escape", do: send(self(), %{left_panel_update: %{left_panel_select: []}})
+    if key == "Escape", do: send(self(), %{session_event: %{left_panel_select: []}})
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("close_panel", _, socket) do
-    send(self(), %{left_panel_update: %{left_panel_select: []}})
-    send(self(), %{right_panel_update: :close})
+    send(self(), %{session_event: :close_all_panels})
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("dismiss_load_errors", _, socket) do
-    {:noreply, assign(socket, :load_errors, [])}
+    send(self(), %{session_event: :dismiss_load_errors})
+    {:noreply, socket}
   end
 
   @impl true
   def handle_event("open_scene_selector", _, socket) do
-    send(self(), %{left_panel_update: %{left_panel_select: ["left-panel", "scene-selector"]}})
+    send(self(), %{session_event: %{left_panel_select: ["left-panel", "scene-selector"]}})
     {:noreply, socket}
   end
 
+  # Domain state broadcasts
   @impl true
   def handle_info(%{adventure_loaded: adventure}, socket) do
     {:noreply, assign(socket, :adventure, adventure)}
@@ -92,12 +97,12 @@ defmodule PathMapperWeb.MasterLive do
 
   @impl true
   def handle_info(%{adventure_load_error: errors}, socket) do
-    {:noreply, assign(socket, :load_errors, errors)}
+    {:noreply, SessionState.apply_event(socket, {:load_error, errors})}
   end
 
   @impl true
   def handle_info(%{group_load_error: errors}, socket) do
-    {:noreply, assign(socket, :load_errors, errors)}
+    {:noreply, SessionState.apply_event(socket, {:load_error, errors})}
   end
 
   @impl true
@@ -115,32 +120,13 @@ defmodule PathMapperWeb.MasterLive do
     {:noreply, assign(socket, :game_state, game_state)}
   end
 
+  # Unified session event dispatch
   @impl true
-  def handle_info(%{left_panel_update: left_panel_update}, socket) do
-    {:noreply,
-     assign(
-       socket,
-       :left_panel_state,
-       LeftPanelState.run_event(socket.assigns.left_panel_state, left_panel_update)
-     )}
+  def handle_info(%{session_event: event}, socket) do
+    {:noreply, SessionState.apply_event(socket, event)}
   end
 
-  @impl true
-  def handle_info(%{right_panel_update: event}, socket) do
-    {:noreply,
-     assign(
-       socket,
-       :right_panel_state,
-       RightPanelState.run_event(socket.assigns.right_panel_state, event)
-     )}
-  end
-
-  @impl true
-  def handle_info(%{scene_update: scene_update}, socket) do
-    {:noreply,
-     assign(socket, :scene_state, SceneState.run_event(socket.assigns.scene_state, scene_update))}
-  end
-
+  # Context menu coordination
   @impl true
   def handle_info(
         {:close_all_context_menus, except_id},

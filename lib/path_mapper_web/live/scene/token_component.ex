@@ -54,7 +54,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
 
   @impl true
   def handle_event("dragend", _event, socket) do
-    snap_to_grid = socket.assigns.scene_state.snap_to_grid
+    snap_to_grid = socket.assigns.scene.snap_to_grid
 
     Game.run_action(
       [:tokens, socket.assigns.index, :move],
@@ -118,7 +118,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
     with_parsed_index(index, fn index_number ->
       send(
         self(),
-        %{left_panel_update: %{left_panel_select: ["left-panel", "tokens", index_number + 1]}}
+        %{session_event: %{left_panel_select: ["left-panel", "tokens", index_number + 1]}}
       )
     end)
 

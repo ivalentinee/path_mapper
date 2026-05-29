@@ -10,10 +10,10 @@
     <.live_component
       module={PathMapperWeb.Scene.SceneComponent}
       id="scene"
-      scene_state={@scene_state}
+      scene={@scene}
       adventure={@adventure}
       game_state={@game_state}
-      opts={%{my_player_name: @my_player && @my_player.character_name}}
+      opts={%{my_player_name: @character.my_player && @character.my_player.character_name}}
       selected_layer_index={nil}
       selected_token_index={nil}
     />
@@ -24,11 +24,11 @@
     id="right-panel"
     group={@group}
     adventure={@adventure}
-    scene_state={@scene_state}
-    right_panel_state={@right_panel_state}
+    scene={@scene}
+    right_panel={@right_panel}
     is_player={true}
-    my_player={@my_player}
-    my_token_on_map={@my_token_on_map}
+    my_player={@character.my_player}
+    my_token_on_map={@character.my_token_on_map}
     has_scene={@game_state != nil && @game_state[:scene] != nil}
     game_state={@game_state}
   />

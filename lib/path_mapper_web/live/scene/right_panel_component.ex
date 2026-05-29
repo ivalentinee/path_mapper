@@ -7,26 +7,26 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
 
   @impl true
   def handle_event("toggle_group_panel", _, socket) do
-    send(self(), %{right_panel_update: :toggle_group_panel})
+    send(self(), %{session_event: :toggle_group_panel})
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("toggle_character_panel", _, socket) do
-    send(self(), %{right_panel_update: :toggle_character_panel})
+    send(self(), %{session_event: :toggle_character_panel})
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("toggle_links_panel", _, socket) do
-    send(self(), %{right_panel_update: :toggle_links_panel})
+    send(self(), %{session_event: :toggle_links_panel})
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("claim_character", %{"name" => name}, socket) do
     if socket.assigns[:is_player] do
-      send(self(), %{player_update: {:claim_character, name}})
+      send(self(), %{session_event: {:claim_character, name}})
     end
 
     {:noreply, socket}
@@ -60,7 +60,7 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
 
   @impl true
   def handle_event("snap_to_grid", _, socket) do
-    send(self(), %{scene_update: :snap_to_grid})
+    send(self(), %{session_event: :snap_to_grid})
     {:noreply, socket}
   end
 

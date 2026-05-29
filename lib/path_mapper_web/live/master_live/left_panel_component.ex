@@ -5,7 +5,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent do
 
   @impl true
   def handle_event("select_panel", %{"name" => name}, socket) do
-    send(self(), %{left_panel_update: %{left_panel_select: ["left-panel", name]}})
+    send(self(), %{session_event: %{left_panel_select: ["left-panel", name]}})
     {:noreply, socket}
   end
 
@@ -13,7 +13,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent do
   def handle_event("noop", _, socket), do: {:noreply, socket}
 
   def panel_select_button(assigns) do
-    active = selected_panel(assigns[:left_panel_state]) == assigns.panel_name
+    active = selected_panel(assigns[:left_panel]) == assigns.panel_name
     classes = "left-panel-button pure-button #{if active, do: "active"}"
     assigns = Map.put(assigns, :button_classes, classes)
 

@@ -12,12 +12,12 @@
     <.live_component
       module={PathMapperWeb.Scene.SceneComponent}
       id="scene"
-      scene_state={@scene_state}
+      scene={@scene}
       adventure={@adventure}
       game_state={@game_state}
       opts={%{show_hidden: true, manage_tokens: true, manage_objects: true}}
-      selected_layer_index={selected_layer_index(@left_panel_state)}
-      selected_token_index={selected_token_index(@left_panel_state)}
+      selected_layer_index={selected_layer_index(@left_panel)}
+      selected_token_index={selected_token_index(@left_panel)}
     />
   <% end %>
 
@@ -32,8 +32,8 @@
     id="right-panel"
     group={@group}
     adventure={@adventure}
-    scene_state={@scene_state}
-    right_panel_state={@right_panel_state}
+    scene={@scene}
+    right_panel={@right_panel}
     is_player={false}
     my_player={nil}
   />
@@ -46,18 +46,18 @@
     groups={@groups}
     group={@group}
     game_state={@game_state}
-    left_panel_state={@left_panel_state}
-    scene_state={@scene_state}
+    left_panel={@left_panel}
+    scene={@scene}
   />
 
-  <%= if @load_errors != [] do %>
+  <%= if @feedback.load_errors != [] do %>
     <div class="load-errors-overlay">
       <div class="load-errors-panel">
         <div class="load-errors-header">
           <span class="load-errors-title">{gettext("Load errors")}</span>
           <button class="load-errors-dismiss" phx-click="dismiss_load_errors">✕</button>
         </div>
-        <%= for error <- @load_errors do %>
+        <%= for error <- @feedback.load_errors do %>
           <div class="load-error-item">{error}</div>
         <% end %>
       </div>
