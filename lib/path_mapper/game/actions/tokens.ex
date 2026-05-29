@@ -2,6 +2,7 @@ defmodule PathMapper.Game.Actions.Tokens do
   alias Ecto.Changeset
   alias PathMapper.Adventures.Adventure.Scene.Token
   alias PathMapper.Game.Actions.Tokens.FindFreeSpace
+  alias PathMapper.Game.Palette
   alias PathMapper.Game.State
   alias PathMapper.Game.State.Scene.Token, as: GameToken
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
@@ -67,6 +68,21 @@ defmodule PathMapper.Game.Actions.Tokens do
 
       _ ->
         {:ok, state}
+    end
+  end
+
+  def action(%State{} = state, [:tokens, index, :set_owner], new_owner)
+      when is_integer(index) and is_binary(new_owner) do
+    if Map.has_key?(Palette.get(), new_owner) do
+      case Enum.at(State.scene(state).tokens, index) do
+        %GameToken{} = game_token ->
+          update_token(state, index, Map.put(game_token, :owner, new_owner))
+
+        _ ->
+          {:ok, state}
+      end
+    else
+      {:ok, state}
     end
   end
 

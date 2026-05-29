@@ -16,7 +16,15 @@ defmodule PathMapper.Adventures.Adventure.Scene.Token do
   def changeset(struct, params, adventure_zip) do
     struct
     |> cast(params, [:name, :owner, :image, :size])
+    |> normalize_owner()
     |> FileStorage.store_image_from_zip(:image, adventure_zip)
     |> validate_required([:name, :owner, :image, :size])
+  end
+
+  defp normalize_owner(changeset) do
+    case get_change(changeset, :owner) do
+      owner when is_binary(owner) -> put_change(changeset, :owner, String.downcase(owner))
+      _ -> changeset
+    end
   end
 end

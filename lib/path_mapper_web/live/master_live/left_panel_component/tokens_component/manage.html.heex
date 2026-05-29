@@ -48,7 +48,42 @@
           text="👀"
           target={@myself}
         />
+
+        <% owner_color = PathMapper.Game.Palette.resolve(token.owner) %>
+        <button
+          class="owner-button"
+          phx-click="toggle_owner_selector"
+          phx-value-index={index}
+          phx-target={@myself}
+          style={if owner_color, do: "background-color: #{owner_color};", else: ""}
+        >
+          👤
+        </button>
       </div>
     </div>
+
+    <%= if @left_panel.owner_selector_index == index do %>
+      <div class="owner-selector">
+        <%= for owner <- available_owners() do %>
+          <% color = PathMapper.Game.Palette.resolve(owner) %>
+          <button
+            class={"owner-option #{if token.owner == owner, do: "active"}"}
+            phx-click="set_token_owner"
+            phx-value-index={index}
+            phx-value-owner={owner}
+            phx-target={@myself}
+          >
+            <span
+              class="owner-dot"
+              style={
+                if color, do: "background-color: #{color};", else: "border: 1px solid #5a5575;"
+              }
+            >
+            </span>
+            {owner}
+          </button>
+        <% end %>
+      </div>
+    <% end %>
   <% end %>
 </div>

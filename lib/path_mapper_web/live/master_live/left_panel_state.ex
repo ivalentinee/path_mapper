@@ -1,7 +1,7 @@
 defmodule PathMapperWeb.MasterLive.LeftPanelState do
   alias PathMapperWeb.MasterLive.LeftPanelState.Actions
 
-  defstruct left_panel: nil, hovered_layer: nil
+  defstruct left_panel: nil, hovered_layer: nil, owner_selector_index: nil
 
   def run_event(state, %{left_panel_select: panel}) when is_list(panel) do
     Actions.toggle_left_panel(state, panel)

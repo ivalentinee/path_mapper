@@ -35,3 +35,46 @@
 #manage-tokens button.hidden {
   display: inline !important;
 }
+
+#manage-tokens .owner-button {
+  border-color: transparent;
+  margin-left: 4px;
+}
+
+#manage-tokens .owner-button:hover {
+  border-color: #42b8dd;
+}
+
+#manage-tokens .owner-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 8px 8px;
+  background: rgba(42, 37, 64, 0.5);
+  border-bottom: 1px solid #2a2540;
+}
+
+#manage-tokens .owner-selector .owner-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: auto;
+  height: auto;
+  padding: 3px 8px;
+  font-size: 0.8rem;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+#manage-tokens .owner-selector .owner-option .owner-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+#manage-tokens .owner-selector .owner-option.active {
+  background: #1a3a4e;
+  border-color: #42b8dd;
+}

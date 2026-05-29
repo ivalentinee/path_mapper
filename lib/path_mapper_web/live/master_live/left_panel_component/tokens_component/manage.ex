@@ -8,6 +8,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage do
   import PathMapper.TokenStates, only: [states: 0]
 
   alias PathMapper.Game
+  alias PathMapper.Game.Palette
 
   embed_templates "manage_state_button*"
 
@@ -23,14 +24,35 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage do
     {:noreply, socket}
   end
 
+  def handle_event("toggle_owner_selector", %{"index" => index_string}, socket) do
+    with_parsed_index(index_string, fn index ->
+      send(self(), %{session_event: {:toggle_owner_selector, index}})
+    end)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("set_token_owner", %{"index" => index_string, "owner" => owner}, socket) do
+    with_parsed_index(index_string, &Game.run_action([:tokens, &1, :set_owner], owner))
+    send(self(), %{session_event: :close_owner_selector})
+    {:noreply, socket}
+  end
+
   def selected_tokens(game_state, %{left_panel: ["left-panel", "tokens" | [index]]}) do
     tokens_with_index = Enum.with_index(game_state.scene.tokens)
     token = Enum.at(tokens_with_index, index - 1)
     if token, do: [token], else: tokens_with_index
   end
 
-  def selected_tokens(game_state, _left_panel_state) do
+  def selected_tokens(game_state, _left_panel) do
     Enum.with_index(game_state.scene.tokens)
+  end
+
+  def available_owners do
+    owners = Map.keys(Palette.get())
+    fixed = ["enemy", "npc", "none"]
+    {fixed_present, characters} = Enum.split_with(owners, &(&1 in fixed))
+    Enum.filter(fixed, &(&1 in fixed_present)) ++ Enum.sort(characters)
   end
 
   defp unset_selected_token(%LeftPanelState{left_panel: ["left-panel", "tokens", _index]}) do
