@@ -11,6 +11,10 @@ config :path_mapper,
   generators: [timestamp_type: :utc_datetime],
   subpixel_factor: 10
 
+config :path_mapper, PathMapperWeb.Gettext,
+  default_locale: "en",
+  locales: ~w(en ru)
+
 # Configures the endpoint
 config :path_mapper, PathMapperWeb.Endpoint,
   url: [host: "localhost"],

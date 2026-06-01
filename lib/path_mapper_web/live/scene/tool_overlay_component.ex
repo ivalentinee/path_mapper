@@ -102,8 +102,12 @@ defmodule PathMapperWeb.Scene.ToolOverlayComponent do
     dy = cy - sy
     pixel_distance = :math.sqrt(dx * dx + dy * dy)
     grid_squares = pixel_distance / grid_size_sp
-    feet = grid_squares * 5
-    "#{Float.round(feet * 1.0, 1)}ft"
+    feet = Float.round(grid_squares * 5, 1)
+    format_distance(feet)
+  end
+
+  defp format_distance(feet) do
+    gettext("%{distance}ft", distance: feet)
   end
 
   defp all_tool_draws(%{tool_draws: draws, own_tool: nil}), do: draws || %{}
@@ -195,7 +199,7 @@ defmodule PathMapperWeb.Scene.ToolOverlayComponent do
             "rotate(#{Float.round(seg.angle * 1.0, 1)}, #{sp(seg.sx, geo)}, #{sp(seg.sy, geo)})",
           tx: sp(seg.text_x, geo),
           ty: sp(seg.text_y, geo) + 5,
-          distance: seg.distance
+          distance: format_distance(seg.feet)
         }
       end)
 

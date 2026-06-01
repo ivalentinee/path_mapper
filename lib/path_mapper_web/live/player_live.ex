@@ -7,13 +7,18 @@ defmodule PathMapperWeb.PlayerLive do
   alias PathMapperWeb.Scene.ContextMenuHelper
   alias PathMapperWeb.SessionState
   alias PathMapperWeb.SessionState.Character
+  alias PathMapperWeb.SessionState.Language
   alias PathMapperWeb.SessionState.RightPanel
   alias PathMapperWeb.SessionState.Scene
 
-  @plugins [RightPanel, Scene, Character]
+  @plugins [RightPanel, Scene, Character, Language]
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
+    connect_locale = get_connect_params(socket)["locale"]
+    locale = session["locale"] || connect_locale || "en"
+    Gettext.put_locale(PathMapperWeb.Gettext, locale)
+
     adventure = get_selected_adventure()
     group = get_selected_group()
     game_state = Game.get_state()
@@ -22,7 +27,11 @@ defmodule PathMapperWeb.PlayerLive do
     Game.subscribe()
     PathMapper.MapTools.subscribe()
 
-    session_state = SessionState.new(@plugins)
+    session_state =
+      @plugins
+      |> SessionState.new()
+      |> Map.put(:language, %{locale: locale})
+
     session_id = inspect(self())
 
     socket =

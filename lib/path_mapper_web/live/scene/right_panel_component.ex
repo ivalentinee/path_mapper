@@ -84,6 +84,11 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   end
 
   @impl true
+  def handle_event("set_locale", %{"locale" => locale}, socket) do
+    {:noreply, push_event(socket, "set_locale", %{locale: locale})}
+  end
+
+  @impl true
   def handle_event("toggle_initiative_panel", _, socket) do
     send(self(), %{session_event: :toggle_initiative_panel})
     {:noreply, socket}
@@ -101,6 +106,13 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
 
   @impl true
   def handle_event("noop", _, socket), do: {:noreply, socket}
+
+  defp tool_label(:ruler), do: gettext("Ruler")
+  defp tool_label(:pointer), do: gettext("Pointer")
+  defp tool_label(:burst), do: gettext("Burst")
+  defp tool_label(:emanation), do: gettext("Emanation")
+  defp tool_label(:cone), do: gettext("Cone")
+  defp tool_label(:line), do: gettext("Line")
 
   defp my_initiative_value(initiative, character_name) do
     case Enum.find(initiative, &(&1.owner == character_name)) do

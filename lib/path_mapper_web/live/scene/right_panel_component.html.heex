@@ -56,7 +56,7 @@
           phx-click="select_tool"
           phx-value-tool={tool}
           phx-target={@myself}
-          title={Atom.to_string(tool)}
+          title={tool_label(tool)}
         >
           {icon}
         </button>
@@ -84,6 +84,30 @@
       >
         {if @scene.snap_to_grid, do: "▣", else: "□"}
       </button>
+
+      <div class="tool-separator"></div>
+
+      <div class="locale-selector">
+        <button
+          class="tool-button locale-button"
+          phx-click={Phoenix.LiveView.JS.toggle(to: "#locale-dropdown")}
+        >
+          {String.upcase(@language.locale)}
+        </button>
+        <div id="locale-dropdown" class="locale-dropdown" style="display: none;">
+          <%= for locale <- PathMapperWeb.Plugs.Locale.supported_locales() do %>
+            <button
+              class={"locale-option #{if @language.locale == locale, do: "active"}"}
+              phx-click={
+                Phoenix.LiveView.JS.push("set_locale", value: %{locale: locale}, target: @myself)
+                |> Phoenix.LiveView.JS.hide(to: "#locale-dropdown")
+              }
+            >
+              {String.upcase(locale)}
+            </button>
+          <% end %>
+        </div>
+      </div>
     </div>
   </div>
 

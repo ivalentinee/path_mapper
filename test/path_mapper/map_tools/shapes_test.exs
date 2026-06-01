@@ -155,7 +155,7 @@ defmodule PathMapper.MapTools.ShapesTest do
       assert seg.sx == sp(0)
       assert seg.sy == sp(0)
       assert seg.length == sp(100)
-      assert seg.distance == "10.0ft"
+      assert seg.feet == 10.0
     end
 
     test "two waypoints show cumulative distance" do
@@ -165,8 +165,8 @@ defmodule PathMapper.MapTools.ShapesTest do
 
       assert length(result.segments) == 2
       [seg1, seg2] = result.segments
-      assert seg1.distance == "10.0ft"
-      assert seg2.distance == "20.0ft"
+      assert seg1.feet == 10.0
+      assert seg2.feet == 20.0
     end
 
     test "empty waypoints produces no segments" do

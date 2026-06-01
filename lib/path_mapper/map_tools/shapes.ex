@@ -63,9 +63,8 @@ defmodule PathMapper.MapTools.Shapes do
       |> Enum.map_reduce(0, fn [{x1, y1}, {x2, y2}], acc ->
         seg = segment_geometry(x1, y1, x2, y2)
         cumulative = acc + seg.length
-        feet = cumulative / grid_size * 5
-        distance = "#{Float.round(feet * 1.0, 1)}ft"
-        {Map.put(seg, :distance, distance), cumulative}
+        feet = Float.round(cumulative / grid_size * 5, 1)
+        {Map.put(seg, :feet, feet), cumulative}
       end)
 
     %{type: :ruler_path, segments: segments}

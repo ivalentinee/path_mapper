@@ -1,0 +1,296 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: ru\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100 != 11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10||n%100>=20) ? 1 : 2);\n"
+
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr "Действия"
+
+#, elixir-autogen, elixir-format
+msgid "Add"
+msgstr "Добавить"
+
+#, elixir-autogen, elixir-format
+msgid "Adventures"
+msgstr "Приключения"
+
+#, elixir-autogen, elixir-format
+msgid "All"
+msgstr "Все"
+
+#, elixir-autogen, elixir-format
+msgid "Attempting to reconnect"
+msgstr "Попытка переподключения"
+
+#, elixir-autogen, elixir-format
+msgid "Confirm?"
+msgstr "Подтвердить?"
+
+#, elixir-autogen, elixir-format
+msgid "Copy"
+msgstr "Копировать"
+
+#, elixir-autogen, elixir-format
+msgid "Error!"
+msgstr "Ошибка!"
+
+#, elixir-autogen, elixir-format
+msgid "Extras"
+msgstr "Доп. фишки"
+
+#, elixir-autogen, elixir-format
+msgid "GM"
+msgstr "Мастер"
+
+#, elixir-autogen, elixir-format
+msgid "Grid"
+msgstr "Сетка"
+
+#, elixir-autogen, elixir-format
+msgid "Group"
+msgstr "Группа"
+
+#, elixir-autogen, elixir-format
+msgid "Groups"
+msgstr "Группы"
+
+#, elixir-autogen, elixir-format
+msgid "Hang in there while we get back on track"
+msgstr "Подождите, восстанавливаем соединение"
+
+#, elixir-autogen, elixir-format
+msgid "Links"
+msgstr "Ссылки"
+
+#, elixir-autogen, elixir-format
+msgid "Map"
+msgstr "Карта"
+
+#, elixir-autogen, elixir-format
+msgid "No group loaded"
+msgstr "Группа не выбрана"
+
+#, elixir-autogen, elixir-format
+msgid "No links in this adventure"
+msgstr "Нет ссылок в этом приключении"
+
+#, elixir-autogen, elixir-format
+msgid "No players in the group"
+msgstr "Нет игроков в группе"
+
+#, elixir-autogen, elixir-format
+msgid "Objects"
+msgstr "Объекты"
+
+#, elixir-autogen, elixir-format
+msgid "Path Mapper"
+msgstr "Path Mapper"
+
+#, elixir-autogen, elixir-format
+msgid "Player"
+msgstr "Игрок"
+
+#, elixir-autogen, elixir-format
+msgid "Players"
+msgstr "Игроки"
+
+#, elixir-autogen, elixir-format
+msgid "Refresh adventure file list from disk"
+msgstr "Обновить список приключений"
+
+#, elixir-autogen, elixir-format
+msgid "Refresh group file list from disk"
+msgstr "Обновить список групп"
+
+#, elixir-autogen, elixir-format
+msgid "Reload"
+msgstr "Обновить"
+
+#, elixir-autogen, elixir-format
+msgid "Reset"
+msgstr "Сбросить"
+
+#, elixir-autogen, elixir-format
+msgid "Scenes"
+msgstr "Сцены"
+
+#, elixir-autogen, elixir-format
+msgid "Something went wrong!"
+msgstr "Что-то пошло не так!"
+
+#, elixir-autogen, elixir-format
+msgid "Success!"
+msgstr "Успех!"
+
+#, elixir-autogen, elixir-format
+msgid "Tokens"
+msgstr "Фишки"
+
+#, elixir-autogen, elixir-format
+msgid "Unset"
+msgstr "Очистить"
+
+#, elixir-autogen, elixir-format
+msgid "We can't find the internet"
+msgstr "Нет подключения к интернету"
+
+#, elixir-autogen, elixir-format
+msgid "close"
+msgstr "закрыть"
+
+#, elixir-autogen, elixir-format
+msgid "Extra token"
+msgstr "Доп. фишка"
+
+#, elixir-autogen, elixir-format
+msgid "Failed to parse manifest.toml at line %{line}, column %{col}: %{message}"
+msgstr "Ошибка разбора manifest.toml, строка %{line}, столбец %{col}: %{message}"
+
+#, elixir-autogen, elixir-format
+msgid "Failed to parse manifest.toml: %{error}"
+msgstr "Ошибка разбора manifest.toml: %{error}"
+
+#, elixir-autogen, elixir-format
+msgid "Failed to read ZIP file: %{reason}"
+msgstr "Не удалось прочитать ZIP-файл: %{reason}"
+
+#, elixir-autogen, elixir-format
+msgid "Layer"
+msgstr "Слой"
+
+#, elixir-autogen, elixir-format
+msgid "Load errors"
+msgstr "Ошибки загрузки"
+
+#, elixir-autogen, elixir-format
+msgid "Map object"
+msgstr "Объект карты"
+
+#, elixir-autogen, elixir-format
+msgid "Placed token"
+msgstr "Размещённая фишка"
+
+#, elixir-autogen, elixir-format
+msgid "Scene"
+msgstr "Сцена"
+
+#, elixir-autogen, elixir-format
+msgid "Token"
+msgstr "Фишка"
+
+#, elixir-autogen, elixir-format
+msgid "URL"
+msgstr "Ссылка"
+
+#, elixir-autogen, elixir-format
+msgid "Unknown error: %{error}"
+msgstr "Неизвестная ошибка: %{error}"
+
+#, elixir-autogen, elixir-format
+msgid "Add to map"
+msgstr "Добавить на карту"
+
+#, elixir-autogen, elixir-format
+msgid "Character"
+msgstr "Персонаж"
+
+#, elixir-autogen, elixir-format
+msgid "Extra tokens"
+msgstr "Доп. фишки"
+
+#, elixir-autogen, elixir-format
+msgid "Remove from map"
+msgstr "Убрать с карты"
+
+#, elixir-autogen, elixir-format
+msgid "That's me!"
+msgstr "Это я!"
+
+#, elixir-autogen, elixir-format
+msgid "Enemy"
+msgstr "Враг"
+
+#, elixir-autogen, elixir-format
+msgid "Initiative"
+msgstr "Инициатива"
+
+#, elixir-autogen, elixir-format
+msgid "NPC"
+msgstr "NPC"
+
+#, elixir-autogen, elixir-format
+msgid "Name"
+msgstr "Имя"
+
+#, elixir-autogen, elixir-format
+msgid "No initiative entries"
+msgstr "Пусто"
+
+#, elixir-autogen, elixir-format
+msgid "No tool"
+msgstr "Без инструмента"
+
+#, elixir-autogen, elixir-format
+msgid "Reset all"
+msgstr "Сбросить всё"
+
+#, elixir-autogen, elixir-format
+msgid "Restore state"
+msgstr "Восстановить"
+
+#, elixir-autogen, elixir-format
+msgid "Roll"
+msgstr "Значение"
+
+#, elixir-autogen, elixir-format
+msgid "Save state"
+msgstr "Сохранить"
+
+#, elixir-autogen, elixir-format
+msgid "Set"
+msgstr "Задать"
+
+#, elixir-autogen, elixir-format
+msgid "Show grid"
+msgstr "Показать сетку"
+
+#, elixir-autogen, elixir-format
+msgid "Snap to grid"
+msgstr "Привязка к сетке"
+
+#, elixir-autogen, elixir-format
+msgid "%{distance}ft"
+msgstr "%{distance}ft"
+
+#, elixir-autogen, elixir-format
+msgid "Burst"
+msgstr "Взрыв"
+
+#, elixir-autogen, elixir-format
+msgid "Cone"
+msgstr "Конус"
+
+#, elixir-autogen, elixir-format
+msgid "Emanation"
+msgstr "Эманация"
+
+#, elixir-autogen, elixir-format
+msgid "Line"
+msgstr "Линия"
+
+#, elixir-autogen, elixir-format
+msgid "Pointer"
+msgstr "Указатель"
+
+#, elixir-autogen, elixir-format
+msgid "Ruler"
+msgstr "Линейка"
