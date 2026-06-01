@@ -11,286 +11,397 @@ msgstr ""
 "Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100 != 11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10||n%100>=20) ? 1 : 2);\n"
 
+#: lib/path_mapper_web/components/core_components.ex:482
 #, elixir-autogen, elixir-format
 msgid "Actions"
 msgstr "Действия"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:11
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:32
+#: lib/path_mapper_web/live/scene/right_panel/character_menu.html.heex:85
 #, elixir-autogen, elixir-format
 msgid "Add"
 msgstr "Добавить"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "Adventures"
 msgstr "Приключения"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add_player.html.heex:9
 #, elixir-autogen, elixir-format
 msgid "All"
 msgstr "Все"
 
+#: lib/path_mapper_web/components/core_components.ex:160
 #, elixir-autogen, elixir-format
 msgid "Attempting to reconnect"
 msgstr "Попытка переподключения"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:45
+#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:19
 #, elixir-autogen, elixir-format
 msgid "Confirm?"
 msgstr "Подтвердить?"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:54
 #, elixir-autogen, elixir-format
 msgid "Copy"
 msgstr "Копировать"
 
+#: lib/path_mapper_web/components/core_components.ex:151
 #, elixir-autogen, elixir-format
 msgid "Error!"
 msgstr "Ошибка!"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:50
 #, elixir-autogen, elixir-format
 msgid "Extras"
 msgstr "Доп. фишки"
 
+#: lib/path_mapper_web/live/master_live.ex:46
 #, elixir-autogen, elixir-format
 msgid "GM"
 msgstr "Мастер"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/map_manager_component.html.heex:9
 #, elixir-autogen, elixir-format
 msgid "Grid"
 msgstr "Сетка"
 
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:9
 #, elixir-autogen, elixir-format
 msgid "Group"
 msgstr "Группа"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component.html.heex:10
 #, elixir-autogen, elixir-format
 msgid "Groups"
 msgstr "Группы"
 
+#: lib/path_mapper_web/components/core_components.ex:172
 #, elixir-autogen, elixir-format
 msgid "Hang in there while we get back on track"
 msgstr "Подождите, восстанавливаем соединение"
 
+#: lib/path_mapper_web/live/scene/right_panel/links_panel.html.heex:2
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:40
 #, elixir-autogen, elixir-format
 msgid "Links"
 msgstr "Ссылки"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component.html.heex:27
 #, elixir-autogen, elixir-format
 msgid "Map"
 msgstr "Карта"
 
+#: lib/path_mapper_web/live/scene/right_panel/group_overview.html.heex:62
 #, elixir-autogen, elixir-format
 msgid "No group loaded"
 msgstr "Группа не выбрана"
 
+#: lib/path_mapper_web/live/scene/right_panel/links_panel.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "No links in this adventure"
 msgstr "Нет ссылок в этом приключении"
 
+#: lib/path_mapper_web/live/scene/right_panel/group_overview.html.heex:58
 #, elixir-autogen, elixir-format
 msgid "No players in the group"
 msgstr "Нет игроков в группе"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/map_manager_component.html.heex:55
 #, elixir-autogen, elixir-format
 msgid "Objects"
 msgstr "Объекты"
 
+#: lib/path_mapper_web/components/layouts/root.html.heex:7
 #, elixir-autogen, elixir-format
 msgid "Path Mapper"
 msgstr "Path Mapper"
 
+#: lib/path_mapper/errors.ex:50
+#: lib/path_mapper_web/live/player_live.ex:42
 #, elixir-autogen, elixir-format
 msgid "Player"
 msgstr "Игрок"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:41
 #, elixir-autogen, elixir-format
 msgid "Players"
 msgstr "Игроки"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:7
 #, elixir-autogen, elixir-format
 msgid "Refresh adventure file list from disk"
 msgstr "Обновить список приключений"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/group_selector_component.html.heex:7
 #, elixir-autogen, elixir-format
 msgid "Refresh group file list from disk"
 msgstr "Обновить список групп"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:9
+#: lib/path_mapper_web/live/master_live/left_panel_component/group_selector_component.html.heex:9
 #, elixir-autogen, elixir-format
 msgid "Reload"
 msgstr "Обновить"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:38
+#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:19
 #, elixir-autogen, elixir-format
 msgid "Reset"
 msgstr "Сбросить"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component.html.heex:18
 #, elixir-autogen, elixir-format
 msgid "Scenes"
 msgstr "Сцены"
 
+#: lib/path_mapper_web/components/core_components.ex:167
 #, elixir-autogen, elixir-format
 msgid "Something went wrong!"
 msgstr "Что-то пошло не так!"
 
+#: lib/path_mapper_web/components/core_components.ex:150
 #, elixir-autogen, elixir-format
 msgid "Success!"
 msgstr "Успех!"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component.html.heex:36
 #, elixir-autogen, elixir-format
 msgid "Tokens"
 msgstr "Фишки"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:10
 #, elixir-autogen, elixir-format
 msgid "Unset"
 msgstr "Очистить"
 
+#: lib/path_mapper_web/components/core_components.ex:155
 #, elixir-autogen, elixir-format
 msgid "We can't find the internet"
 msgstr "Нет подключения к интернету"
 
+#: lib/path_mapper_web/components/core_components.ex:76
+#: lib/path_mapper_web/components/core_components.ex:130
 #, elixir-autogen, elixir-format
 msgid "close"
 msgstr "закрыть"
 
+#: lib/path_mapper/errors.ex:52
 #, elixir-autogen, elixir-format
 msgid "Extra token"
 msgstr "Доп. фишка"
 
+#: lib/path_mapper/errors.ex:18
 #, elixir-autogen, elixir-format
 msgid "Failed to parse manifest.toml at line %{line}, column %{col}: %{message}"
 msgstr "Ошибка разбора manifest.toml, строка %{line}, столбец %{col}: %{message}"
 
+#: lib/path_mapper/errors.ex:28
 #, elixir-autogen, elixir-format
 msgid "Failed to parse manifest.toml: %{error}"
 msgstr "Ошибка разбора manifest.toml: %{error}"
 
+#: lib/path_mapper/errors.ex:12
 #, elixir-autogen, elixir-format
 msgid "Failed to read ZIP file: %{reason}"
 msgstr "Не удалось прочитать ZIP-файл: %{reason}"
 
+#: lib/path_mapper/errors.ex:53
 #, elixir-autogen, elixir-format
 msgid "Layer"
 msgstr "Слой"
 
+#: lib/path_mapper_web/live/master_live.html.heex:63
 #, elixir-autogen, elixir-format
 msgid "Load errors"
 msgstr "Ошибки загрузки"
 
+#: lib/path_mapper/errors.ex:54
 #, elixir-autogen, elixir-format
 msgid "Map object"
 msgstr "Объект карты"
 
+#: lib/path_mapper/errors.ex:49
 #, elixir-autogen, elixir-format
 msgid "Placed token"
 msgstr "Размещённая фишка"
 
+#: lib/path_mapper/errors.ex:47
 #, elixir-autogen, elixir-format
 msgid "Scene"
 msgstr "Сцена"
 
+#: lib/path_mapper/errors.ex:48
 #, elixir-autogen, elixir-format
 msgid "Token"
 msgstr "Фишка"
 
+#: lib/path_mapper/errors.ex:51
 #, elixir-autogen, elixir-format
 msgid "URL"
 msgstr "Ссылка"
 
+#: lib/path_mapper/errors.ex:36
 #, elixir-autogen, elixir-format
 msgid "Unknown error: %{error}"
 msgstr "Неизвестная ошибка: %{error}"
 
+#: lib/path_mapper_web/live/scene/right_panel/character_menu.html.heex:66
 #, elixir-autogen, elixir-format
 msgid "Add to map"
 msgstr "Добавить на карту"
 
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:20
 #, elixir-autogen, elixir-format
 msgid "Character"
 msgstr "Персонаж"
 
+#: lib/path_mapper_web/live/scene/right_panel/character_menu.html.heex:73
 #, elixir-autogen, elixir-format
 msgid "Extra tokens"
 msgstr "Доп. фишки"
 
+#: lib/path_mapper_web/live/scene/right_panel/character_menu.html.heex:56
 #, elixir-autogen, elixir-format
 msgid "Remove from map"
 msgstr "Убрать с карты"
 
+#: lib/path_mapper_web/live/scene/right_panel/group_overview.html.heex:52
 #, elixir-autogen, elixir-format
 msgid "That's me!"
 msgstr "Это я!"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:8
 #, elixir-autogen, elixir-format
 msgid "Enemy"
 msgstr "Враг"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component.html.heex:45
+#: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:2
+#: lib/path_mapper_web/live/scene/right_panel/initiative_panel.html.heex:2
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:30
 #, elixir-autogen, elixir-format
 msgid "Initiative"
 msgstr "Инициатива"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:9
 #, elixir-autogen, elixir-format
 msgid "NPC"
 msgstr "NPC"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:5
 #, elixir-autogen, elixir-format
 msgid "Name"
 msgstr "Имя"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:15
+#: lib/path_mapper_web/live/scene/right_panel/initiative_panel.html.heex:24
 #, elixir-autogen, elixir-format
 msgid "No initiative entries"
 msgstr "Пусто"
 
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:49
 #, elixir-autogen, elixir-format
 msgid "No tool"
 msgstr "Без инструмента"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:45
 #, elixir-autogen, elixir-format
 msgid "Reset all"
 msgstr "Сбросить всё"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:29
 #, elixir-autogen, elixir-format
 msgid "Restore state"
 msgstr "Восстановить"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:6
+#: lib/path_mapper_web/live/scene/right_panel/initiative_panel.html.heex:11
 #, elixir-autogen, elixir-format
 msgid "Roll"
 msgstr "Значение"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:26
 #, elixir-autogen, elixir-format
 msgid "Save state"
 msgstr "Сохранить"
 
+#: lib/path_mapper_web/live/scene/right_panel/initiative_panel.html.heex:16
 #, elixir-autogen, elixir-format
 msgid "Set"
 msgstr "Задать"
 
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:72
 #, elixir-autogen, elixir-format
 msgid "Show grid"
 msgstr "Показать сетку"
 
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:83
 #, elixir-autogen, elixir-format
 msgid "Snap to grid"
 msgstr "Привязка к сетке"
 
+#: lib/path_mapper_web/live/scene/tool_overlay_component.ex:110
 #, elixir-autogen, elixir-format
 msgid "%{distance}ft"
 msgstr "%{distance}ft"
 
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:141
 #, elixir-autogen, elixir-format
 msgid "Burst"
 msgstr "Взрыв"
 
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:143
 #, elixir-autogen, elixir-format
 msgid "Cone"
 msgstr "Конус"
 
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:142
 #, elixir-autogen, elixir-format
 msgid "Emanation"
 msgstr "Эманация"
 
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:144
 #, elixir-autogen, elixir-format
 msgid "Line"
 msgstr "Линия"
 
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:140
 #, elixir-autogen, elixir-format
 msgid "Pointer"
 msgstr "Указатель"
 
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:139
 #, elixir-autogen, elixir-format
 msgid "Ruler"
 msgstr "Линейка"
+
+#: lib/path_mapper_web/live/scene/right_panel/character_menu.html.heex:42
+#: lib/path_mapper_web/live/scene/right_panel/group_overview.html.heex:21
+#, elixir-autogen, elixir-format
+msgid "AC"
+msgstr "КБ"
+
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:110
+#, elixir-autogen, elixir-format
+msgid "Charkeeper: connected"
+msgstr "Charkeeper: подключен"
+
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:112
+#, elixir-autogen, elixir-format
+msgid "Charkeeper: error"
+msgstr "Charkeeper: ошибка"
+
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:111
+#, elixir-autogen, elixir-format
+msgid "Charkeeper: partial"
+msgstr "Charkeeper: частично"
+
+#: lib/path_mapper_web/live/scene/right_panel/character_menu.html.heex:40
+#: lib/path_mapper_web/live/scene/right_panel/group_overview.html.heex:36
+#, elixir-autogen, elixir-format
+msgid "HP"
+msgstr "ПЗ"

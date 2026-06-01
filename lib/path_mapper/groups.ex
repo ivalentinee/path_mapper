@@ -34,6 +34,7 @@ defmodule PathMapper.Groups do
       PathMapper.FileStorage.cleanup("group", group)
       Palette.build(group) |> Palette.store()
       broadcast(%{@group_loaded_event => group})
+      PathMapper.Charkeeper.start_or_restart(group.players)
       {:ok, group}
     else
       error ->

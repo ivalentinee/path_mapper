@@ -1,3 +1,4 @@
+<% ck = charkeeper_for(assigns[:charkeeper_data], @my_player) %>
 <div class="character-menu">
   <div class="character-menu-header">
     <img
@@ -7,11 +8,44 @@
     />
     <div class="character-menu-info">
       <div class="character-menu-name">{@my_player.character_name}</div>
-      <%= if @my_player.class do %>
-        <div class="character-menu-class">{@my_player.class}</div>
+      <%= if ck do %>
+        <div class="charkeeper-stats-line">
+          <span>{ck.class} {ck.level}</span>
+          <span class="charkeeper-stats-divider">|</span>
+          <span>{ck.ancestry}</span>
+        </div>
+      <% else %>
+        <%= if @my_player.class do %>
+          <div class="character-menu-class">{@my_player.class}</div>
+        <% end %>
       <% end %>
     </div>
   </div>
+
+  <%= if ck && ck.hp_max do %>
+    <div class="character-menu-section charkeeper-detail">
+      <% {cur_pct, temp_pct} = hp_bar_percent(ck.hp_current, ck.hp_temp, ck.hp_max) %>
+      <div class="hp-bar-track hp-bar-detailed">
+        <div
+          class={"hp-bar-current #{hp_color_class(ck.hp_current, ck.hp_max)}"}
+          style={"width: #{cur_pct}%"}
+        >
+        </div>
+        <%= if temp_pct > 0 do %>
+          <div class="hp-bar-temp" style={"width: #{temp_pct}%"}></div>
+        <% end %>
+      </div>
+      <div class="charkeeper-detail-numbers">
+        <span class="charkeeper-hp-numbers">
+          {ck.hp_current}
+          <%= if ck.hp_temp > 0 do %>
+            +{ck.hp_temp}
+          <% end %>/{ck.hp_max} {gettext("HP")}
+        </span>
+        <span class="charkeeper-ac">{gettext("AC")} {ck.armor_class}</span>
+      </div>
+    </div>
+  <% end %>
 
   <div class="character-menu-section">
     <%= if @my_token_on_map do %>

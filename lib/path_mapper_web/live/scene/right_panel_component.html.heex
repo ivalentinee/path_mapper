@@ -108,6 +108,15 @@
           <% end %>
         </div>
       </div>
+
+      <%= if assigns[:charkeeper_status] do %>
+        <div class="tool-separator"></div>
+        <div
+          class={"charkeeper-status-dot #{@charkeeper_status}"}
+          title={charkeeper_status_title(@charkeeper_status)}
+        >
+        </div>
+      <% end %>
     </div>
   </div>
 
@@ -118,6 +127,7 @@
         my_player={assigns[:my_player]}
         is_player={assigns[:is_player]}
         myself={@myself}
+        charkeeper_data={assigns[:charkeeper_data]}
       />
     </div>
   <% end %>
@@ -129,6 +139,7 @@
         my_token_on_map={assigns[:my_token_on_map]}
         has_scene={assigns[:has_scene]}
         myself={@myself}
+        charkeeper_data={assigns[:charkeeper_data]}
       />
     </div>
   <% end %>

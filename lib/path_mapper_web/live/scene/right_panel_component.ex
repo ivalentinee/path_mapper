@@ -107,6 +107,35 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   @impl true
   def handle_event("noop", _, socket), do: {:noreply, socket}
 
+  defp charkeeper_status_title(:ok), do: gettext("Charkeeper: connected")
+  defp charkeeper_status_title(:partial), do: gettext("Charkeeper: partial")
+  defp charkeeper_status_title(:error), do: gettext("Charkeeper: error")
+  defp charkeeper_status_title(_), do: nil
+
+  defp charkeeper_for(charkeeper_data, player) do
+    Map.get(charkeeper_data || %{}, player.character_name)
+  end
+
+  defp hp_bar_percent(_hp_current, _hp_temp, hp_max) when hp_max <= 0, do: {0, 0}
+
+  defp hp_bar_percent(hp_current, hp_temp, hp_max) do
+    current = Kernel.max(hp_current, 0)
+    effective_max = Kernel.max(hp_max, current + hp_temp)
+    {current / effective_max * 100, hp_temp / effective_max * 100}
+  end
+
+  defp hp_color_class(_hp_current, hp_max) when hp_max <= 0, do: "critical"
+
+  defp hp_color_class(hp_current, hp_max) do
+    ratio = Kernel.max(hp_current, 0) / hp_max
+
+    cond do
+      ratio >= 0.5 -> "healthy"
+      ratio >= 0.25 -> "wounded"
+      true -> "critical"
+    end
+  end
+
   defp tool_label(:ruler), do: gettext("Ruler")
   defp tool_label(:pointer), do: gettext("Pointer")
   defp tool_label(:burst), do: gettext("Burst")

@@ -66,6 +66,7 @@ defmodule PathMapper.Game do
     end
 
     Palette.build(nil) |> Palette.store()
+    PathMapper.Charkeeper.stop()
     broadcast(%{game_update: nil})
     broadcast(%{adventure_loaded: nil})
     broadcast(%{group_loaded: nil})

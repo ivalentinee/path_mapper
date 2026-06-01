@@ -18,6 +18,7 @@ defmodule PathMapper.Application do
       PathMapper.Groups,
       PathMapper.Game,
       PathMapper.MapTools,
+      PathMapper.Charkeeper.Supervisor,
       PathMapperWeb.Endpoint
     ]
 

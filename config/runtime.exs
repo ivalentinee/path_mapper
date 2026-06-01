@@ -14,6 +14,18 @@ config :path_mapper,
        :subpixel_factor,
        Application.get_env(:path_mapper, :subpixel_factor) || 10
 
+config :path_mapper,
+       :charkeeper_server,
+       System.get_env("CHARKEEPER_SERVER") || "charkeeper.ru"
+
+config :path_mapper,
+       :charkeeper_poll_interval,
+       String.to_integer(System.get_env("CHARKEEPER_POLL_INTERVAL") || "10000")
+
+if cacertfile = System.get_env("CACERTFILE") do
+  config :path_mapper, :cacertfile, cacertfile
+end
+
 if config_env() == :prod do
   secret_key_base =
     System.get_env("SECRET_KEY_BASE") ||

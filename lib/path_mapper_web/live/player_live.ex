@@ -26,6 +26,9 @@ defmodule PathMapperWeb.PlayerLive do
     Groups.subscribe()
     Game.subscribe()
     PathMapper.MapTools.subscribe()
+    PathMapper.Charkeeper.subscribe()
+
+    charkeeper = PathMapper.Charkeeper.get_data()
 
     session_state =
       @plugins
@@ -43,6 +46,8 @@ defmodule PathMapperWeb.PlayerLive do
       |> assign(:session_state, session_state)
       |> assign(:session_id, session_id)
       |> assign(:tool_draws, PathMapper.MapTools.get_all())
+      |> assign(:charkeeper_data, charkeeper.data)
+      |> assign(:charkeeper_status, charkeeper.status)
       |> SessionState.assign_partitions(session_state)
 
     {:ok, socket}
@@ -96,6 +101,15 @@ defmodule PathMapperWeb.PlayerLive do
   @impl true
   def handle_info(%{session_event: event}, socket) do
     {:noreply, SessionState.apply_event(socket, event)}
+  end
+
+  # Charkeeper broadcasts
+  @impl true
+  def handle_info(%{charkeeper_update: %{data: data, status: status}}, socket) do
+    {:noreply,
+     socket
+     |> assign(:charkeeper_data, data)
+     |> assign(:charkeeper_status, status)}
   end
 
   # Map tool broadcasts — store remote tools only, rendered as elements in template

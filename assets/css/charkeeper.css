@@ -1,0 +1,100 @@
+/* Charkeeper integration styles */
+
+/* HP bar track */
+.hp-bar-track {
+  width: 100%;
+  height: 6px;
+  background: #0f0d1a;
+  border-radius: 3px;
+  overflow: hidden;
+  display: flex;
+  margin: 4px 0 2px;
+}
+
+.hp-bar-detailed {
+  height: 8px;
+  border-radius: 4px;
+}
+
+.hp-bar-current {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.hp-bar-temp {
+  height: 100%;
+  background: #8a7abf;
+  transition: width 0.3s ease;
+}
+
+.hp-bar-current.healthy {
+  background: #42b8dd;
+}
+
+.hp-bar-current.wounded {
+  background: #d4a843;
+}
+
+.hp-bar-current.critical {
+  background: #d4726a;
+}
+
+/* Stats line (class, ancestry, AC) */
+.charkeeper-stats-line {
+  font-size: 0.8rem;
+  color: #8a8aaa;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.charkeeper-stats-divider {
+  color: #5a5575;
+}
+
+/* HP numbers */
+.charkeeper-hp-numbers {
+  font-size: 0.8rem;
+  color: #8a8aaa;
+}
+
+/* Detailed view (character menu) */
+.charkeeper-detail {
+  padding: 6px 4px;
+}
+
+.charkeeper-detail-numbers {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.charkeeper-ac {
+  font-size: 0.8rem;
+  color: #8a8aaa;
+  font-weight: 600;
+}
+
+/* Status dot in right panel selector */
+.charkeeper-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin: 4px auto;
+  transition: background-color 0.3s ease;
+}
+
+.charkeeper-status-dot.ok {
+  background: #42b8dd;
+}
+
+.charkeeper-status-dot.partial {
+  background: #d4a843;
+}
+
+.charkeeper-status-dot.error {
+  background: #d4726a;
+}

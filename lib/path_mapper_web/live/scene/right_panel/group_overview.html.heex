@@ -2,6 +2,7 @@
   <div class="group-overview">
     <div class="group-title">{@group.title}</div>
     <%= for player <- @group.players do %>
+      <% ck = charkeeper_for(assigns[:charkeeper_data], player) %>
       <div class={"group-character #{if @my_player && @my_player.character_name == player.character_name, do: "claimed"}"}>
         <img
           class="group-character-portrait"
@@ -11,8 +12,37 @@
         <div class="group-character-info">
           <div class="group-character-name">{player.character_name}</div>
           <div class="group-character-player">{player.player_name}</div>
-          <%= if player.class do %>
-            <div class="group-character-class">{player.class}</div>
+          <%= if ck do %>
+            <div class="charkeeper-stats-line">
+              <span>{ck.class} {ck.level}</span>
+              <span class="charkeeper-stats-divider">|</span>
+              <span>{ck.ancestry}</span>
+              <span class="charkeeper-stats-divider">|</span>
+              <span>{gettext("AC")} {ck.armor_class}</span>
+            </div>
+            <%= if ck.hp_max do %>
+              <% {cur_pct, temp_pct} = hp_bar_percent(ck.hp_current, ck.hp_temp, ck.hp_max) %>
+              <div class="hp-bar-track">
+                <div
+                  class={"hp-bar-current #{hp_color_class(ck.hp_current, ck.hp_max)}"}
+                  style={"width: #{cur_pct}%"}
+                >
+                </div>
+                <%= if temp_pct > 0 do %>
+                  <div class="hp-bar-temp" style={"width: #{temp_pct}%"}></div>
+                <% end %>
+              </div>
+              <div class="charkeeper-hp-numbers">
+                {ck.hp_current}
+                <%= if ck.hp_temp > 0 do %>
+                  +{ck.hp_temp}
+                <% end %>/{ck.hp_max} {gettext("HP")}
+              </div>
+            <% end %>
+          <% else %>
+            <%= if player.class do %>
+              <div class="group-character-class">{player.class}</div>
+            <% end %>
           <% end %>
         </div>
         <%= if @is_player && !@my_player do %>

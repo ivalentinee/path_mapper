@@ -30,7 +30,7 @@ defmodule PathMapper.MixProject do
   def application do
     [
       mod: {PathMapper.Application, []},
-      extra_applications: [:logger, :runtime_tools, :xmerl]
+      extra_applications: [:logger, :runtime_tools, :xmerl, :inets, :ssl]
     ]
   end
 
