@@ -38,6 +38,8 @@ RUN tar -C "./_build/prod/rel/${RELEASE_NAME}" -cf release.tar ./
 ## Release
 FROM elixir:1.19.5-slim AS release
 
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
+
 RUN mkdir /app
 WORKDIR /app
 

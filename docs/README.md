@@ -12,6 +12,10 @@ If you are new to Path Mapper, read these documents in order:
 4. [Adventures](adventures.md) --- complete reference for creating adventures
 5. [GM Guide](gm-guide.md) --- running a game session (includes "What your players see")
 
+## Server Setup
+
+- [Installation](installation.md) --- deploy with Docker or a release tarball, environment variables, reverse proxy
+
 ## Additional Resources
 
 - **Test fixtures** --- `test/data/adventures/unpacked/` and `test/data/groups/unpacked/` contain working examples you can copy and modify
