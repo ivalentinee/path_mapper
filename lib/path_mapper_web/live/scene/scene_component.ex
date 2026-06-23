@@ -7,16 +7,26 @@ defmodule PathMapperWeb.Scene.SceneComponent do
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
   alias PathMapper.Geometry.Object, as: GeometryObject
   alias PathMapperWeb.Scene.MapComponent
+  alias PathMapperWeb.Scene.SceneState
 
   @impl true
   def update(assigns, socket) do
     scene_changed = scene_was_updated?(socket, assigns)
+    zoom_changed = zoom_or_pan_changed?(socket, assigns)
     socket = assign(socket, assigns)
 
     socket =
-      if scene_changed and has_viewport_geometry?(socket),
-        do: build_map_geometry(socket),
-        else: socket
+      cond do
+        scene_changed and has_viewport_geometry?(socket) ->
+          scene = SceneState.reset_zoom(socket.assigns.scene)
+          socket |> assign(:scene, scene) |> build_map_geometry()
+
+        zoom_changed and has_viewport_geometry?(socket) ->
+          build_map_geometry(socket)
+
+        true ->
+          socket
+      end
 
     {:ok, socket}
   end
@@ -131,19 +141,52 @@ defmodule PathMapperWeb.Scene.SceneComponent do
 
   defp scene_was_updated?(_socket, _new_assigns), do: false
 
+  defp zoom_or_pan_changed?(
+         %{assigns: %{scene: %{zoom: old_z, pan: old_p}}},
+         %{scene: %{zoom: new_z, pan: new_p}}
+       ),
+       do: old_z != new_z or old_p != new_p
+
+  defp zoom_or_pan_changed?(_, _), do: false
+
   defp build_map_geometry(socket) do
     viewport_geometry = socket.assigns.viewport_geometry
     map = get_map(socket.assigns)
+    zoom = socket.assigns.scene.zoom
+    {pan_x, pan_y} = socket.assigns.scene.pan
 
     map_geometry =
       map
       |> GeometryObject.build()
       |> GeometryMapper.fit_to_viewport(viewport_geometry)
-      |> GeometryMapper.center(viewport_geometry)
+      |> apply_zoom(zoom)
+      |> apply_pan(pan_x, pan_y, viewport_geometry)
 
     socket
     |> assign(:map_geometry, map_geometry)
     |> assign(:grid_size, map.grid_size)
+  end
+
+  defp apply_zoom(%GeometryObject{} = geo, zoom) do
+    %{geo | scale: geo.scale / zoom, width: geo.width * zoom, height: geo.height * zoom}
+  end
+
+  defp apply_pan(%GeometryObject{} = geo, pan_x, pan_y, viewport) do
+    geo
+    |> apply_axis(:x, :width, pan_x, viewport.width)
+    |> apply_axis(:y, :height, pan_y, viewport.height)
+  end
+
+  defp apply_axis(geo, pos_key, size_key, pan, viewport_size) do
+    map_size = Map.get(geo, size_key)
+
+    if map_size <= viewport_size do
+      Map.put(geo, pos_key, floor((viewport_size - map_size) / 2))
+    else
+      min_pan = viewport_size - map_size
+      clamped = pan |> max(min_pan) |> min(0)
+      Map.put(geo, pos_key, round(clamped))
+    end
   end
 
   defp visible_tokens(game_state, opts) do

@@ -1,7 +1,7 @@
 defmodule PathMapperWeb.SessionState.Scene do
   alias PathMapperWeb.Scene.SceneState
 
-  @tools [:ruler, :pointer, :burst, :emanation, :cone, :line]
+  @tools [:ruler, :pointer, :burst, :emanation, :cone, :line, :map]
 
   def key, do: :scene
 
@@ -26,6 +26,16 @@ defmodule PathMapperWeb.SessionState.Scene do
   def run_event(:toggle_grid_override, %{scene: state}) do
     %{state | grid_override: !state.grid_override}
   end
+
+  def run_event(:zoom_in, %{scene: state}), do: SceneState.run_event(state, :zoom_in)
+  def run_event(:zoom_out, %{scene: state}), do: SceneState.run_event(state, :zoom_out)
+  def run_event(:zoom_reset, %{scene: state}), do: SceneState.run_event(state, :zoom_reset)
+
+  def run_event({:map_zoom, delta}, %{scene: state}),
+    do: SceneState.run_event(state, {:map_zoom, delta})
+
+  def run_event({:map_pan, delta}, %{scene: state}),
+    do: SceneState.run_event(state, {:map_pan, delta})
 
   def run_event(_, %{scene: state}), do: state
 end

@@ -50,7 +50,7 @@
       >
         ↖
       </button>
-      <%= for {tool, icon} <- [ruler: "📏", pointer: "📍", burst: "💥", emanation: "⭕", cone: "🔺", line: "➖"] do %>
+      <%= for {tool, icon} <- [ruler: "📏", pointer: "📍", burst: "💥", emanation: "⭕", cone: "🔺", line: "➖", map: "🗺"] do %>
         <button
           class={"tool-button #{if @scene.active_tool == tool, do: "active"}"}
           phx-click="select_tool"
@@ -83,6 +83,33 @@
         title={gettext("Snap to grid")}
       >
         {if @scene.snap_to_grid, do: "▣", else: "□"}
+      </button>
+
+      <div class="tool-separator"></div>
+
+      <button
+        class="tool-button zoom-button"
+        phx-click="zoom_in"
+        phx-target={@myself}
+        title={gettext("Zoom in")}
+      >
+        +
+      </button>
+      <div
+        class="zoom-indicator"
+        phx-click="zoom_reset"
+        phx-target={@myself}
+        title={gettext("Reset zoom")}
+      >
+        {format_zoom(@scene.zoom)}
+      </div>
+      <button
+        class="tool-button zoom-button"
+        phx-click="zoom_out"
+        phx-target={@myself}
+        title={gettext("Zoom out")}
+      >
+        -
       </button>
 
       <div class="tool-separator"></div>

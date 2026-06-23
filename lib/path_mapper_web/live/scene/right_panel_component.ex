@@ -84,6 +84,24 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   end
 
   @impl true
+  def handle_event("zoom_in", _, socket) do
+    send(self(), %{session_event: :zoom_in})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("zoom_out", _, socket) do
+    send(self(), %{session_event: :zoom_out})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("zoom_reset", _, socket) do
+    send(self(), %{session_event: :zoom_reset})
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("set_locale", %{"locale" => locale}, socket) do
     {:noreply, push_event(socket, "set_locale", %{locale: locale})}
   end
@@ -142,6 +160,14 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   defp tool_label(:emanation), do: gettext("Emanation")
   defp tool_label(:cone), do: gettext("Cone")
   defp tool_label(:line), do: gettext("Line")
+  defp tool_label(:map), do: gettext("Map")
+
+  defp format_zoom(zoom) do
+    :erlang.float_to_binary(zoom + 0.0, decimals: 2)
+    |> String.trim_trailing("0")
+    |> String.trim_trailing(".")
+    |> Kernel.<>("x")
+  end
 
   defp my_initiative_value(initiative, character_name) do
     case Enum.find(initiative, &(&1.owner == character_name)) do

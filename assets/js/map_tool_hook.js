@@ -7,11 +7,19 @@ export const MapTool = {
     this._rafPending = false;
     this._pendingPathCoords = null;
 
+    this.panStart = null;
+
     this.el.addEventListener("pointerdown", (e) => this.onPointerDown(e));
     this.el.addEventListener("pointermove", (e) => this.onPointerMove(e));
     this.el.addEventListener("pointerup", (e) => this.onPointerUp(e));
     this.el.addEventListener("pointercancel", (e) => this.onPointerUp(e));
     this.el.addEventListener("contextmenu", (e) => e.preventDefault());
+    this.el.addEventListener("wheel", (e) => {
+      if (this.getActiveTool() !== "map") return;
+      e.preventDefault();
+      const delta = -Math.sign(e.deltaY);
+      this.pushEventTo(this.el, "map_zoom", { delta: delta });
+    }, { passive: false });
 
     this._keyHandler = (e) => {
       if (e.key === "Escape" || e.key === " ") {
@@ -19,6 +27,7 @@ export const MapTool = {
           this.clearPath();
         } else {
           if (this.drawing) this.onPointerUp(e);
+          this.clearPan();
           this.pushEventTo(this.el, "deselect_tool", {});
         }
       }
@@ -35,6 +44,9 @@ export const MapTool = {
   updated() {
     if (this.path && this.getActiveTool() !== "ruler") {
       this.clearPath();
+    }
+    if (this.panStart && this.getActiveTool() !== "map") {
+      this.clearPan();
     }
   },
 
@@ -88,6 +100,16 @@ export const MapTool = {
   onPointerDown(e) {
     const tool = this.getActiveTool();
     if (!tool || tool === "null") return;
+
+    // Map tool: drag-to-pan
+    if (tool === "map") {
+      if (e.button !== 0) return;
+      this.el.setPointerCapture(e.pointerId);
+      this.panStart = { x: e.clientX, y: e.clientY, pointerId: e.pointerId };
+      this.el.classList.add("panning");
+      return;
+    }
+
     if (e.button !== 0 && e.button !== 2) return;
 
     // LMB during active path → dismiss path only
@@ -125,6 +147,16 @@ export const MapTool = {
   },
 
   onPointerMove(e) {
+    // Map tool: drag-to-pan
+    if (this.panStart && e.pointerId === this.panStart.pointerId) {
+      const dx = e.clientX - this.panStart.x;
+      const dy = e.clientY - this.panStart.y;
+      this.panStart.x = e.clientX;
+      this.panStart.y = e.clientY;
+      this.pushEventTo(this.el, "map_pan", { dx: dx, dy: dy });
+      return;
+    }
+
     // Path mode: update pending endpoint (no button held)
     if (this.path) {
       const coords = this.svgCoords(e, "center_or_corner");
@@ -159,6 +191,13 @@ export const MapTool = {
   },
 
   onPointerUp(e) {
+    // Map tool: end pan
+    if (this.panStart && e.pointerId === this.panStart.pointerId) {
+      this.panStart = null;
+      this.el.classList.remove("panning");
+      return;
+    }
+
     if (!this.drawing) return;
     if (e.pointerId !== undefined && e.pointerId !== this.drawing.pointerId) return;
     this.drawing = null;
@@ -181,6 +220,11 @@ export const MapTool = {
     this.path = null;
     this._pendingPathCoords = null;
     this.pushEventTo(this.el, "tool_clear", {});
+  },
+
+  clearPan() {
+    this.panStart = null;
+    this.el.classList.remove("panning");
   },
 
   pushPathDraw(currentCoords) {

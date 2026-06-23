@@ -71,6 +71,18 @@ defmodule PathMapperWeb.Scene.ToolOverlayComponent do
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_event("map_zoom", %{"delta" => delta}, socket) do
+    send(self(), %{session_event: {:map_zoom, delta}})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("map_pan", %{"dx" => dx, "dy" => dy}, socket) do
+    send(self(), %{session_event: {:map_pan, {dx, dy}}})
+    {:noreply, socket}
+  end
+
   @coord_keys ~w(start_x start_y current_x current_y)
 
   defp screen_to_subpixels(params, geo) do

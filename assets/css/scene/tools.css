@@ -88,6 +88,27 @@
   color: #42b8dd;
 }
 
+/* Zoom controls in toolbar */
+
+.zoom-button {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.zoom-indicator {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #8a8aaa;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.zoom-indicator:hover {
+  color: #c0c0e0;
+}
+
 /* SVG tools overlay */
 
 .tools-overlay {
@@ -102,4 +123,12 @@
   cursor: crosshair;
   user-select: none;
   -webkit-user-select: none;
+}
+
+.tools-overlay.active[data-active-tool="map"] {
+  cursor: grab;
+}
+
+.tools-overlay.active[data-active-tool="map"].panning {
+  cursor: grabbing;
 }
