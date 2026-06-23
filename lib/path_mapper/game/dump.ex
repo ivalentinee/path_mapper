@@ -20,11 +20,18 @@ defmodule PathMapper.Game.Dump do
   end
 
   defp serialize_scene(%State.Scene{} = scene) do
-    %{
+    base = %{
       index: scene.index,
+      custom: scene.custom,
       map: serialize_map(scene.map),
       tokens: Enum.map(scene.tokens, &serialize_token/1)
     }
+
+    if scene.custom do
+      Map.put(base, :name, scene.name)
+    else
+      base
+    end
   end
 
   defp serialize_map(%State.Scene.Map{} = map) do
@@ -35,6 +42,8 @@ defmodule PathMapper.Game.Dump do
       layers: Enum.map(map.layers, &serialize_layer/1),
       map_objects: Enum.map(map.map_objects, &serialize_map_object/1)
     }
+    |> maybe_put(:width, map.width)
+    |> maybe_put(:height, map.height)
   end
 
   defp serialize_layer(%State.Scene.Map.Layer{} = layer) do
@@ -62,4 +71,7 @@ defmodule PathMapper.Game.Dump do
       owner: token.owner
     }
   end
+
+  defp maybe_put(map, _key, nil), do: map
+  defp maybe_put(map, key, value), do: Map.put(map, key, value)
 end

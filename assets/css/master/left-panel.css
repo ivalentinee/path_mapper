@@ -114,3 +114,72 @@
   background: #d4726a;
   color: #1a1528;
 }
+
+/* Custom scenes */
+
+.scene-separator {
+  height: 1px;
+  background: #2a2540;
+  margin: 4px 8px;
+}
+
+.custom-scene-row {
+  display: flex;
+  align-items: stretch;
+}
+
+.custom-scene-row .custom-scene {
+  flex: 1;
+  font-style: italic;
+}
+
+.custom-marker {
+  color: #42b8dd;
+  margin-right: 2px;
+}
+
+.delete-scene-button {
+  background: transparent;
+  border: none;
+  color: #5a5575;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  transition: color 0.15s;
+}
+
+.delete-scene-button:hover {
+  color: #d4726a;
+}
+
+.delete-scene-button.confirm {
+  color: #d4726a;
+  font-weight: 700;
+  font-size: 0.7rem;
+}
+
+.add-scene-button {
+  color: #5a5575;
+  font-style: italic;
+}
+
+.add-scene-form {
+  display: flex;
+  gap: 4px;
+  padding: 2px 8px;
+}
+
+.add-scene-input {
+  flex: 1;
+  background: #0f0d1a;
+  border: 1px solid #2a2540;
+  border-radius: 4px;
+  color: #c8c8e0;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+}
+
+.add-scene-input:focus {
+  outline: none;
+  border-color: #42b8dd;
+}

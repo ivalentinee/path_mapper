@@ -45,7 +45,9 @@ defmodule PathMapper.Game.Actions.MapObjects do
   def action(%State{} = state, [:map_objects, index, :reset_position], _)
       when is_integer(index) do
     scene = State.scene(state)
-    adventure_obj = Enum.at(scene.data.map.map_objects, index)
+
+    adventure_obj =
+      if scene.data, do: Enum.at(scene.data.map.map_objects, index), else: nil
 
     if adventure_obj do
       reset = %MapObject{

@@ -10,11 +10,17 @@ defmodule PathMapper.Game.Actions.Tokens.Find do
   end
 
   def find_adventure_token(%State{} = state, index) when is_number(index) do
-    Enum.at(State.scene(state).data.tokens, index)
+    case State.scene(state).data do
+      nil -> nil
+      data -> Enum.at(data.tokens, index)
+    end
   end
 
   def find_adventure_token(%State{} = state, name) when is_binary(name) do
-    Enum.find(State.scene(state).data.tokens, fn token -> token.name == name end)
+    case State.scene(state).data do
+      nil -> nil
+      data -> Enum.find(data.tokens, fn token -> token.name == name end)
+    end
   end
 
   def find_player_token(character_name_or_index)

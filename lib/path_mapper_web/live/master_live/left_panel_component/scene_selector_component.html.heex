@@ -14,19 +14,84 @@
       phx-click="reset_scene"
       phx-target={@myself}
       class={"pure-button sub-button #{if assigns[:confirm_reset], do: "confirm", else: ""}"}
-      disabled={@game_state.scene == nil}
+      disabled={@game_state.scene == nil || (@game_state.scene && @game_state.scene.custom)}
+      title={
+        if @game_state.scene && @game_state.scene.custom,
+          do: gettext("Reset is not available for custom scenes"),
+          else: nil
+      }
     >
       {if assigns[:confirm_reset], do: gettext("Confirm?"), else: gettext("Reset")}
     </button>
   </div>
-  <%= for {item, index} <- Enum.with_index(@adventure.scenes) do %>
+
+  <% adventure_scenes = Enum.filter(@game_state.scene_list || [], &(!&1.custom)) %>
+  <% custom_scenes = Enum.filter(@game_state.scene_list || [], & &1.custom) %>
+
+  <%= for item <- adventure_scenes do %>
     <button
       phx-click="select_scene"
       phx-target={@myself}
-      phx-value-index={index}
-      class={"pure-button item #{select_button_extra_classes(index, @game_state.scene)}"}
+      phx-value-index={item.index}
+      class={"pure-button item #{select_button_extra_classes(item.index, @game_state.scene)}"}
     >
-      <span class="index">{index + 1}</span> {item.name}
+      <span class="index">{item.index + 1}</span> {item.name}
+    </button>
+  <% end %>
+
+  <%= if custom_scenes != [] do %>
+    <div class="scene-separator"></div>
+    <%= for item <- custom_scenes do %>
+      <div class={"custom-scene-row #{select_button_extra_classes(item.index, @game_state.scene)}"}>
+        <button
+          phx-click="select_scene"
+          phx-target={@myself}
+          phx-value-index={item.index}
+          class={"pure-button item custom-scene #{select_button_extra_classes(item.index, @game_state.scene)}"}
+        >
+          <span class="custom-marker">✦</span> {item.name}
+        </button>
+        <button
+          phx-click="delete_scene"
+          phx-target={@myself}
+          phx-value-index={item.index}
+          class={"delete-scene-button #{if assigns[:confirm_delete_index] == item.index, do: "confirm"}"}
+        >
+          {if assigns[:confirm_delete_index] == item.index, do: gettext("Confirm?"), else: "✕"}
+        </button>
+      </div>
+    <% end %>
+  <% end %>
+
+  <div class="scene-separator"></div>
+
+  <%= if assigns[:adding_scene] do %>
+    <form
+      phx-submit="create_scene"
+      phx-window-keydown="dismiss_scene_ui"
+      phx-key="Escape"
+      phx-target={@myself}
+      class="add-scene-form"
+    >
+      <input
+        type="text"
+        name="name"
+        placeholder={gettext("Scene name")}
+        autofocus
+        maxlength="50"
+        class="add-scene-input"
+      />
+      <button type="submit" class="pure-button sub-button">
+        {gettext("Add")}
+      </button>
+    </form>
+  <% else %>
+    <button
+      phx-click="start_add_scene"
+      phx-target={@myself}
+      class="pure-button item add-scene-button"
+    >
+      + {gettext("Add scene")}
     </button>
   <% end %>
 </div>

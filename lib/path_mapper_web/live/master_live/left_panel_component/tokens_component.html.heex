@@ -5,7 +5,7 @@
         module={PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Add}
         id="add-token"
         left_panel={@left_panel}
-        tokens={@game_state.scene.data.tokens}
+        tokens={if @game_state.scene.data, do: @game_state.scene.data.tokens, else: []}
       />
     <% selected_panel(@left_panel) == "add-player-token" -> %>
       <.live_component

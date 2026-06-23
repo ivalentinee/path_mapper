@@ -23,22 +23,28 @@ defmodule PathMapperWeb.Scene.MapComponent do
     do: nil
 
   def additional_map_layer(adventure, game_state, name, _override) when is_atom(name) do
-    adventure
-    |> Adventure.get_scene_map(game_state.scene.index)
-    |> Map.get(name)
+    case Adventure.get_scene_map(adventure, game_state.scene.index) do
+      nil -> nil
+      map -> Map.get(map, name)
+    end
   end
 
   def map_adventure_layers_to_state(adventure, game_state) do
-    state_layers = game_state.scene.map.layers
+    case Adventure.get_scene_map(adventure, game_state.scene.index) do
+      nil ->
+        []
 
-    adventure
-    |> Adventure.get_scene_map(game_state.scene.index)
-    |> Map.get(:layers)
-    |> Enum.map(fn layer ->
-      state = Enum.find(state_layers, &(&1.index == layer.index))
-      {layer, state}
-    end)
-    |> Enum.reject(fn {_, state} -> is_nil(state) end)
+      adventure_map ->
+        state_layers = game_state.scene.map.layers
+
+        adventure_map
+        |> Map.get(:layers)
+        |> Enum.map(fn layer ->
+          state = Enum.find(state_layers, &(&1.index == layer.index))
+          {layer, state}
+        end)
+        |> Enum.reject(fn {_, state} -> is_nil(state) end)
+    end
   end
 
   def layer_images(layer) do

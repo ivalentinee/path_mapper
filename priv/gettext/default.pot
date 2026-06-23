@@ -17,6 +17,7 @@ msgid "Actions"
 msgstr ""
 
 #: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:11
+#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:80
 #: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:32
 #: lib/path_mapper_web/live/scene/right_panel/character_menu.html.heex:88
 #, elixir-autogen, elixir-format
@@ -39,7 +40,8 @@ msgid "Attempting to reconnect"
 msgstr ""
 
 #: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:45
-#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:19
+#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:20
+#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:57
 #, elixir-autogen, elixir-format
 msgid "Confirm?"
 msgstr ""
@@ -149,7 +151,7 @@ msgid "Reload"
 msgstr ""
 
 #: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:38
-#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:19
+#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:20
 #, elixir-autogen, elixir-format
 msgid "Reset"
 msgstr ""
@@ -345,7 +347,7 @@ msgstr ""
 msgid "Snap to grid"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/tool_overlay_component.ex:110
+#: lib/path_mapper_web/live/scene/tool_overlay_component.ex:122
 #, elixir-autogen, elixir-format
 msgid "%{distance}ft"
 msgstr ""
@@ -420,4 +422,19 @@ msgstr ""
 #: lib/path_mapper_web/live/scene/right_panel_component.html.heex:110
 #, elixir-autogen, elixir-format
 msgid "Zoom out"
+msgstr ""
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:89
+#, elixir-autogen, elixir-format
+msgid "Add scene"
+msgstr ""
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:18
+#, elixir-autogen, elixir-format
+msgid "Reset is not available for custom scenes"
+msgstr ""
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:70
+#, elixir-autogen, elixir-format
+msgid "Scene name"
 msgstr ""

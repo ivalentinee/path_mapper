@@ -37,6 +37,10 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent do
     end
   end
 
+  def has_adventure_scene?(assigns) do
+    assigns[:game_state] && assigns.game_state.scene && !assigns.game_state.scene.custom
+  end
+
   def select_button_extra_classes(%LeftPanelState{left_panel: selected_panel_name}, panel_name)
       when panel_name == selected_panel_name,
       do: "selected"

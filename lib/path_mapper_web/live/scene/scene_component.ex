@@ -129,7 +129,13 @@ defmodule PathMapperWeb.Scene.SceneComponent do
   end
 
   defp get_map(assigns) do
-    Adventure.get_scene_map(assigns.adventure, assigns.game_state.scene.index)
+    scene = assigns.game_state.scene
+
+    if scene.custom do
+      %{width: scene.map.width, height: scene.map.height, grid_size: scene.map.grid_size}
+    else
+      Adventure.get_scene_map(assigns.adventure, scene.index)
+    end
   end
 
   defp scene_was_updated?(
@@ -207,8 +213,8 @@ defmodule PathMapperWeb.Scene.SceneComponent do
   end
 
   defp visible_objects(adventure, game_state, opts) do
-    adventure_objects =
-      Adventure.get_scene_map(adventure, game_state.scene.index).map_objects || []
+    adventure_map = Adventure.get_scene_map(adventure, game_state.scene.index)
+    adventure_objects = if adventure_map, do: adventure_map.map_objects || [], else: []
 
     state_layers = game_state.scene.map.layers
 

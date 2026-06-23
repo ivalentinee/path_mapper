@@ -31,7 +31,11 @@ defmodule PathMapper.Game do
   def get_state do
     Agent.get(__MODULE__, fn
       %__MODULE__{state: %State{} = state} ->
-        %{scene: State.scene(state), initiative: state.initiative}
+        %{
+          scene: State.scene(state),
+          initiative: state.initiative,
+          scene_list: build_scene_list(state)
+        }
 
       _ ->
         nil
@@ -145,6 +149,20 @@ defmodule PathMapper.Game do
   end
 
   defp broadcast_game_update(%State{} = state) do
-    broadcast(%{game_update: %{scene: State.scene(state), initiative: state.initiative}})
+    broadcast(%{
+      game_update: %{
+        scene: State.scene(state),
+        initiative: state.initiative,
+        scene_list: build_scene_list(state)
+      }
+    })
+  end
+
+  defp build_scene_list(%State{scenes: scenes}) do
+    scenes
+    |> Enum.map(fn {idx, scene} ->
+      %{index: idx, name: scene.name, custom: scene.custom}
+    end)
+    |> Enum.sort_by(& &1.index)
   end
 end

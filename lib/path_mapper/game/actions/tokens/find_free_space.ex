@@ -77,6 +77,11 @@ defmodule PathMapper.Game.Actions.Tokens.FindFreeSpace do
     end
   end
 
+  defp get_map_size(%State.Scene{custom: true, map: map}, token_size) do
+    {GeometryMapper.to_subpixels(map.width) - token_size,
+     GeometryMapper.to_subpixels(map.height) - token_size}
+  end
+
   defp get_map_size(%State.Scene{data: %{map: map}}, token_size) do
     {GeometryMapper.to_subpixels(map.width) - token_size,
      GeometryMapper.to_subpixels(map.height) - token_size}

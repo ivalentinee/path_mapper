@@ -22,7 +22,7 @@
       })}
     <% end %>
 
-    <%= if @game_state && @game_state.scene do %>
+    <%= if has_adventure_scene?(assigns) do %>
       {panel_select_button(%{
         text: gettext("Map"),
         panel_name: "map-manager",
@@ -84,7 +84,7 @@
     </div>
   <% end %>
 
-  <%= if @game_state && @game_state.scene && selected_panel(@left_panel) == "map-manager" do %>
+  <%= if has_adventure_scene?(assigns) && selected_panel(@left_panel) == "map-manager" do %>
     <div class="panel-content">
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent}

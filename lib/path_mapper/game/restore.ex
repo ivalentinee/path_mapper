@@ -56,12 +56,16 @@ defmodule PathMapper.Game.Restore do
     scenes_map
     |> Enum.map(fn {index_str, scene_data} ->
       index = String.to_integer(index_str)
-      adventure_scene = Enum.at(adventure.scenes, index)
 
-      if adventure_scene do
-        {index, build_scene(scene_data, adventure_scene, index)}
-      else
-        nil
+      cond do
+        scene_data["custom"] == true ->
+          {index, build_custom_scene(scene_data, index)}
+
+        adventure_scene = Enum.at(adventure.scenes, index) ->
+          {index, build_scene(scene_data, adventure_scene, index)}
+
+        true ->
+          nil
       end
     end)
     |> Enum.reject(&is_nil/1)
@@ -71,14 +75,28 @@ defmodule PathMapper.Game.Restore do
   defp build_scene(scene_data, adventure_scene, index) do
     %State.Scene{
       index: index,
+      name: adventure_scene.name,
       data: adventure_scene,
-      map: build_map(scene_data["map"] || %{}, adventure_scene),
+      map: build_map(scene_data["map"] || %{}),
       tokens: build_tokens(scene_data["tokens"] || [], adventure_scene)
     }
   end
 
-  defp build_map(map_data, _adventure_scene) do
+  defp build_custom_scene(scene_data, index) do
+    %State.Scene{
+      index: index,
+      custom: true,
+      name: scene_data["name"],
+      data: nil,
+      map: build_map(scene_data["map"] || %{}),
+      tokens: []
+    }
+  end
+
+  defp build_map(map_data) do
     %State.Scene.Map{
+      width: map_data["width"],
+      height: map_data["height"],
       grid_size: map_data["grid_size"],
       grid_line_width: map_data["grid_line_width"],
       show_grid: map_data["show_grid"],
