@@ -12,6 +12,7 @@ defmodule PathMapper.Game.State.Scene do
     embeds_one(:map, __MODULE__.Map)
     embeds_one(:data, AdventureScene)
     embeds_many(:tokens, __MODULE__.Token)
+    embeds_many(:drawn_elements, __MODULE__.DrawnElement)
   end
 
   def initialize(%AdventureScene{map: map} = adventure_scene, index) do
@@ -20,7 +21,8 @@ defmodule PathMapper.Game.State.Scene do
       name: adventure_scene.name,
       data: adventure_scene,
       map: __MODULE__.Map.initialize(map),
-      tokens: []
+      tokens: [],
+      drawn_elements: []
     }
   end
 
@@ -31,7 +33,8 @@ defmodule PathMapper.Game.State.Scene do
       name: name,
       data: nil,
       map: __MODULE__.Map.blank(),
-      tokens: []
+      tokens: [],
+      drawn_elements: []
     }
   end
 end

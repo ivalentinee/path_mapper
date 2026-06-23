@@ -109,6 +109,12 @@
   color: #c0c0e0;
 }
 
+/* Drawn map SVG layer */
+
+.drawn-map {
+  pointer-events: none;
+}
+
 /* SVG tools overlay */
 
 .tools-overlay {

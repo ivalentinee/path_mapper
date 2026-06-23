@@ -25,6 +25,12 @@ defmodule PathMapper.Game.Actions do
   def action(%State{} = state, [:map_objects | _rest] = action, data),
     do: __MODULE__.MapObjects.action(state, action, data)
 
+  def action(%State{active_scene: nil}, [:draw | _], _data),
+    do: {:error, "No active scene"}
+
+  def action(%State{} = state, [:draw | _rest] = action, data),
+    do: __MODULE__.Draw.action(state, action, data)
+
   def action(%State{} = _state, action, _data) do
     {:error, "Action '#{inspect(action)}' not found"}
   end

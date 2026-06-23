@@ -78,7 +78,8 @@ defmodule PathMapper.Game.Restore do
       name: adventure_scene.name,
       data: adventure_scene,
       map: build_map(scene_data["map"] || %{}),
-      tokens: build_tokens(scene_data["tokens"] || [], adventure_scene)
+      tokens: build_tokens(scene_data["tokens"] || [], adventure_scene),
+      drawn_elements: build_drawn_elements(scene_data["drawn_elements"] || [])
     }
   end
 
@@ -89,7 +90,8 @@ defmodule PathMapper.Game.Restore do
       name: scene_data["name"],
       data: nil,
       map: build_map(scene_data["map"] || %{}),
-      tokens: []
+      tokens: [],
+      drawn_elements: build_drawn_elements(scene_data["drawn_elements"] || [])
     }
   end
 
@@ -149,6 +151,41 @@ defmodule PathMapper.Game.Restore do
   end
 
   defp build_token(_, _), do: nil
+
+  defp build_drawn_elements(elements) do
+    elements
+    |> Enum.map(&build_drawn_element/1)
+    |> Enum.reject(&is_nil/1)
+  end
+
+  defp build_drawn_element(data) when is_map(data) do
+    case parse_element_type(data["type"]) do
+      nil ->
+        nil
+
+      type ->
+        %State.Scene.DrawnElement{
+          id: data["id"] || to_string(System.unique_integer([:positive])),
+          type: type,
+          color: data["color"],
+          owner: data["owner"],
+          data: data["data"] || %{}
+        }
+    end
+  end
+
+  defp build_drawn_element(_), do: nil
+
+  @element_types %{
+    "fill" => :fill,
+    "rect" => :rect,
+    "line" => :line,
+    "circle" => :circle,
+    "text" => :text
+  }
+
+  defp parse_element_type(type) when is_binary(type), do: @element_types[type]
+  defp parse_element_type(_), do: nil
 
   defp build_initiative(entries) do
     Enum.map(entries, fn entry ->

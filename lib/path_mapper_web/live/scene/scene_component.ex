@@ -6,6 +6,7 @@ defmodule PathMapperWeb.Scene.SceneComponent do
   alias PathMapper.Game.Palette
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
   alias PathMapper.Geometry.Object, as: GeometryObject
+  alias PathMapperWeb.Scene.GridComponent
   alias PathMapperWeb.Scene.MapComponent
   alias PathMapperWeb.Scene.SceneState
 

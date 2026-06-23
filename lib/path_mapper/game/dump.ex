@@ -24,7 +24,8 @@ defmodule PathMapper.Game.Dump do
       index: scene.index,
       custom: scene.custom,
       map: serialize_map(scene.map),
-      tokens: Enum.map(scene.tokens, &serialize_token/1)
+      tokens: Enum.map(scene.tokens, &serialize_token/1),
+      drawn_elements: Enum.map(scene.drawn_elements, &serialize_drawn_element/1)
     }
 
     if scene.custom do
@@ -69,6 +70,16 @@ defmodule PathMapper.Game.Dump do
       state: token.state,
       size: token.size,
       owner: token.owner
+    }
+  end
+
+  defp serialize_drawn_element(%State.Scene.DrawnElement{} = element) do
+    %{
+      id: element.id,
+      type: to_string(element.type),
+      color: element.color,
+      owner: element.owner,
+      data: element.data
     }
   end
 

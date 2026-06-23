@@ -12,6 +12,16 @@
       />
     </div>
 
+    <div style={map_style(@map_geometry)}>
+      <.live_component
+        module={PathMapperWeb.Scene.DrawnMapComponent}
+        id="drawn-map"
+        drawn_elements={@game_state.scene.drawn_elements}
+        geometry={@map_geometry}
+        grid_size={@game_state.scene.map.grid_size}
+      />
+    </div>
+
     <div class="objects-container" style={map_style(@map_geometry)}>
       <%= for {obj, obj_state, layer_state} <- visible_objects(@adventure, @game_state, @opts) do %>
         <div
@@ -32,28 +42,39 @@
       <% end %>
     </div>
 
-    <%= if grid_layer = MapComponent.additional_map_layer(@adventure, @game_state, :grid, @scene.grid_override) do %>
-      <div class="grid-container" style={map_style(@map_geometry)}>
-        <svg style="width: 100%; height: 100%;">
-          <image
-            x={GeometryMapper.scale_map_pixel(grid_layer.x, @map_geometry)}
-            y={GeometryMapper.scale_map_pixel(grid_layer.y, @map_geometry)}
-            width={
-              GeometryMapper.scale_map_pixel(
-                grid_layer.width || @map_geometry.width * @map_geometry.scale,
-                @map_geometry
-              )
-            }
-            height={
-              GeometryMapper.scale_map_pixel(
-                grid_layer.height || @map_geometry.height * @map_geometry.scale,
-                @map_geometry
-              )
-            }
-            href={grid_layer.image}
-          />
-        </svg>
-      </div>
+    <%= if @game_state.scene.custom and @game_state.scene.map.show_grid do %>
+      <GridComponent.svg_grid
+        width={@game_state.scene.map.width}
+        height={@game_state.scene.map.height}
+        grid_size={@game_state.scene.map.grid_size}
+        grid_line_width={@game_state.scene.map.grid_line_width}
+        geometry={@map_geometry}
+        style={map_style(@map_geometry)}
+      />
+    <% else %>
+      <%= if grid_layer = MapComponent.additional_map_layer(@adventure, @game_state, :grid, @scene.grid_override) do %>
+        <div class="grid-container" style={map_style(@map_geometry)}>
+          <svg style="width: 100%; height: 100%;">
+            <image
+              x={GeometryMapper.scale_map_pixel(grid_layer.x, @map_geometry)}
+              y={GeometryMapper.scale_map_pixel(grid_layer.y, @map_geometry)}
+              width={
+                GeometryMapper.scale_map_pixel(
+                  grid_layer.width || @map_geometry.width * @map_geometry.scale,
+                  @map_geometry
+                )
+              }
+              height={
+                GeometryMapper.scale_map_pixel(
+                  grid_layer.height || @map_geometry.height * @map_geometry.scale,
+                  @map_geometry
+                )
+              }
+              href={grid_layer.image}
+            />
+          </svg>
+        </div>
+      <% end %>
     <% end %>
 
     <div class="tokens-container" style={map_style(@map_geometry)}>
