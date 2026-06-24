@@ -214,7 +214,9 @@ defmodule PathMapperWeb.Scene.SceneComponent do
   end
 
   defp visible_objects(adventure, game_state, opts) do
-    adventure_map = Adventure.get_scene_map(adventure, game_state.scene.index)
+    adventure_map =
+      if adventure, do: Adventure.get_scene_map(adventure, game_state.scene.index), else: nil
+
     adventure_objects = if adventure_map, do: adventure_map.map_objects || [], else: []
 
     state_layers = game_state.scene.map.layers

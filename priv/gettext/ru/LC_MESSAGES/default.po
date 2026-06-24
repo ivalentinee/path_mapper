@@ -40,7 +40,7 @@ msgstr "Все"
 msgid "Attempting to reconnect"
 msgstr "Попытка переподключения"
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:45
+#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:52
 #: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:24
 #: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:60
 #, elixir-autogen, elixir-format
@@ -315,12 +315,12 @@ msgstr "Пусто"
 msgid "No tool"
 msgstr "Без инструмента"
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:45
+#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:52
 #, elixir-autogen, elixir-format
 msgid "Reset all"
 msgstr "Сбросить всё"
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:29
+#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:36
 #, elixir-autogen, elixir-format
 msgid "Restore state"
 msgstr "Восстановить"
@@ -331,7 +331,7 @@ msgstr "Восстановить"
 msgid "Roll"
 msgstr "Значение"
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:26
+#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:33
 #, elixir-autogen, elixir-format
 msgid "Save state"
 msgstr "Сохранить"
@@ -522,3 +522,8 @@ msgstr "Владелец"
 #, elixir-autogen, elixir-format
 msgid "Size"
 msgstr "Размер"
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:16
+#, elixir-autogen, elixir-format
+msgid "Empty game"
+msgstr "Пустая игра"

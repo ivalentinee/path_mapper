@@ -77,6 +77,17 @@ defmodule PathMapper.Game do
     :ok
   end
 
+  def reset_empty do
+    state =
+      Agent.get_and_update(__MODULE__, fn _ ->
+        state = %State{scenes: %{}}
+        {state, %__MODULE__{state: state}}
+      end)
+
+    broadcast_game_update(state)
+    {:ok, state}
+  end
+
   def reset(%Adventure{} = adventure) do
     state =
       Agent.get_and_update(__MODULE__, fn _ ->

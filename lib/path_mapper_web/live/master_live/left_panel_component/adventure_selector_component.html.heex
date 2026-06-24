@@ -8,6 +8,9 @@
     >
       {gettext("Reload")}
     </button>
+    <button phx-click="start_empty" phx-target={@myself} class="pure-button sub-button">
+      {gettext("Empty game")}
+    </button>
   </div>
   <%= for {item, index} <- Enum.with_index(@adventures, 1) do %>
     <button

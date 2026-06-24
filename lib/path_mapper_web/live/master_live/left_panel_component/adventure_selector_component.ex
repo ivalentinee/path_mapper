@@ -11,6 +11,12 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.AdventureSelectorComponent
   end
 
   @impl true
+  def handle_event("start_empty", _, socket) do
+    Game.reset_empty()
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("reload", _, socket) do
     Adventures.reload()
     PathMapper.GlobalTokens.reload()

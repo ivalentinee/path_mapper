@@ -23,14 +23,14 @@ defmodule PathMapperWeb.Scene.MapComponent do
     do: nil
 
   def additional_map_layer(adventure, game_state, name, _override) when is_atom(name) do
-    case Adventure.get_scene_map(adventure, game_state.scene.index) do
+    case adventure && Adventure.get_scene_map(adventure, game_state.scene.index) do
       nil -> nil
       map -> Map.get(map, name)
     end
   end
 
   def map_adventure_layers_to_state(adventure, game_state) do
-    case Adventure.get_scene_map(adventure, game_state.scene.index) do
+    case adventure && Adventure.get_scene_map(adventure, game_state.scene.index) do
       nil ->
         []
 

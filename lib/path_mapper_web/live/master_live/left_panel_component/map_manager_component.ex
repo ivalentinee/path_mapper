@@ -63,14 +63,14 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent do
   end
 
   def adventure_layer(adventure, game_state, layer_state) do
-    case Adventure.get_scene_map(adventure, game_state.scene.index) do
+    case adventure && Adventure.get_scene_map(adventure, game_state.scene.index) do
       nil -> nil
       map -> map |> Map.get(:layers) |> Enum.find(&(&1.index == layer_state.index))
     end
   end
 
   def objects_for_layer(layer_index, game_state, adventure) do
-    adventure_map = Adventure.get_scene_map(adventure, game_state.scene.index)
+    adventure_map = adventure && Adventure.get_scene_map(adventure, game_state.scene.index)
     adventure_objects = if adventure_map, do: adventure_map.map_objects || [], else: []
 
     game_state.scene.map.map_objects
