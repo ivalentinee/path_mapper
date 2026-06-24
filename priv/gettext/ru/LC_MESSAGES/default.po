@@ -18,7 +18,7 @@ msgstr "Действия"
 
 #: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:11
 #: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:85
-#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:32
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:35
 #: lib/path_mapper_web/live/scene/right_panel/character_menu.html.heex:88
 #, elixir-autogen, elixir-format
 msgid "Add"
@@ -29,6 +29,7 @@ msgstr "Добавить"
 msgid "Adventures"
 msgstr "Приключения"
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add.html.heex:9
 #: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add_player.html.heex:9
 #, elixir-autogen, elixir-format
 msgid "All"
@@ -46,7 +47,7 @@ msgstr "Попытка переподключения"
 msgid "Confirm?"
 msgstr "Подтвердить?"
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:54
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:57
 #, elixir-autogen, elixir-format
 msgid "Copy"
 msgstr "Копировать"
@@ -56,7 +57,7 @@ msgstr "Копировать"
 msgid "Error!"
 msgstr "Ошибка!"
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:50
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:53
 #, elixir-autogen, elixir-format
 msgid "Extras"
 msgstr "Доп. фишки"
@@ -129,7 +130,7 @@ msgstr "Path Mapper"
 msgid "Player"
 msgstr "Игрок"
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:41
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:44
 #, elixir-autogen, elixir-format
 msgid "Players"
 msgstr "Игроки"
@@ -233,6 +234,7 @@ msgid "Placed token"
 msgstr "Размещённая фишка"
 
 #: lib/path_mapper/errors.ex:47
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add.html.heex:9
 #, elixir-autogen, elixir-format
 msgid "Scene"
 msgstr "Сцена"
@@ -347,7 +349,7 @@ msgstr "Показать сетку"
 msgid "Snap to grid"
 msgstr "Привязка к сетке"
 
-#: lib/path_mapper_web/live/scene/tool_overlay_component.ex:184
+#: lib/path_mapper_web/live/scene/tool_overlay_component.ex:196
 #, elixir-autogen, elixir-format
 msgid "%{distance}ft"
 msgstr "%{distance}ft"
@@ -468,3 +470,23 @@ msgstr "Прямоугольник"
 #, elixir-autogen, elixir-format
 msgid "Text"
 msgstr "Текст"
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "All tokens"
+msgstr "Все фишки"
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add.html.heex:35
+#, elixir-autogen, elixir-format
+msgid "No tokens found"
+msgstr "Фишки не найдены"
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "Scene tokens"
+msgstr "Фишки сцены"
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add.html.heex:17
+#, elixir-autogen, elixir-format
+msgid "Search tokens..."
+msgstr "Поиск фишек..."

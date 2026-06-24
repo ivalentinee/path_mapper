@@ -18,7 +18,7 @@ msgstr ""
 
 #: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:11
 #: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:85
-#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:32
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:35
 #: lib/path_mapper_web/live/scene/right_panel/character_menu.html.heex:88
 #, elixir-autogen, elixir-format
 msgid "Add"
@@ -29,6 +29,7 @@ msgstr ""
 msgid "Adventures"
 msgstr ""
 
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add.html.heex:9
 #: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add_player.html.heex:9
 #, elixir-autogen, elixir-format
 msgid "All"
@@ -46,7 +47,7 @@ msgstr ""
 msgid "Confirm?"
 msgstr ""
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:54
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:57
 #, elixir-autogen, elixir-format
 msgid "Copy"
 msgstr ""
@@ -56,7 +57,7 @@ msgstr ""
 msgid "Error!"
 msgstr ""
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:50
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:53
 #, elixir-autogen, elixir-format
 msgid "Extras"
 msgstr ""
@@ -129,7 +130,7 @@ msgstr ""
 msgid "Player"
 msgstr ""
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:41
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:44
 #, elixir-autogen, elixir-format
 msgid "Players"
 msgstr ""
@@ -233,6 +234,7 @@ msgid "Placed token"
 msgstr ""
 
 #: lib/path_mapper/errors.ex:47
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add.html.heex:9
 #, elixir-autogen, elixir-format
 msgid "Scene"
 msgstr ""
@@ -347,7 +349,7 @@ msgstr ""
 msgid "Snap to grid"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/tool_overlay_component.ex:184
+#: lib/path_mapper_web/live/scene/tool_overlay_component.ex:196
 #, elixir-autogen, elixir-format
 msgid "%{distance}ft"
 msgstr ""
@@ -467,4 +469,24 @@ msgstr ""
 #: lib/path_mapper_web/live/scene/right_panel_component.ex:175
 #, elixir-autogen, elixir-format
 msgid "Text"
+msgstr ""
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "All tokens"
+msgstr ""
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add.html.heex:35
+#, elixir-autogen, elixir-format
+msgid "No tokens found"
+msgstr ""
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "Scene tokens"
+msgstr ""
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add.html.heex:17
+#, elixir-autogen, elixir-format
+msgid "Search tokens..."
 msgstr ""

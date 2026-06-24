@@ -59,10 +59,10 @@ defmodule PathMapper.Game.Restore do
 
       cond do
         scene_data["custom"] == true ->
-          {index, build_custom_scene(scene_data, index)}
+          {index, build_custom_scene(scene_data, index, adventure)}
 
         adventure_scene = Enum.at(adventure.scenes, index) ->
-          {index, build_scene(scene_data, adventure_scene, index)}
+          {index, build_scene(scene_data, adventure_scene, index, adventure)}
 
         true ->
           nil
@@ -72,25 +72,25 @@ defmodule PathMapper.Game.Restore do
     |> Map.new()
   end
 
-  defp build_scene(scene_data, adventure_scene, index) do
+  defp build_scene(scene_data, adventure_scene, index, adventure) do
     %State.Scene{
       index: index,
       name: adventure_scene.name,
       data: adventure_scene,
       map: build_map(scene_data["map"] || %{}),
-      tokens: build_tokens(scene_data["tokens"] || [], adventure_scene),
+      tokens: build_tokens(scene_data["tokens"] || [], adventure_scene, adventure),
       drawn_elements: build_drawn_elements(scene_data["drawn_elements"] || [])
     }
   end
 
-  defp build_custom_scene(scene_data, index) do
+  defp build_custom_scene(scene_data, index, adventure) do
     %State.Scene{
       index: index,
       custom: true,
       name: scene_data["name"],
       data: nil,
       map: build_map(scene_data["map"] || %{}),
-      tokens: [],
+      tokens: build_tokens(scene_data["tokens"] || [], nil, adventure),
       drawn_elements: build_drawn_elements(scene_data["drawn_elements"] || [])
     }
   end
@@ -127,30 +127,38 @@ defmodule PathMapper.Game.Restore do
     }
   end
 
-  defp build_tokens(tokens_data, adventure_scene) do
+  defp build_tokens(tokens_data, adventure_scene, adventure) do
     tokens_data
-    |> Enum.map(&build_token(&1, adventure_scene))
+    |> Enum.map(&build_token(&1, adventure_scene, adventure))
     |> Enum.reject(&is_nil/1)
   end
 
-  defp build_token(data, %{tokens: adventure_tokens}) do
-    case Enum.find(adventure_tokens, &(&1.name == data["data_name"])) do
+  defp build_token(data, adventure_scene, adventure) do
+    # Try current scene tokens first, then fall back to cross-scene
+    adventure_token =
+      case adventure_scene do
+        %{tokens: tokens} -> Enum.find(tokens, &(&1.name == data["data_name"]))
+        _ -> nil
+      end
+
+    adventure_token =
+      adventure_token || Adventure.find_token_by_name(adventure, data["data_name"])
+
+    case adventure_token do
       nil ->
         nil
 
-      adventure_token ->
+      token ->
         %State.Scene.Token{
           x: data["x"],
           y: data["y"],
           state: data["state"],
           size: data["size"],
           owner: data["owner"],
-          data: adventure_token
+          data: token
         }
     end
   end
-
-  defp build_token(_, _), do: nil
 
   defp build_drawn_elements(elements) do
     elements

@@ -1,4 +1,6 @@
 defmodule PathMapper.Game.Actions.Tokens.Find do
+  alias PathMapper.Adventures
+  alias PathMapper.Adventures.Adventure
   alias PathMapper.Adventures.Adventure.Scene.Token
   alias PathMapper.Game.State
   alias PathMapper.Groups
@@ -17,9 +19,20 @@ defmodule PathMapper.Game.Actions.Tokens.Find do
   end
 
   def find_adventure_token(%State{} = state, name) when is_binary(name) do
-    case State.scene(state).data do
-      nil -> nil
-      data -> Enum.find(data.tokens, fn token -> token.name == name end)
+    # Try current scene first, then fall back to cross-scene search
+    scene_token =
+      case State.scene(state).data do
+        nil -> nil
+        data -> Enum.find(data.tokens, fn token -> token.name == name end)
+      end
+
+    scene_token || find_token_across_adventure(name)
+  end
+
+  defp find_token_across_adventure(name) do
+    case Adventures.get_loaded() do
+      {:ok, adventure} -> Adventure.find_token_by_name(adventure, name)
+      _ -> nil
     end
   end
 

@@ -183,3 +183,32 @@
   outline: none;
   border-color: #42b8dd;
 }
+
+/* Token search */
+
+.token-search-controls {
+  display: flex;
+  gap: 4px;
+  padding: 4px 8px;
+  align-items: center;
+}
+
+.token-search-form {
+  flex: 1;
+}
+
+.token-search-input {
+  width: 100%;
+  background: #0f0d1a;
+  border: 1px solid #2a2540;
+  border-radius: 4px;
+  color: #c8c8e0;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+}
+
+.token-search-input:focus {
+  outline: none;
+  border-color: #42b8dd;
+}

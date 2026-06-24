@@ -1,10 +1,37 @@
 <div id="add-token" class="add-token">
-  <%= for {token, index} <- Enum.with_index(@tokens) do %>
+  <div class="token-search-controls">
+    <button
+      class={"pure-button sub-button #{if @expanded, do: "active"}"}
+      phx-click="toggle_expanded"
+      phx-target={@myself}
+      title={if @expanded, do: gettext("Scene tokens"), else: gettext("All tokens")}
+    >
+      {if @expanded, do: gettext("All"), else: gettext("Scene")}
+    </button>
+    <%= if @expanded do %>
+      <form phx-change="search" phx-target={@myself} class="token-search-form">
+        <input
+          type="text"
+          name="search"
+          value={@search}
+          placeholder={gettext("Search tokens...")}
+          class="token-search-input"
+          autocomplete="off"
+          phx-debounce="150"
+        />
+      </form>
+    <% end %>
+  </div>
+
+  <%= for token <- @visible_tokens do %>
     <div class="item">
-      <span class="index">{index + 1}</span>
       <button phx-click="add_token" phx-value-name={token.name} phx-target={@myself}>
         {token.name}
       </button>
     </div>
+  <% end %>
+
+  <%= if @visible_tokens == [] do %>
+    <div class="panel-empty">{gettext("No tokens found")}</div>
   <% end %>
 </div>

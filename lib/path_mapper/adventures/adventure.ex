@@ -30,6 +30,19 @@ defmodule PathMapper.Adventures.Adventure do
     end
   end
 
+  def all_tokens(%__MODULE__{scenes: scenes}) do
+    scenes
+    |> Enum.flat_map(fn scene -> scene.tokens || [] end)
+    |> Enum.uniq_by(& &1.name)
+    |> Enum.sort_by(& &1.name)
+  end
+
+  def find_token_by_name(%__MODULE__{scenes: scenes}, name) when is_binary(name) do
+    Enum.find_value(scenes, fn scene ->
+      Enum.find(scene.tokens || [], &(&1.name == name))
+    end)
+  end
+
   def changeset(struct, params, adventure_zip) do
     struct
     |> cast(read_manifest_files(params, adventure_zip), [:title, :wallpaper, :file])

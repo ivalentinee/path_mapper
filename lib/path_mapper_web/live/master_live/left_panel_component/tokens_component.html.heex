@@ -6,6 +6,9 @@
         id="add-token"
         left_panel={@left_panel}
         tokens={if @game_state.scene.data, do: @game_state.scene.data.tokens, else: []}
+        adventure={@adventure}
+        is_custom={@game_state.scene.custom}
+        scene_index={@game_state.scene.index}
       />
     <% selected_panel(@left_panel) == "add-player-token" -> %>
       <.live_component

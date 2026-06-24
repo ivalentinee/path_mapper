@@ -28,10 +28,10 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.AddTest do
     view |> element("#add-token-button") |> render_click()
     assert find_html_element(render(view), "#add-token")
 
-    view |> element("#add-token > :first-child button") |> render_click()
+    view |> element("[phx-click=add_token]", "monster 1") |> render_click()
     assert Enum.count(Game.get_state().scene.tokens) == token_count + 1
 
-    view |> element("#add-token > :nth-child(2) button") |> render_click()
+    view |> element("[phx-click=add_token]", "NPC 1") |> render_click()
     assert Enum.count(Game.get_state().scene.tokens) == token_count + 2
     last_token = List.last(Game.get_state().scene.tokens)
     assert last_token.x == 200
