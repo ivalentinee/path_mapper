@@ -109,6 +109,40 @@
   color: #c0c0e0;
 }
 
+/* Color palette for drawing tools */
+
+.color-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 4px 6px;
+  justify-content: center;
+}
+
+.color-swatch {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s;
+}
+
+.color-swatch:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.color-swatch.active {
+  border-color: #42b8dd;
+}
+
+/* Eraser cursor */
+
+.tools-overlay.active[data-active-tool="eraser"] {
+  cursor: crosshair;
+}
+
 /* Drawn map SVG layer */
 
 .drawn-map {

@@ -36,15 +36,29 @@ defmodule PathMapperWeb.Scene.DrawnMapComponent do
   end
 
   defp drawn_element(%{element: %{type: :rect}} = assigns) do
-    ~H"""
-    <rect
-      x={sp(min(@element.data["x1"], @element.data["x2"]) * @grid_size, @geometry)}
-      y={sp(min(@element.data["y1"], @element.data["y2"]) * @grid_size, @geometry)}
-      width={sp((abs(@element.data["x2"] - @element.data["x1"]) + 1) * @grid_size, @geometry)}
-      height={sp((abs(@element.data["y2"] - @element.data["y1"]) + 1) * @grid_size, @geometry)}
-      fill={@element.color}
-    />
-    """
+    if assigns.element.data["filled"] do
+      ~H"""
+      <rect
+        x={sp(min(@element.data["x1"], @element.data["x2"]) * @grid_size, @geometry)}
+        y={sp(min(@element.data["y1"], @element.data["y2"]) * @grid_size, @geometry)}
+        width={sp((abs(@element.data["x2"] - @element.data["x1"]) + 1) * @grid_size, @geometry)}
+        height={sp((abs(@element.data["y2"] - @element.data["y1"]) + 1) * @grid_size, @geometry)}
+        fill={@element.color}
+      />
+      """
+    else
+      ~H"""
+      <rect
+        x={sp(min(@element.data["x1"], @element.data["x2"]) * @grid_size, @geometry)}
+        y={sp(min(@element.data["y1"], @element.data["y2"]) * @grid_size, @geometry)}
+        width={sp((abs(@element.data["x2"] - @element.data["x1"]) + 1) * @grid_size, @geometry)}
+        height={sp((abs(@element.data["y2"] - @element.data["y1"]) + 1) * @grid_size, @geometry)}
+        fill="none"
+        stroke={@element.color}
+        stroke-width="2"
+      />
+      """
+    end
   end
 
   defp drawn_element(%{element: %{type: :line}} = assigns) do
@@ -61,16 +75,30 @@ defmodule PathMapperWeb.Scene.DrawnMapComponent do
   end
 
   defp drawn_element(%{element: %{type: :circle}} = assigns) do
-    ~H"""
-    <circle
-      cx={sp(@element.data["cx"], @geometry)}
-      cy={sp(@element.data["cy"], @geometry)}
-      r={sp(@element.data["radius"], @geometry)}
-      stroke={@element.color}
-      stroke-width={sp(@element.data["width"] || 2, @geometry)}
-      fill="none"
-    />
-    """
+    if assigns.element.data["filled"] do
+      ~H"""
+      <circle
+        cx={sp(@element.data["cx"], @geometry)}
+        cy={sp(@element.data["cy"], @geometry)}
+        r={sp(@element.data["radius"], @geometry)}
+        fill={@element.color}
+        fill-opacity="0.4"
+        stroke={@element.color}
+        stroke-width={sp(@element.data["width"] || 2, @geometry)}
+      />
+      """
+    else
+      ~H"""
+      <circle
+        cx={sp(@element.data["cx"], @geometry)}
+        cy={sp(@element.data["cy"], @geometry)}
+        r={sp(@element.data["radius"], @geometry)}
+        stroke={@element.color}
+        stroke-width={sp(@element.data["width"] || 2, @geometry)}
+        fill="none"
+      />
+      """
+    end
   end
 
   defp drawn_element(%{element: %{type: :text}} = assigns) do
@@ -79,7 +107,7 @@ defmodule PathMapperWeb.Scene.DrawnMapComponent do
       x={sp(@element.data["x"], @geometry)}
       y={sp(@element.data["y"], @geometry)}
       fill={@element.color}
-      font-size="14px"
+      font-size={"#{@element.data["font_size"] || 14}px"}
       font-family="sans-serif"
     >
       {@element.data["text"]}

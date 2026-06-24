@@ -20,6 +20,7 @@
       selected_token_index={selected_token_index(@left_panel)}
       session_id={@session_id}
       tool_draws={@tool_draws}
+      draw_owner="GM"
     />
   <% end %>
 
@@ -42,6 +43,7 @@
     language={@language}
     charkeeper_data={@charkeeper_data}
     charkeeper_status={@charkeeper_status}
+    draw_owner="GM"
   />
 
   <.live_component

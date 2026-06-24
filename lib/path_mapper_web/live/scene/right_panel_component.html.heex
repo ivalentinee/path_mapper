@@ -64,6 +64,37 @@
 
       <div class="tool-separator"></div>
 
+      <%= if assigns[:draw_owner] do %>
+        <%= for {tool, icon} <- [fill: "■", rect: "▬", draw_line: "╱", draw_circle: "○", text: "A", eraser: "✕"] do %>
+          <button
+            class={"tool-button #{if @scene.active_tool == tool, do: "active"}"}
+            phx-click="select_tool"
+            phx-value-tool={tool}
+            phx-target={@myself}
+            title={tool_label(tool)}
+          >
+            {icon}
+          </button>
+        <% end %>
+
+        <%= if drawing_tool?(@scene.active_tool) do %>
+          <div class="color-palette">
+            <%= for {color, _name} <- draw_colors() do %>
+              <button
+                class={"color-swatch #{if @scene.draw_color == color, do: "active"}"}
+                style={"background-color: #{color};"}
+                phx-click="set_draw_color"
+                phx-value-color={color}
+                phx-target={@myself}
+              >
+              </button>
+            <% end %>
+          </div>
+        <% end %>
+
+        <div class="tool-separator"></div>
+      <% end %>
+
       <%= if assigns[:is_player] do %>
         <button
           class={"tool-button #{if @scene.grid_override, do: "active"}"}

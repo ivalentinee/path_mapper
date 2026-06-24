@@ -9,6 +9,10 @@
   data-active-tool={@active_tool}
   data-tool-color={@tool_color}
   data-snap={to_string(@snap_to_grid)}
+  data-tool-snap-mode={@tool_snap_mode}
+  data-tool-interaction={@tool_interaction}
+  data-tool-rmb={@tool_rmb}
+  data-tool-path-mode={@tool_path_mode}
 >
   <%= for {sid, tool} <- all_tool_draws(assigns) do %>
     <g id={"tool-#{sid}"}>

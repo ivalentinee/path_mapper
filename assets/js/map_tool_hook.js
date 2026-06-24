@@ -1,12 +1,17 @@
 // MapTool: captures pointer events, snaps to grid, pushes to server.
 // All SVG rendering is done server-side by ToolOverlayComponent.
+//
+// Tool behavior is driven by data-* attributes set from ToolConfig (Elixir):
+//   data-tool-snap-mode:   "center_or_corner" | "center" | null
+//   data-tool-interaction: "drag" | "pan" | "prompt"
+//   data-tool-rmb:         "both" | "lmb"
+//   data-tool-path-mode:   "none" | "measure" | "commit"
 export const MapTool = {
   mounted() {
     this.drawing = null;
     this.path = null;
     this._rafPending = false;
     this._pendingPathCoords = null;
-
     this.panStart = null;
 
     this.el.addEventListener("pointerdown", (e) => this.onPointerDown(e));
@@ -15,7 +20,7 @@ export const MapTool = {
     this.el.addEventListener("pointercancel", (e) => this.onPointerUp(e));
     this.el.addEventListener("contextmenu", (e) => e.preventDefault());
     this.el.addEventListener("wheel", (e) => {
-      if (this.getActiveTool() !== "map") return;
+      if (this.getToolConfig().interaction !== "pan") return;
       e.preventDefault();
       const delta = -Math.sign(e.deltaY);
       this.pushEventTo(this.el, "map_zoom", { delta: delta });
@@ -42,16 +47,32 @@ export const MapTool = {
   },
 
   updated() {
-    if (this.path && this.getActiveTool() !== "ruler") {
+    const tool = this.getActiveTool();
+    if (!tool) {
+      if (this.path) this.clearPath();
+      if (this.panStart) this.clearPan();
+      return;
+    }
+    const cfg = this.getToolConfig();
+    if (this.path && cfg.pathMode === "none") {
       this.clearPath();
     }
-    if (this.panStart && this.getActiveTool() !== "map") {
+    if (this.panStart && cfg.interaction !== "pan") {
       this.clearPan();
     }
   },
 
   getActiveTool() {
     return this.el.dataset.activeTool || null;
+  },
+
+  getToolConfig() {
+    return {
+      snapMode: this.el.dataset.toolSnapMode || null,
+      interaction: this.el.dataset.toolInteraction || "drag",
+      rmb: this.el.dataset.toolRmb || "both",
+      pathMode: this.el.dataset.toolPathMode || "none",
+    };
   },
 
   getGeometry() {
@@ -88,6 +109,9 @@ export const MapTool = {
           x = cornerX;
           y = cornerY;
         }
+      } else if (snapMode === "center") {
+        x = (Math.floor(x / cell) + 0.5) * cell;
+        y = (Math.floor(y / cell) + 0.5) * cell;
       } else {
         x = Math.round(x / cell) * cell;
         y = Math.round(y / cell) * cell;
@@ -100,9 +124,10 @@ export const MapTool = {
   onPointerDown(e) {
     const tool = this.getActiveTool();
     if (!tool || tool === "null") return;
+    const cfg = this.getToolConfig();
 
-    // Map tool: drag-to-pan
-    if (tool === "map") {
+    // Pan interaction (map tool)
+    if (cfg.interaction === "pan") {
       if (e.button !== 0) return;
       this.el.setPointerCapture(e.pointerId);
       this.panStart = { x: e.clientX, y: e.clientY, pointerId: e.pointerId };
@@ -112,30 +137,48 @@ export const MapTool = {
 
     if (e.button !== 0 && e.button !== 2) return;
 
-    // LMB during active path → dismiss path only
-    if (e.button === 0 && this.path) {
-      this.clearPath();
+    // RMB blocked for LMB-only tools
+    if (e.button === 2 && cfg.rmb === "lmb") return;
+
+    // Prompt interaction (text tool)
+    if (cfg.interaction === "prompt" && e.button === 0) {
+      const coords = this.svgCoords(e, cfg.snapMode);
+      const text = window.prompt("Label text:");
+      if (text && text.trim()) {
+        this.pushEventTo(this.el, "draw_commit", {
+          tool: tool,
+          x: coords.x,
+          y: coords.y,
+          text: text.trim()
+        });
+      }
       return;
     }
 
-    // RMB + ruler → path mode
-    if (e.button === 2 && tool === "ruler") {
+    // LMB during active path: commit or dismiss based on path mode
+    if (e.button === 0 && this.path) {
+      if (cfg.pathMode === "commit" && this.path.waypoints.length >= 2) {
+        this.commitPath();
+      } else {
+        this.clearPath();
+      }
+      return;
+    }
+
+    // RMB + path-capable tool → path mode
+    if (e.button === 2 && cfg.pathMode !== "none") {
       this.addPathWaypoint(e);
       return;
     }
 
-    // RMB + pointer → ignore
-    if (e.button === 2 && tool === "pointer") return;
-
-    // Normal drag mode (LMB shape, RMB grid fill)
+    // Normal drag mode (LMB = shape, RMB = grid)
     this.el.setPointerCapture(e.pointerId);
-    const originSnap = tool === "pointer" ? null : "center_or_corner";
-    const coords = this.svgCoords(e, originSnap);
+    const coords = this.svgCoords(e, cfg.snapMode);
 
     this.drawing = {
       tool,
       mode: e.button === 0 ? "shape" : "grid",
-      originSnap,
+      originSnap: cfg.snapMode,
       startX: coords.x,
       startY: coords.y,
       currentX: coords.x,
@@ -147,7 +190,7 @@ export const MapTool = {
   },
 
   onPointerMove(e) {
-    // Map tool: drag-to-pan
+    // Pan mode
     if (this.panStart && e.pointerId === this.panStart.pointerId) {
       const dx = e.clientX - this.panStart.x;
       const dy = e.clientY - this.panStart.y;
@@ -157,9 +200,10 @@ export const MapTool = {
       return;
     }
 
-    // Path mode: update pending endpoint (no button held)
+    // Path mode: update pending endpoint
     if (this.path) {
-      const coords = this.svgCoords(e, "center_or_corner");
+      const cfg = this.getToolConfig();
+      const coords = this.svgCoords(e, cfg.snapMode);
       this._pendingPathCoords = coords;
       if (!this._rafPending) {
         this._rafPending = true;
@@ -175,9 +219,7 @@ export const MapTool = {
 
     // Drag mode
     if (!this.drawing || e.pointerId !== this.drawing.pointerId) return;
-    const tool = this.drawing.tool;
-    const snapMode = tool === "pointer" ? null : "center_or_corner";
-    const coords = this.svgCoords(e, snapMode);
+    const coords = this.svgCoords(e, this.drawing.originSnap);
     this.drawing.currentX = coords.x;
     this.drawing.currentY = coords.y;
 
@@ -191,7 +233,7 @@ export const MapTool = {
   },
 
   onPointerUp(e) {
-    // Map tool: end pan
+    // Pan mode: end
     if (this.panStart && e.pointerId === this.panStart.pointerId) {
       this.panStart = null;
       this.el.classList.remove("panning");
@@ -207,7 +249,8 @@ export const MapTool = {
   // --- Path mode ---
 
   addPathWaypoint(e) {
-    const coords = this.svgCoords(e, "center_or_corner");
+    const cfg = this.getToolConfig();
+    const coords = this.svgCoords(e, cfg.snapMode);
     if (!this.path) {
       this.path = { waypoints: [coords] };
     } else if (this.path.waypoints.length < 20) {
@@ -230,12 +273,24 @@ export const MapTool = {
   pushPathDraw(currentCoords) {
     const waypoints = this.path.waypoints.map((p) => [p.x, p.y]);
     this.pushEventTo(this.el, "tool_draw", {
-      tool: "ruler",
+      tool: this.getActiveTool(),
       mode: "path",
       waypoints: waypoints,
       current_x: currentCoords.x,
       current_y: currentCoords.y,
     });
+  },
+
+  commitPath() {
+    if (!this.path || this.path.waypoints.length < 2) return;
+    const waypoints = this.path.waypoints.map((p) => [p.x, p.y]);
+    this.pushEventTo(this.el, "draw_commit", {
+      tool: this.getActiveTool(),
+      waypoints: waypoints,
+    });
+    this.path = null;
+    this._pendingPathCoords = null;
+    this.pushEventTo(this.el, "tool_clear", {});
   },
 
   // --- Drag mode ---

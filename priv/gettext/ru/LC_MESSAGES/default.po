@@ -17,7 +17,7 @@ msgid "Actions"
 msgstr "Действия"
 
 #: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:11
-#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:80
+#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:85
 #: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:32
 #: lib/path_mapper_web/live/scene/right_panel/character_menu.html.heex:88
 #, elixir-autogen, elixir-format
@@ -40,8 +40,8 @@ msgid "Attempting to reconnect"
 msgstr "Попытка переподключения"
 
 #: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:45
-#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:20
-#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:57
+#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:24
+#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:60
 #, elixir-autogen, elixir-format
 msgid "Confirm?"
 msgstr "Подтвердить?"
@@ -93,7 +93,7 @@ msgid "Links"
 msgstr "Ссылки"
 
 #: lib/path_mapper_web/live/master_live/left_panel_component.html.heex:27
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:163
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:169
 #, elixir-autogen, elixir-format
 msgid "Map"
 msgstr "Карта"
@@ -151,7 +151,7 @@ msgid "Reload"
 msgstr "Обновить"
 
 #: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:38
-#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:20
+#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:24
 #, elixir-autogen, elixir-format
 msgid "Reset"
 msgstr "Сбросить"
@@ -217,7 +217,7 @@ msgstr "Не удалось прочитать ZIP-файл: %{reason}"
 msgid "Layer"
 msgstr "Слой"
 
-#: lib/path_mapper_web/live/master_live.html.heex:63
+#: lib/path_mapper_web/live/master_live.html.heex:65
 #, elixir-autogen, elixir-format
 msgid "Load errors"
 msgstr "Ошибки загрузки"
@@ -337,47 +337,47 @@ msgstr "Сохранить"
 msgid "Set"
 msgstr "Задать"
 
-#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:72
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:103
 #, elixir-autogen, elixir-format
 msgid "Show grid"
 msgstr "Показать сетку"
 
-#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:83
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:114
 #, elixir-autogen, elixir-format
 msgid "Snap to grid"
 msgstr "Привязка к сетке"
 
-#: lib/path_mapper_web/live/scene/tool_overlay_component.ex:122
+#: lib/path_mapper_web/live/scene/tool_overlay_component.ex:184
 #, elixir-autogen, elixir-format
 msgid "%{distance}ft"
 msgstr "%{distance}ft"
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:159
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:165
 #, elixir-autogen, elixir-format
 msgid "Burst"
 msgstr "Взрыв"
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:161
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:167
 #, elixir-autogen, elixir-format
 msgid "Cone"
 msgstr "Конус"
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:160
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:166
 #, elixir-autogen, elixir-format
 msgid "Emanation"
 msgstr "Эманация"
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:162
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:168
 #, elixir-autogen, elixir-format
 msgid "Line"
 msgstr "Линия"
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:158
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:164
 #, elixir-autogen, elixir-format
 msgid "Pointer"
 msgstr "Указатель"
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:157
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:163
 #, elixir-autogen, elixir-format
 msgid "Ruler"
 msgstr "Линейка"
@@ -388,17 +388,17 @@ msgstr "Линейка"
 msgid "AC"
 msgstr "КБ"
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:128
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:134
 #, elixir-autogen, elixir-format
 msgid "Charkeeper: connected"
 msgstr "Charkeeper: подключен"
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:130
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:136
 #, elixir-autogen, elixir-format
 msgid "Charkeeper: error"
 msgstr "Charkeeper: ошибка"
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:129
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:135
 #, elixir-autogen, elixir-format
 msgid "Charkeeper: partial"
 msgstr "Charkeeper: частично"
@@ -409,32 +409,62 @@ msgstr "Charkeeper: частично"
 msgid "HP"
 msgstr "ПЗ"
 
-#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:102
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:133
 #, elixir-autogen, elixir-format
 msgid "Reset zoom"
 msgstr "Сбросить зум"
 
-#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:94
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:125
 #, elixir-autogen, elixir-format
 msgid "Zoom in"
 msgstr "Приблизить"
 
-#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:110
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:141
 #, elixir-autogen, elixir-format
 msgid "Zoom out"
 msgstr "Отдалить"
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:89
+#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:94
 #, elixir-autogen, elixir-format
 msgid "Add scene"
 msgstr "Добавить сцену"
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:18
+#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:20
 #, elixir-autogen, elixir-format
 msgid "Reset is not available for custom scenes"
 msgstr "Сброс недоступен для пользовательских сцен"
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:70
+#: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:79
 #, elixir-autogen, elixir-format
 msgid "Scene name"
 msgstr "Название сцены"
+
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:173
+#, elixir-autogen, elixir-format
+msgid "Draw circle"
+msgstr "Круг"
+
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:172
+#, elixir-autogen, elixir-format
+msgid "Draw line"
+msgstr "Линия (рис.)"
+
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:174
+#, elixir-autogen, elixir-format
+msgid "Eraser"
+msgstr "Ластик"
+
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:170
+#, elixir-autogen, elixir-format
+msgid "Fill"
+msgstr "Заливка"
+
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:171
+#, elixir-autogen, elixir-format
+msgid "Rect"
+msgstr "Прямоугольник"
+
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:175
+#, elixir-autogen, elixir-format
+msgid "Text"
+msgstr "Текст"

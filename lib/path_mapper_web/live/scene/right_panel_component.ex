@@ -84,6 +84,12 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   end
 
   @impl true
+  def handle_event("set_draw_color", %{"color" => color}, socket) do
+    send(self(), %{session_event: {:set_draw_color, color}})
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("zoom_in", _, socket) do
     send(self(), %{session_event: :zoom_in})
     {:noreply, socket}
@@ -161,6 +167,28 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   defp tool_label(:cone), do: gettext("Cone")
   defp tool_label(:line), do: gettext("Line")
   defp tool_label(:map), do: gettext("Map")
+  defp tool_label(:fill), do: gettext("Fill")
+  defp tool_label(:rect), do: gettext("Rect")
+  defp tool_label(:draw_line), do: gettext("Draw line")
+  defp tool_label(:draw_circle), do: gettext("Draw circle")
+  defp tool_label(:eraser), do: gettext("Eraser")
+  defp tool_label(:text), do: gettext("Text")
+
+  @draw_colors [
+    {"#8B4513", "Brown"},
+    {"#2a2a2a", "Black"},
+    {"#e8e8e8", "White"},
+    {"#4a7a4a", "Green"},
+    {"#4a6a8a", "Blue"},
+    {"#8a3a3a", "Red"},
+    {"#7a7a7a", "Gray"},
+    {"#c4a84a", "Sand"}
+  ]
+
+  @drawing_tools [:fill, :rect, :draw_line, :draw_circle, :text, :eraser]
+
+  defp draw_colors, do: @draw_colors
+  defp drawing_tool?(tool), do: tool in @drawing_tools
 
   defp format_zoom(zoom) do
     :erlang.float_to_binary(zoom + 0.0, decimals: 2)

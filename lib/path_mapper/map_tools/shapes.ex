@@ -13,12 +13,21 @@ defmodule PathMapper.MapTools.Shapes do
   Non-coordinate values (angle, distance) are in their natural units.
   """
   @spec compute(map(), number()) :: shape()
+  # RMB grid mode: draw_circle uses circle preview instead of grid_cells
+  def compute(%{"tool" => "draw_circle", "mode" => "grid"} = tool_data, _grid_size) do
+    circle(tool_data)
+  end
+
   def compute(%{"mode" => "grid"} = tool_data, grid_size) do
     grid_cells(tool_data, grid_size)
   end
 
   def compute(%{"tool" => "ruler", "mode" => "path"} = tool_data, grid_size) do
     ruler_path(tool_data, grid_size)
+  end
+
+  def compute(%{"tool" => "draw_line", "mode" => "path"} = tool_data, _grid_size) do
+    draw_line_preview(tool_data)
   end
 
   def compute(%{"tool" => "ruler"} = tool_data, _grid_size) do
@@ -39,6 +48,26 @@ defmodule PathMapper.MapTools.Shapes do
 
   def compute(%{"tool" => "line"} = tool_data, _grid_size) do
     line(tool_data)
+  end
+
+  # Drawing tools: fill uses single-cell grid_cells, rect uses grid_cells range
+  def compute(%{"tool" => tool} = tool_data, grid_size) when tool in ~w(fill rect) do
+    grid_cells(tool_data, grid_size)
+  end
+
+  # Draw circle preview: reuse circle shape
+  def compute(%{"tool" => "draw_circle"} = tool_data, _grid_size) do
+    circle(tool_data)
+  end
+
+  # Text tool: shows a pointer at click position
+  def compute(%{"tool" => "text"} = tool_data, _grid_size) do
+    pointer(tool_data)
+  end
+
+  # Eraser: shows a pointer at click position
+  def compute(%{"tool" => "eraser"} = tool_data, _grid_size) do
+    pointer(tool_data)
   end
 
   def compute(_tool_data, _grid_size), do: %{type: :none}
@@ -68,6 +97,13 @@ defmodule PathMapper.MapTools.Shapes do
       end)
 
     %{type: :ruler_path, segments: segments}
+  end
+
+  defp draw_line_preview(tool_data) do
+    waypoints = tool_data["waypoints"] || []
+    {cx, cy} = {to_int(tool_data["current_x"]), to_int(tool_data["current_y"])}
+    all_points = waypoints ++ [{cx, cy}]
+    %{type: :draw_line_preview, points: all_points, color: tool_data["color"]}
   end
 
   defp segment_geometry(sx, sy, cx, cy) do
@@ -145,10 +181,27 @@ defmodule PathMapper.MapTools.Shapes do
         t when t in ~w(burst emanation) -> circle_affected_cells(sx, sy, cx, cy, grid_size)
         "cone" -> cone_affected_cells(sx, sy, cx, cy, grid_size)
         "line" -> line_affected_cells(sx, sy, cx, cy, grid_size)
+        "fill" -> [cell_at(sx, sy, grid_size)]
+        "rect" -> rect_cells(sx, sy, cx, cy, grid_size)
         _ -> []
       end
 
     %{type: :grid_cells, cells: cells, cell_size: grid_size}
+  end
+
+  defp cell_at(x, y, grid_size) do
+    {div(x, grid_size), div(y, grid_size)}
+  end
+
+  defp rect_cells(sx, sy, cx, cy, grid_size) do
+    c1 = div(sx, grid_size)
+    r1 = div(sy, grid_size)
+    c2 = div(cx, grid_size)
+    r2 = div(cy, grid_size)
+
+    for col <- min(c1, c2)..max(c1, c2),
+        row <- min(r1, r2)..max(r1, r2),
+        do: {col, row}
   end
 
   defp circle_affected_cells(sx, sy, cx, cy, cs) do
