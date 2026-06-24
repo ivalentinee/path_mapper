@@ -31,7 +31,7 @@ defmodule PathMapperWeb.Endpoint do
     at: "/",
     from: {:path_mapper, "priv/unpacked"},
     gzip: false,
-    only: ~w(adventure group)
+    only: ~w(adventure group global)
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

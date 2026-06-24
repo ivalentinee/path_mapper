@@ -15,6 +15,10 @@ config :path_mapper,
        Application.get_env(:path_mapper, :subpixel_factor) || 10
 
 config :path_mapper,
+       :global_tokens_path,
+       System.get_env("GLOBAL_TOKENS_PATH") || "tokens"
+
+config :path_mapper,
        :charkeeper_server,
        System.get_env("CHARKEEPER_SERVER") || "charkeeper.ru"
 

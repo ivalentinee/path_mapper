@@ -13,6 +13,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.AdventureSelectorComponent
   @impl true
   def handle_event("reload", _, socket) do
     Adventures.reload()
+    PathMapper.GlobalTokens.reload()
     {:noreply, socket}
   end
 

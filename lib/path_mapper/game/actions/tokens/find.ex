@@ -33,6 +33,13 @@ defmodule PathMapper.Game.Actions.Tokens.Find do
     case Adventures.get_loaded() do
       {:ok, adventure} -> Adventure.find_token_by_name(adventure, name)
       _ -> nil
+    end || find_global_token(name)
+  end
+
+  defp find_global_token(name) do
+    case Enum.find(PathMapper.GlobalTokens.get(), fn entry -> entry.token.name == name end) do
+      %{token: token} -> token
+      _ -> nil
     end
   end
 

@@ -142,7 +142,9 @@ defmodule PathMapper.Game.Restore do
       end
 
     adventure_token =
-      adventure_token || Adventure.find_token_by_name(adventure, data["data_name"])
+      adventure_token ||
+        Adventure.find_token_by_name(adventure, data["data_name"]) ||
+        find_global_token(data["data_name"])
 
     case adventure_token do
       nil ->
@@ -157,6 +159,13 @@ defmodule PathMapper.Game.Restore do
           owner: data["owner"],
           data: token
         }
+    end
+  end
+
+  defp find_global_token(name) do
+    case Enum.find(PathMapper.GlobalTokens.get(), fn entry -> entry.token.name == name end) do
+      %{token: token} -> token
+      _ -> nil
     end
   end
 

@@ -16,6 +16,7 @@ defmodule PathMapper.Application do
       # Start to serve requests, typically the last entry
       PathMapper.Adventures,
       PathMapper.Groups,
+      PathMapper.GlobalTokens,
       PathMapper.Game,
       PathMapper.MapTools,
       PathMapper.Charkeeper.Supervisor,

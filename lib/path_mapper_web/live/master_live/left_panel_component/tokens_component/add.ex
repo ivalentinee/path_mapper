@@ -5,6 +5,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Add do
 
   alias PathMapper.Adventures.Adventure
   alias PathMapper.Game
+  alias PathMapper.GlobalTokens
 
   @impl true
   def update(assigns, socket) do
@@ -47,23 +48,46 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Add do
   end
 
   defp visible_tokens(assigns) do
-    tokens =
-      if assigns.expanded do
+    if assigns.expanded do
+      adventure_tokens =
         case assigns[:adventure] do
           %Adventure{} = adv -> Adventure.all_tokens(adv)
-          _ -> assigns.tokens
+          _ -> []
         end
-      else
-        assigns.tokens
-      end
 
-    case String.trim(assigns.search || "") do
-      "" -> tokens
-      query -> Enum.filter(tokens, &matches?(&1.name, query))
+      global_entries = GlobalTokens.get()
+      global_tokens = Enum.map(global_entries, & &1.token)
+
+      # Adventure tokens win on name collision
+      adventure_names = MapSet.new(adventure_tokens, & &1.name)
+      unique_globals = Enum.reject(global_tokens, &MapSet.member?(adventure_names, &1.name))
+
+      all = (adventure_tokens ++ unique_globals) |> Enum.sort_by(& &1.name)
+
+      case String.trim(assigns.search || "") do
+        "" -> all
+        query -> filter_with_metadata(all, global_entries, query)
+      end
+    else
+      assigns.tokens
     end
   end
 
-  defp matches?(name, query) do
-    String.contains?(String.downcase(name), String.downcase(query))
+  defp filter_with_metadata(tokens, global_entries, query) do
+    q = String.downcase(query)
+    global_index = Map.new(global_entries, fn e -> {e.token.name, e} end)
+    Enum.filter(tokens, &token_matches?(&1, global_index, q))
   end
+
+  defp token_matches?(token, global_index, query) do
+    String.contains?(String.downcase(token.name), query) ||
+      metadata_matches?(global_index[token.name], query)
+  end
+
+  defp metadata_matches?(%GlobalTokens.Entry{group: group, tags: tags}, query) do
+    (group && String.contains?(String.downcase(group), query)) ||
+      Enum.any?(tags || [], &String.contains?(String.downcase(&1), query))
+  end
+
+  defp metadata_matches?(_, _), do: false
 end
