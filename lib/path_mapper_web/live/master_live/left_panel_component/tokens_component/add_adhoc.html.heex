@@ -1,0 +1,49 @@
+<div id="add-adhoc-token" class="add-adhoc-token">
+  <form phx-submit="create_adhoc" phx-target={@myself} class="adhoc-form">
+    <div class="adhoc-row">
+      <input
+        type="text"
+        name="label"
+        value={@label}
+        placeholder={gettext("Label (e.g. G for Goblin)")}
+        autofocus
+        maxlength="10"
+        class="adhoc-label-input"
+      />
+    </div>
+
+    <div class="adhoc-row">
+      <span class="adhoc-label">{gettext("Owner")}</span>
+      <%= for {owner, label} <- [{"enemy", gettext("Enemy")}, {"npc", gettext("NPC")}, {"none", gettext("Other")}] do %>
+        <button
+          type="button"
+          class={"pure-button sub-button #{if @owner == owner, do: "active"}"}
+          phx-click="set_owner"
+          phx-value-owner={owner}
+          phx-target={@myself}
+        >
+          {label}
+        </button>
+      <% end %>
+    </div>
+
+    <div class="adhoc-row">
+      <span class="adhoc-label">{gettext("Size")}</span>
+      <%= for s <- 1..4 do %>
+        <button
+          type="button"
+          class={"pure-button sub-button #{if @size == s, do: "active"}"}
+          phx-click="set_size"
+          phx-value-size={s}
+          phx-target={@myself}
+        >
+          {s}
+        </button>
+      <% end %>
+    </div>
+
+    <button type="submit" class="pure-button sub-button adhoc-create">
+      {gettext("Create")}
+    </button>
+  </form>
+</div>

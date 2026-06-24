@@ -14,7 +14,11 @@
     }
   >
     <div style={token_shape_style()}>
-      <img style={token_image_style()} title={@token.data.name} src={@token.data.image} />
+      <%= if @token.data.image do %>
+        <img style={token_image_style()} title={@token.data.name} src={@token.data.image} />
+      <% else %>
+        <div style={adhoc_token_style(@token)} title={@token.data.name}>{@token.data.name}</div>
+      <% end %>
 
       <div style={token_border_style(@token, @token_geometry)}></div>
 
@@ -31,7 +35,11 @@
       style={token_container_style(@dragged_token_geometry, @grid_line_padding, true)}
     >
       <div style={token_shape_style()}>
-        <img style={token_image_style()} title={@token.data.name} src={@token.data.image} />
+        <%= if @token.data.image do %>
+          <img style={token_image_style()} title={@token.data.name} src={@token.data.image} />
+        <% else %>
+          <div style={adhoc_token_style(@token)} title={@token.data.name}>{@token.data.name}</div>
+        <% end %>
         <div style={token_border_style(@token, @dragged_token_geometry)}></div>
       </div>
     </div>

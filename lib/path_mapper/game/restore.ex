@@ -134,7 +134,31 @@ defmodule PathMapper.Game.Restore do
   end
 
   defp build_token(data, adventure_scene, adventure) do
-    # Try current scene tokens first, then fall back to cross-scene
+    # Ad-hoc tokens carry their own definition
+    if data["adhoc"] do
+      adhoc = data["adhoc"]
+
+      adventure_token = %Adventure.Scene.Token{
+        name: adhoc["label"] || data["data_name"],
+        owner: adhoc["owner"] || "none",
+        image: nil,
+        size: adhoc["size"] || 1
+      }
+
+      %State.Scene.Token{
+        x: data["x"],
+        y: data["y"],
+        state: data["state"],
+        size: data["size"],
+        owner: data["owner"],
+        data: adventure_token
+      }
+    else
+      build_adventure_token(data, adventure_scene, adventure)
+    end
+  end
+
+  defp build_adventure_token(data, adventure_scene, adventure) do
     adventure_token =
       case adventure_scene do
         %{tokens: tokens} -> Enum.find(tokens, &(&1.name == data["data_name"]))

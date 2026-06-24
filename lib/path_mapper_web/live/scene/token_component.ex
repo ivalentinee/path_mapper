@@ -198,6 +198,25 @@ defmodule PathMapperWeb.Scene.TokenComponent do
     })
   end
 
+  def adhoc_token_style(token) do
+    color = Palette.resolve(token.owner) || "#808080"
+
+    serialize_style(%{
+      "width" => "100%",
+      "height" => "100%",
+      "display" => "flex",
+      "align-items" => "center",
+      "justify-content" => "center",
+      "background" => color,
+      "border-radius" => "50%",
+      "color" => "white",
+      "font-weight" => "700",
+      "font-size" => "40%",
+      "text-shadow" => "0 0 4px rgba(0,0,0,0.8)",
+      "user-select" => "none"
+    })
+  end
+
   def token_state_style(%{state: "hidden"}) do
     serialize_style(%{
       "position" => "absolute",

@@ -63,7 +63,7 @@ defmodule PathMapper.Game.Dump do
   end
 
   defp serialize_token(%State.Scene.Token{} = token) do
-    %{
+    base = %{
       data_name: token.data.name,
       x: token.x,
       y: token.y,
@@ -71,6 +71,16 @@ defmodule PathMapper.Game.Dump do
       size: token.size,
       owner: token.owner
     }
+
+    if token.data.image == nil do
+      Map.put(base, :adhoc, %{
+        label: token.data.name,
+        owner: token.data.owner,
+        size: token.data.size
+      })
+    else
+      base
+    end
   end
 
   defp serialize_drawn_element(%State.Scene.DrawnElement{} = element) do

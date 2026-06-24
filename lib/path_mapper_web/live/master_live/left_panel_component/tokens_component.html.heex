@@ -17,6 +17,12 @@
         left_panel={@left_panel}
         group={@group}
       />
+    <% selected_panel(@left_panel) == "add-adhoc-token" -> %>
+      <.live_component
+        module={PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.AddAdhoc}
+        id="add-adhoc-token"
+        left_panel={@left_panel}
+      />
     <% selected_panel(@left_panel) == "add-extra-token" -> %>
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.AddExtra}
@@ -51,6 +57,15 @@
           phx-target={@myself}
         >
           {gettext("Extras")}
+        </button>
+
+        <button
+          id="add-adhoc-token-button"
+          class="pure-button sub-button"
+          phx-click="go_to_adhoc_tokens"
+          phx-target={@myself}
+        >
+          {gettext("Ad-hoc")}
         </button>
 
         <button id="tokens-copy-button" class="pure-button sub-button" phx-hook="Copy">

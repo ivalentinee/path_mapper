@@ -33,6 +33,21 @@ defmodule PathMapper.Game.Actions.Tokens do
     end
   end
 
+  def action(%State{} = state, [:tokens, :add_adhoc], %{label: label, owner: owner, size: size})
+      when is_binary(label) and is_binary(owner) and is_integer(size) and size in 1..4 do
+    number = next_adhoc_number(state, label)
+    name = "#{label}#{number}"
+
+    token = %Token{
+      name: name,
+      owner: owner,
+      image: nil,
+      size: size
+    }
+
+    add_token(state, token)
+  end
+
   def action(%State{} = state, [:tokens, :delete], index) when is_number(index) do
     updated_tokens = List.delete_at(State.scene(state).tokens, index)
     update_tokens(state, updated_tokens)
@@ -130,6 +145,28 @@ defmodule PathMapper.Game.Actions.Tokens do
   def update_tokens(%State{} = state, updated_tokens) when is_list(updated_tokens) do
     updated_scene = Map.put(State.scene(state), :tokens, updated_tokens)
     {:ok, State.put_scene(state, updated_scene)}
+  end
+
+  defp next_adhoc_number(%State{} = state, label) do
+    State.scene(state).tokens
+    |> Enum.filter(&(&1.data.image == nil))
+    |> Enum.reduce(0, fn token, max_num ->
+      max(max_num, extract_label_number(token.data.name, label))
+    end)
+    |> Kernel.+(1)
+  end
+
+  defp extract_label_number(name, label) do
+    suffix = String.replace_prefix(name, label, "")
+
+    if suffix == name do
+      0
+    else
+      case Integer.parse(suffix) do
+        {n, ""} -> n
+        _ -> 0
+      end
+    end
   end
 
   defp update_token(%State{} = state, index, %GameToken{} = updated_token)

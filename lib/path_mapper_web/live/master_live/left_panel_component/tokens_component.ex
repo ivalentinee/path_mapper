@@ -19,6 +19,14 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent do
     {:noreply, socket}
   end
 
+  def handle_event("go_to_adhoc_tokens", _, socket) do
+    send(self(), %{
+      session_event: %{left_panel_select: ["left-panel", "tokens", "add-adhoc-token"]}
+    })
+
+    {:noreply, socket}
+  end
+
   def handle_event("go_to_extra_tokens", _, socket) do
     send(self(), %{
       session_event: %{left_panel_select: ["left-panel", "tokens", "add-extra-token"]}

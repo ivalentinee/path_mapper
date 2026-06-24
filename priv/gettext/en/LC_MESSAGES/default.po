@@ -18,7 +18,7 @@ msgstr ""
 
 #: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:11
 #: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:85
-#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:35
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:41
 #: lib/path_mapper_web/live/scene/right_panel/character_menu.html.heex:88
 #, elixir-autogen, elixir-format
 msgid "Add"
@@ -47,7 +47,7 @@ msgstr ""
 msgid "Confirm?"
 msgstr ""
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:57
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:72
 #, elixir-autogen, elixir-format
 msgid "Copy"
 msgstr ""
@@ -57,7 +57,7 @@ msgstr ""
 msgid "Error!"
 msgstr ""
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:53
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:59
 #, elixir-autogen, elixir-format
 msgid "Extras"
 msgstr ""
@@ -130,7 +130,7 @@ msgstr ""
 msgid "Player"
 msgstr ""
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:44
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:50
 #, elixir-autogen, elixir-format
 msgid "Players"
 msgstr ""
@@ -280,6 +280,7 @@ msgid "That's me!"
 msgstr ""
 
 #: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:8
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add_adhoc.html.heex:17
 #, elixir-autogen, elixir-format
 msgid "Enemy"
 msgstr ""
@@ -293,6 +294,7 @@ msgid "Initiative"
 msgstr ""
 
 #: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:9
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add_adhoc.html.heex:17
 #, elixir-autogen, elixir-format
 msgid "NPC"
 msgstr ""
@@ -489,4 +491,34 @@ msgstr ""
 #: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add.html.heex:17
 #, elixir-autogen, elixir-format
 msgid "Search tokens..."
+msgstr ""
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component.html.heex:68
+#, elixir-autogen, elixir-format
+msgid "Ad-hoc"
+msgstr ""
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add_adhoc.html.heex:46
+#, elixir-autogen, elixir-format
+msgid "Create"
+msgstr ""
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add_adhoc.html.heex:8
+#, elixir-autogen, elixir-format
+msgid "Label (e.g. G for Goblin)"
+msgstr ""
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add_adhoc.html.heex:17
+#, elixir-autogen, elixir-format
+msgid "Other"
+msgstr ""
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add_adhoc.html.heex:16
+#, elixir-autogen, elixir-format
+msgid "Owner"
+msgstr ""
+
+#: lib/path_mapper_web/live/master_live/left_panel_component/tokens_component/add_adhoc.html.heex:31
+#, elixir-autogen, elixir-format
+msgid "Size"
 msgstr ""
