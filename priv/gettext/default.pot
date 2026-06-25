@@ -40,7 +40,7 @@ msgstr ""
 msgid "Attempting to reconnect"
 msgstr ""
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:52
+#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:48
 #: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:24
 #: lib/path_mapper_web/live/master_live/left_panel_component/scene_selector_component.html.heex:60
 #, elixir-autogen, elixir-format
@@ -94,7 +94,7 @@ msgid "Links"
 msgstr ""
 
 #: lib/path_mapper_web/live/master_live/left_panel_component.html.heex:27
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:169
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:175
 #, elixir-autogen, elixir-format
 msgid "Map"
 msgstr ""
@@ -158,6 +158,7 @@ msgid "Reset"
 msgstr ""
 
 #: lib/path_mapper_web/live/master_live/left_panel_component.html.heex:18
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:252
 #, elixir-autogen, elixir-format
 msgid "Scenes"
 msgstr ""
@@ -173,6 +174,7 @@ msgid "Success!"
 msgstr ""
 
 #: lib/path_mapper_web/live/master_live/left_panel_component.html.heex:36
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:254
 #, elixir-autogen, elixir-format
 msgid "Tokens"
 msgstr ""
@@ -218,7 +220,7 @@ msgstr ""
 msgid "Layer"
 msgstr ""
 
-#: lib/path_mapper_web/live/master_live.html.heex:65
+#: lib/path_mapper_web/live/master_live.html.heex:67
 #, elixir-autogen, elixir-format
 msgid "Load errors"
 msgstr ""
@@ -289,6 +291,7 @@ msgstr ""
 #: lib/path_mapper_web/live/master_live/left_panel_component/initiative_component.html.heex:2
 #: lib/path_mapper_web/live/scene/right_panel/initiative_panel.html.heex:2
 #: lib/path_mapper_web/live/scene/right_panel_component.html.heex:30
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:255
 #, elixir-autogen, elixir-format
 msgid "Initiative"
 msgstr ""
@@ -315,12 +318,12 @@ msgstr ""
 msgid "No tool"
 msgstr ""
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:52
+#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:48
 #, elixir-autogen, elixir-format
 msgid "Reset all"
 msgstr ""
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:36
+#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:32
 #, elixir-autogen, elixir-format
 msgid "Restore state"
 msgstr ""
@@ -331,7 +334,7 @@ msgstr ""
 msgid "Roll"
 msgstr ""
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:33
+#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:29
 #, elixir-autogen, elixir-format
 msgid "Save state"
 msgstr ""
@@ -347,6 +350,7 @@ msgid "Show grid"
 msgstr ""
 
 #: lib/path_mapper_web/live/scene/right_panel_component.html.heex:114
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:237
 #, elixir-autogen, elixir-format
 msgid "Snap to grid"
 msgstr ""
@@ -356,32 +360,32 @@ msgstr ""
 msgid "%{distance}ft"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:165
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:171
 #, elixir-autogen, elixir-format
 msgid "Burst"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:167
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:173
 #, elixir-autogen, elixir-format
 msgid "Cone"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:166
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:172
 #, elixir-autogen, elixir-format
 msgid "Emanation"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:168
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:174
 #, elixir-autogen, elixir-format
 msgid "Line"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:164
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:170
 #, elixir-autogen, elixir-format
 msgid "Pointer"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:163
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:169
 #, elixir-autogen, elixir-format
 msgid "Ruler"
 msgstr ""
@@ -392,17 +396,17 @@ msgstr ""
 msgid "AC"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:134
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:140
 #, elixir-autogen, elixir-format
 msgid "Charkeeper: connected"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:136
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:142
 #, elixir-autogen, elixir-format
 msgid "Charkeeper: error"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:135
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:141
 #, elixir-autogen, elixir-format
 msgid "Charkeeper: partial"
 msgstr ""
@@ -414,6 +418,7 @@ msgid "HP"
 msgstr ""
 
 #: lib/path_mapper_web/live/scene/right_panel_component.html.heex:133
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:236
 #, elixir-autogen, elixir-format
 msgid "Reset zoom"
 msgstr ""
@@ -443,32 +448,32 @@ msgstr ""
 msgid "Scene name"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:173
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:179
 #, elixir-autogen, elixir-format
 msgid "Draw circle"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:172
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:178
 #, elixir-autogen, elixir-format
 msgid "Draw line"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:174
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:180
 #, elixir-autogen, elixir-format
 msgid "Eraser"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:170
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:176
 #, elixir-autogen, elixir-format
 msgid "Fill"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:171
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:177
 #, elixir-autogen, elixir-format
 msgid "Rect"
 msgstr ""
 
-#: lib/path_mapper_web/live/scene/right_panel_component.ex:175
+#: lib/path_mapper_web/live/scene/right_panel_component.ex:181
 #, elixir-autogen, elixir-format
 msgid "Text"
 msgstr ""
@@ -523,7 +528,82 @@ msgstr ""
 msgid "Size"
 msgstr ""
 
-#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:16
+#: lib/path_mapper_web/live/master_live/left_panel_component/adventure_selector_component.html.heex:12
 #, elixir-autogen, elixir-format
 msgid "Empty game"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:234
+#, elixir-autogen, elixir-format
+msgid "Close / go back"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:246
+#, elixir-autogen, elixir-format
+msgid "Color"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:245
+#, elixir-autogen, elixir-format
+msgid "Drawing"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:233
+#, elixir-autogen, elixir-format
+msgid "Global"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:260
+#, elixir-autogen, elixir-format
+msgid "Go up one level"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:258
+#, elixir-autogen, elixir-format
+msgid "In scope"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:152
+#, elixir-autogen, elixir-format
+msgid "Keyboard shortcuts"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:238
+#, elixir-autogen, elixir-format
+msgid "Map tool"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:253
+#, elixir-autogen, elixir-format
+msgid "Map/Layers"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:243
+#, elixir-autogen, elixir-format
+msgid "Measurement"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:239
+#, elixir-autogen, elixir-format
+msgid "Pan (when zoomed)"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:251
+#, elixir-autogen, elixir-format
+msgid "Panels"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:259
+#, elixir-autogen, elixir-format
+msgid "Select by index"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:242
+#, elixir-autogen, elixir-format
+msgid "Tools"
+msgstr ""
+
+#: lib/path_mapper_web/live/scene/right_panel_component.html.heex:235
+#, elixir-autogen, elixir-format
+msgid "Zoom in/out"
 msgstr ""

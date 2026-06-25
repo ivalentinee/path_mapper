@@ -49,6 +49,41 @@
 }
 
 
+/* Cheatsheet */
+
+.cheatsheet-content {
+  font-size: 0.8rem;
+  padding: 8px 12px;
+}
+
+.cheatsheet-section {
+  margin-bottom: 10px;
+}
+
+.cheatsheet-title {
+  color: #42b8dd;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.cheatsheet-key {
+  color: #a8a8c8;
+  padding: 1px 0;
+}
+
+.cheatsheet-key kbd {
+  background: #2a2540;
+  color: #c8c8e0;
+  padding: 1px 4px;
+  border-radius: 3px;
+  border: 1px solid #3a3560;
+  font-family: monospace;
+  font-size: 0.75rem;
+}
+
 /* Group overview */
 
 .group-title {

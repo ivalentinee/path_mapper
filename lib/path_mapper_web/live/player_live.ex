@@ -55,7 +55,9 @@ defmodule PathMapperWeb.PlayerLive do
 
   @impl true
   def handle_event("keydown", %{"key" => key}, socket) do
-    case PathMapperWeb.KeyboardDispatch.dispatch(key, socket.assigns, :player) do
+    assigns = Map.put_new(socket.assigns, :left_panel, %{left_panel: nil})
+
+    case PathMapperWeb.KeyboardDispatch.dispatch(key, assigns, :player) do
       nil ->
         {:noreply, socket}
 

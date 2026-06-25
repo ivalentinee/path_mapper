@@ -90,6 +90,12 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   end
 
   @impl true
+  def handle_event("toggle_cheatsheet_panel", _, socket) do
+    send(self(), %{session_event: :toggle_cheatsheet_panel})
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("zoom_in", _, socket) do
     send(self(), %{session_event: :zoom_in})
     {:noreply, socket}

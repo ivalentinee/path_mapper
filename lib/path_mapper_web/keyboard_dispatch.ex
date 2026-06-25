@@ -78,6 +78,7 @@ defmodule PathMapperWeb.KeyboardDispatch do
   def dispatch("g", %{left_panel: %{left_panel: nil}}, _), do: :snap_to_grid
   def dispatch("m", %{left_panel: %{left_panel: nil}}, _), do: {:select_tool, :map}
   def dispatch("#", %{left_panel: %{left_panel: nil}}, _), do: :toggle_grid_override
+  def dispatch("?", %{left_panel: %{left_panel: nil}}, _), do: :toggle_cheatsheet_panel
 
   # Arrow keys — pan viewport by one grid square (when zoomed in)
   def dispatch("ArrowUp", %{scene: %{zoom: zoom}}, _) when zoom > 1.0, do: {:arrow_pan, :up}
@@ -259,6 +260,14 @@ defmodule PathMapperWeb.KeyboardDispatch do
 
   defp commit_for_scope(["left-panel", "map-manager"], index) do
     {:layer_select, index}
+  end
+
+  defp commit_for_scope(["left-panel", "tokens", "add-extra-token"], index) do
+    {:extra_select_player, index}
+  end
+
+  defp commit_for_scope(["left-panel", "tokens", "add-extra-token", player_idx, "add"], index) do
+    {:add_extra_by_index, player_idx, index}
   end
 
   defp commit_for_scope(_, _), do: :digit_clear

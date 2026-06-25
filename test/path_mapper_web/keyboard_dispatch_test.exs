@@ -307,6 +307,28 @@ defmodule PathMapperWeb.KeyboardDispatchTest do
       assert result == nil
     end
 
+    test "Escape unwinds panel before deselecting tool" do
+      assert :close_all_panels =
+               KeyboardDispatch.dispatch(
+                 "Escape",
+                 assigns(%{
+                   scene: %SceneState{active_tool: :ruler},
+                   left_panel: %LeftPanelState{left_panel: ["left-panel", "tokens"]}
+                 })
+               )
+    end
+
+    test "commit_for_scope with unrecognized path clears digits" do
+      assert :digit_clear =
+               KeyboardDispatch.dispatch(
+                 "Enter",
+                 assigns(%{
+                   scene: %SceneState{digit_buffer: "3"},
+                   left_panel: %LeftPanelState{left_panel: ["left-panel", "initiative"]}
+                 })
+               )
+    end
+
     test "s in layer sub-scope toggles show" do
       assert {:layer_action, 1, :toggle_show} =
                KeyboardDispatch.dispatch(

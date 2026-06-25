@@ -145,6 +145,15 @@
 
       <div class="tool-separator"></div>
 
+      <button
+        class={"tool-button #{if @right_panel.cheatsheet_panel_open, do: "active"}"}
+        phx-click="toggle_cheatsheet_panel"
+        phx-target={@myself}
+        title={gettext("Keyboard shortcuts")}
+      >
+        ?
+      </button>
+
       <div class="locale-selector">
         <button
           class="tool-button locale-button"
@@ -215,6 +224,48 @@
         my_player={assigns[:my_player]}
         myself={@myself}
       />
+    </div>
+  <% end %>
+
+  <%= if @right_panel.cheatsheet_panel_open do %>
+    <div class="panel-content right-panel-content cheatsheet-content">
+      <div class="cheatsheet-section">
+        <div class="cheatsheet-title">{gettext("Global")}</div>
+        <div class="cheatsheet-key"><kbd>Esc</kbd> {gettext("Close / go back")}</div>
+        <div class="cheatsheet-key"><kbd>+/-</kbd> {gettext("Zoom in/out")}</div>
+        <div class="cheatsheet-key"><kbd>z</kbd> {gettext("Reset zoom")}</div>
+        <div class="cheatsheet-key"><kbd>g</kbd> {gettext("Snap to grid")}</div>
+        <div class="cheatsheet-key"><kbd>m</kbd> {gettext("Map tool")}</div>
+        <div class="cheatsheet-key"><kbd>←→↑↓</kbd> {gettext("Pan (when zoomed)")}</div>
+      </div>
+      <div class="cheatsheet-section">
+        <div class="cheatsheet-title">{gettext("Tools")}</div>
+        <div class="cheatsheet-key">
+          <kbd>q</kbd>+<kbd>key</kbd> {gettext("Measurement")} (r p b e c n)
+        </div>
+        <%= if assigns[:draw_owner] do %>
+          <div class="cheatsheet-key">
+            <kbd>d</kbd>+<kbd>key</kbd> {gettext("Drawing")} (f r l c t x)
+          </div>
+          <div class="cheatsheet-key"><kbd>c</kbd>+<kbd>N</kbd> {gettext("Color")} (1-8)</div>
+        <% end %>
+      </div>
+      <%= unless assigns[:is_player] do %>
+        <div class="cheatsheet-section">
+          <div class="cheatsheet-title">{gettext("Panels")}</div>
+          <div class="cheatsheet-key"><kbd>s</kbd> {gettext("Scenes")}</div>
+          <div class="cheatsheet-key"><kbd>l</kbd> {gettext("Map/Layers")}</div>
+          <div class="cheatsheet-key"><kbd>t</kbd> {gettext("Tokens")}</div>
+          <div class="cheatsheet-key"><kbd>i</kbd> {gettext("Initiative")}</div>
+        </div>
+        <div class="cheatsheet-section">
+          <div class="cheatsheet-title">{gettext("In scope")}</div>
+          <div class="cheatsheet-key">
+            <kbd>N</kbd> <kbd>Enter</kbd> {gettext("Select by index")}
+          </div>
+          <div class="cheatsheet-key"><kbd>Esc</kbd> {gettext("Go up one level")}</div>
+        </div>
+      <% end %>
     </div>
   <% end %>
 </div>

@@ -1,4 +1,5 @@
-<div class="master-container" phx-click="close_panel" phx-window-keydown="keydown">
+<div class="master-container" phx-click="close_panel">
+  <div id="keyboard-nav" phx-hook="KeyboardNav"></div>
   <.live_component
     module={PathMapperWeb.WallpaperComponent}
     id="wallpaper"

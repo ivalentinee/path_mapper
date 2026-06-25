@@ -92,7 +92,11 @@ defmodule PathMapperWeb.MasterLive do
   end
 
   defp apply_keyboard_action({:digit_append, char}, socket) do
-    {:noreply, update_scene(socket, digit_buffer: socket.assigns.scene.digit_buffer <> char)}
+    {:noreply,
+     update_scene(socket,
+       digit_buffer: socket.assigns.scene.digit_buffer <> char,
+       pending_prefix: nil
+     )}
   end
 
   defp apply_keyboard_action(:digit_clear, socket) do
@@ -160,8 +164,19 @@ defmodule PathMapperWeb.MasterLive do
   end
 
   defp apply_keyboard_action({:layer_action, index, action}, socket) do
-    Game.run_action([:map, index, action], nil)
+    Game.run_action([:map, :layer, action], index)
     {:noreply, socket}
+  end
+
+  defp apply_keyboard_action({:extra_select_player, index}, socket) do
+    path = ["left-panel", "tokens", "add-extra-token", index - 1, "add"]
+    send(self(), %{session_event: %{left_panel_select: path}})
+    {:noreply, update_scene(socket, digit_buffer: "")}
+  end
+
+  defp apply_keyboard_action({:add_extra_by_index, player_index, token_index}, socket) do
+    Game.run_action([:tokens, :player, :add_extra], {player_index, token_index - 1})
+    {:noreply, update_scene(socket, digit_buffer: "")}
   end
 
   defp apply_keyboard_action(event, socket) do
@@ -202,6 +217,10 @@ defmodule PathMapperWeb.MasterLive do
   defp scope_name(["left-panel", "tokens", "add-player-token"]), do: "[Tokens > Players]"
   defp scope_name(["left-panel", "tokens", "add-extra-token"]), do: "[Tokens > Extras]"
   defp scope_name(["left-panel", "tokens", "add-adhoc-token"]), do: "[Tokens > Ad-hoc]"
+
+  defp scope_name(["left-panel", "tokens", "add-extra-token", _idx, "add"]),
+    do: "[Extras > Tokens]"
+
   defp scope_name(["left-panel", "tokens", idx]) when is_integer(idx), do: "[Token ##{idx}]"
   defp scope_name(["left-panel", "map-manager"]), do: "[Layers]"
   defp scope_name(["left-panel", "map-manager", idx]) when is_integer(idx), do: "[Layer ##{idx}]"
