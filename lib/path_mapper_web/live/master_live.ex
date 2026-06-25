@@ -80,30 +80,97 @@ defmodule PathMapperWeb.MasterLive do
 
   @impl true
   def handle_event("keydown", %{"key" => key}, socket) do
-    case PathMapperWeb.KeyboardDispatch.dispatch(key, socket.assigns, :master) do
-      nil ->
-        {:noreply, socket}
-
-      {:set_pending_prefix, prefix} ->
-        scene = %{socket.assigns.scene | pending_prefix: prefix}
-        {:noreply, assign(socket, :scene, scene)}
-
-      {:arrow_pan, direction} ->
-        handle_arrow_pan(clear_prefix(socket), direction)
-
-      event ->
-        send(self(), %{session_event: event})
-        {:noreply, clear_prefix(socket)}
-    end
+    key
+    |> PathMapperWeb.KeyboardDispatch.dispatch(socket.assigns, :master)
+    |> apply_keyboard_action(socket)
   end
 
-  defp clear_prefix(socket) do
-    if socket.assigns.scene.pending_prefix do
-      scene = %{socket.assigns.scene | pending_prefix: nil}
-      assign(socket, :scene, scene)
-    else
-      socket
-    end
+  defp apply_keyboard_action(nil, socket), do: {:noreply, socket}
+
+  defp apply_keyboard_action({:set_pending_prefix, prefix}, socket) do
+    {:noreply, update_scene(socket, pending_prefix: prefix, digit_buffer: "")}
+  end
+
+  defp apply_keyboard_action({:digit_append, char}, socket) do
+    {:noreply, update_scene(socket, digit_buffer: socket.assigns.scene.digit_buffer <> char)}
+  end
+
+  defp apply_keyboard_action(:digit_clear, socket) do
+    {:noreply, update_scene(socket, digit_buffer: "")}
+  end
+
+  defp apply_keyboard_action({:arrow_pan, direction}, socket) do
+    handle_arrow_pan(socket, direction)
+  end
+
+  defp apply_keyboard_action({:scene_select, index}, socket) do
+    Game.run_action([:scene, :select], index - 1)
+    {:noreply, clear_keyboard_state(socket)}
+  end
+
+  defp apply_keyboard_action({:scene_action, action}, socket) do
+    Game.run_action([:scene, action], nil)
+    {:noreply, clear_keyboard_state(socket)}
+  end
+
+  defp apply_keyboard_action({:token_select, index}, socket) do
+    send(self(), %{session_event: %{left_panel_select: ["left-panel", "tokens", index]}})
+    {:noreply, update_scene(socket, digit_buffer: "")}
+  end
+
+  defp apply_keyboard_action({:token_action, index, "delete"}, socket) do
+    Game.run_action([:tokens, :delete], index - 1)
+    send(self(), %{session_event: %{left_panel_select: ["left-panel", "tokens"]}})
+    {:noreply, clear_keyboard_state(socket)}
+  end
+
+  defp apply_keyboard_action({:token_action, index, state}, socket) do
+    Game.run_action([:tokens, index - 1, :set_state], state)
+    {:noreply, socket}
+  end
+
+  defp apply_keyboard_action({:add_token_by_index, index}, socket) do
+    Game.run_action([:tokens, :add], index - 1)
+    {:noreply, update_scene(socket, digit_buffer: "")}
+  end
+
+  defp apply_keyboard_action({:add_player_by_index, index}, socket) do
+    Game.run_action([:tokens, :player, :add], index - 1)
+    {:noreply, update_scene(socket, digit_buffer: "")}
+  end
+
+  defp apply_keyboard_action({:player_action, :add_all}, socket) do
+    Game.run_action([:tokens, :player, :add_all], nil)
+    {:noreply, socket}
+  end
+
+  defp apply_keyboard_action({:map_action, :toggle_grid}, socket) do
+    Game.run_action([:map, :toggle_grid], nil)
+    {:noreply, socket}
+  end
+
+  defp apply_keyboard_action({:layer_select, index}, socket) do
+    send(self(), %{session_event: %{left_panel_select: ["left-panel", "map-manager", index]}})
+    {:noreply, update_scene(socket, digit_buffer: "")}
+  end
+
+  defp apply_keyboard_action({:layer_action, index, action}, socket) do
+    Game.run_action([:map, index, action], nil)
+    {:noreply, socket}
+  end
+
+  defp apply_keyboard_action(event, socket) do
+    send(self(), %{session_event: event})
+    {:noreply, clear_keyboard_state(socket)}
+  end
+
+  defp update_scene(socket, updates) do
+    scene = Enum.reduce(updates, socket.assigns.scene, fn {k, v}, s -> Map.put(s, k, v) end)
+    assign(socket, :scene, scene)
+  end
+
+  defp clear_keyboard_state(socket) do
+    update_scene(socket, pending_prefix: nil, digit_buffer: "")
   end
 
   defp handle_arrow_pan(socket, direction) do

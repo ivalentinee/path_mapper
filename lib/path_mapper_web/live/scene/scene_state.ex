@@ -5,7 +5,8 @@ defmodule PathMapperWeb.Scene.SceneState do
             zoom: 1.0,
             pan: {0, 0},
             draw_color: "#8B4513",
-            pending_prefix: nil
+            pending_prefix: nil,
+            digit_buffer: ""
 
   @zoom_min 0.5
   @zoom_max 3.0
