@@ -22,6 +22,17 @@ defmodule PathMapperWeb.KeyboardDispatch do
   @measurement_tools Map.values(@measurement_keys)
   @drawing_tools Map.values(@drawing_keys)
 
+  @color_keys %{
+    "1" => "#8B4513",
+    "2" => "#2a2a2a",
+    "3" => "#e8e8e8",
+    "4" => "#4a7a4a",
+    "5" => "#4a6a8a",
+    "6" => "#8a3a3a",
+    "7" => "#7a7a7a",
+    "8" => "#c4a84a"
+  }
+
   @token_action_keys %{
     "x" => "delete",
     "r" => "alive",
@@ -165,6 +176,20 @@ defmodule PathMapperWeb.KeyboardDispatch do
       nil -> {:set_pending_prefix, nil}
       tool -> {:select_tool, tool}
     end
+  end
+
+  # 6c. Pending prefix :c → color selection
+  def dispatch(key, %{left_panel: %{left_panel: nil}, scene: %{pending_prefix: :c}}, _) do
+    case @color_keys[key] do
+      nil -> {:set_pending_prefix, nil}
+      color -> {:set_draw_color, color}
+    end
+  end
+
+  # 6d. Color prefix entry: c when drawing tool active
+  def dispatch("c", %{left_panel: %{left_panel: nil}, scene: %{active_tool: tool}}, _)
+      when tool in @drawing_tools do
+    {:set_pending_prefix, :c}
   end
 
   # === 7. Single-key switching within active tool category ===

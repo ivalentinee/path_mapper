@@ -28,6 +28,10 @@
     </div>
   <% end %>
 
+  <%= if indicator = keyboard_indicator_text(@scene, @left_panel) do %>
+    <div class="keyboard-indicator">{indicator}</div>
+  <% end %>
+
   <.live_component
     module={PathMapperWeb.Scene.RightPanelComponent}
     id="right-panel"

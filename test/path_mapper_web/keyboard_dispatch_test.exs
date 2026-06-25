@@ -285,6 +285,28 @@ defmodule PathMapperWeb.KeyboardDispatchTest do
                )
     end
 
+    test "c enters color prefix when drawing tool active" do
+      assert {:set_pending_prefix, :c} =
+               KeyboardDispatch.dispatch(
+                 "c",
+                 assigns(%{scene: %SceneState{active_tool: :fill}})
+               )
+    end
+
+    test "c 1 selects brown color" do
+      assert {:set_draw_color, "#8B4513"} =
+               KeyboardDispatch.dispatch(
+                 "1",
+                 assigns(%{scene: %SceneState{pending_prefix: :c}})
+               )
+    end
+
+    test "c ignored when no drawing tool" do
+      # c at global scope with no tool → dispatch_global → nil (not a panel key)
+      result = KeyboardDispatch.dispatch("c", assigns())
+      assert result == nil
+    end
+
     test "s in layer sub-scope toggles show" do
       assert {:layer_action, 1, :toggle_show} =
                KeyboardDispatch.dispatch(

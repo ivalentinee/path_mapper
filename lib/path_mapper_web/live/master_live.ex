@@ -139,6 +139,11 @@ defmodule PathMapperWeb.MasterLive do
     {:noreply, update_scene(socket, digit_buffer: "")}
   end
 
+  defp apply_keyboard_action({:set_draw_color, color}, socket) do
+    send(self(), %{session_event: {:set_draw_color, color}})
+    {:noreply, clear_keyboard_state(socket)}
+  end
+
   defp apply_keyboard_action({:player_action, :add_all}, socket) do
     Game.run_action([:tokens, :player, :add_all], nil)
     {:noreply, socket}
@@ -172,6 +177,36 @@ defmodule PathMapperWeb.MasterLive do
   defp clear_keyboard_state(socket) do
     update_scene(socket, pending_prefix: nil, digit_buffer: "")
   end
+
+  def keyboard_indicator_text(scene, left_panel) do
+    cond do
+      scene.pending_prefix != nil ->
+        "[#{scene.pending_prefix}]"
+
+      is_list(left_panel.left_panel) and length(left_panel.left_panel) > 0 ->
+        label = scope_name(left_panel.left_panel)
+        buffer = if scene.digit_buffer != "", do: " #{scene.digit_buffer}_", else: ""
+        label <> buffer
+
+      scene.digit_buffer != "" ->
+        scene.digit_buffer <> "_"
+
+      true ->
+        nil
+    end
+  end
+
+  defp scope_name(["left-panel", "scene-selector"]), do: "[Scenes]"
+  defp scope_name(["left-panel", "tokens"]), do: "[Tokens]"
+  defp scope_name(["left-panel", "tokens", "add-token"]), do: "[Tokens > Add]"
+  defp scope_name(["left-panel", "tokens", "add-player-token"]), do: "[Tokens > Players]"
+  defp scope_name(["left-panel", "tokens", "add-extra-token"]), do: "[Tokens > Extras]"
+  defp scope_name(["left-panel", "tokens", "add-adhoc-token"]), do: "[Tokens > Ad-hoc]"
+  defp scope_name(["left-panel", "tokens", idx]) when is_integer(idx), do: "[Token ##{idx}]"
+  defp scope_name(["left-panel", "map-manager"]), do: "[Layers]"
+  defp scope_name(["left-panel", "map-manager", idx]) when is_integer(idx), do: "[Layer ##{idx}]"
+  defp scope_name(["left-panel", "initiative"]), do: "[Initiative]"
+  defp scope_name(_), do: "[...]"
 
   defp handle_arrow_pan(socket, direction) do
     grid_size = socket.assigns.game_state[:scene] && socket.assigns.game_state.scene.map.grid_size
