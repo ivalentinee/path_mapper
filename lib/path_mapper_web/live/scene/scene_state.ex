@@ -4,7 +4,8 @@ defmodule PathMapperWeb.Scene.SceneState do
             grid_override: false,
             zoom: 1.0,
             pan: {0, 0},
-            draw_color: "#8B4513"
+            draw_color: "#8B4513",
+            pending_prefix: nil
 
   @zoom_min 0.5
   @zoom_max 3.0

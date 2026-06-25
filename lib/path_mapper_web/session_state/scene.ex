@@ -27,14 +27,14 @@ defmodule PathMapperWeb.SessionState.Scene do
 
   def run_event({:select_tool, tool}, %{scene: state}) when tool in @tools do
     if state.active_tool == tool do
-      %{state | active_tool: nil}
+      %{state | active_tool: nil, pending_prefix: nil}
     else
-      %{state | active_tool: tool}
+      %{state | active_tool: tool, pending_prefix: nil}
     end
   end
 
   def run_event(:deselect_tool, %{scene: state}) do
-    %{state | active_tool: nil}
+    %{state | active_tool: nil, pending_prefix: nil}
   end
 
   def run_event(:toggle_grid_override, %{scene: state}) do

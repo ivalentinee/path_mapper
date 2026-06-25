@@ -1,8 +1,10 @@
 import { MapTool } from "./map_tool_hook";
+import { KeyboardNav } from "./keyboard_nav_hook";
 
 export let Hooks = {};
 
 Hooks.MapTool = MapTool;
+Hooks.KeyboardNav = KeyboardNav;
 
 Hooks.Draggable = {
   mounted() {

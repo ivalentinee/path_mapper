@@ -79,12 +79,50 @@ defmodule PathMapperWeb.MasterLive do
   def selected_token_index(_), do: nil
 
   @impl true
-  def handle_event("navigate", %{"key" => "Escape"}, socket) do
-    send(self(), %{session_event: %{left_panel_select: []}})
-    {:noreply, socket}
+  def handle_event("keydown", %{"key" => key}, socket) do
+    case PathMapperWeb.KeyboardDispatch.dispatch(key, socket.assigns, :master) do
+      nil ->
+        {:noreply, socket}
+
+      {:set_pending_prefix, prefix} ->
+        scene = %{socket.assigns.scene | pending_prefix: prefix}
+        {:noreply, assign(socket, :scene, scene)}
+
+      {:arrow_pan, direction} ->
+        handle_arrow_pan(clear_prefix(socket), direction)
+
+      event ->
+        send(self(), %{session_event: event})
+        {:noreply, clear_prefix(socket)}
+    end
   end
 
-  def handle_event("navigate", _, socket), do: {:noreply, socket}
+  defp clear_prefix(socket) do
+    if socket.assigns.scene.pending_prefix do
+      scene = %{socket.assigns.scene | pending_prefix: nil}
+      assign(socket, :scene, scene)
+    else
+      socket
+    end
+  end
+
+  defp handle_arrow_pan(socket, direction) do
+    grid_size = socket.assigns.game_state[:scene] && socket.assigns.game_state.scene.map.grid_size
+
+    if grid_size do
+      {dx, dy} =
+        case direction do
+          :up -> {0, grid_size}
+          :down -> {0, -grid_size}
+          :left -> {grid_size, 0}
+          :right -> {-grid_size, 0}
+        end
+
+      send(self(), %{session_event: {:map_pan, {dx, dy}}})
+    end
+
+    {:noreply, socket}
+  end
 
   @impl true
   def handle_event("close_panel", _, socket) do
