@@ -13,6 +13,7 @@ defmodule PathMapperWeb.SessionState.Scene do
     :rect,
     :draw_line,
     :draw_circle,
+    :freeform,
     :text,
     :eraser
   ]
@@ -43,6 +44,9 @@ defmodule PathMapperWeb.SessionState.Scene do
 
   def run_event({:set_draw_color, color}, %{scene: state}),
     do: SceneState.run_event(state, {:set_draw_color, color})
+
+  def run_event({:set_draw_width, width}, %{scene: state}),
+    do: SceneState.run_event(state, {:set_draw_width, width})
 
   def run_event(:zoom_in, %{scene: state}), do: SceneState.run_event(state, :zoom_in)
   def run_event(:zoom_out, %{scene: state}), do: SceneState.run_event(state, :zoom_out)

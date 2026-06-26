@@ -222,7 +222,8 @@ defmodule PathMapper.Game.Restore do
     "rect" => :rect,
     "line" => :line,
     "circle" => :circle,
-    "text" => :text
+    "text" => :text,
+    "path" => :path
   }
 
   defp parse_element_type(type) when is_binary(type), do: @element_types[type]

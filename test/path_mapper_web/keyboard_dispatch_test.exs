@@ -100,10 +100,14 @@ defmodule PathMapperWeb.KeyboardDispatchTest do
                KeyboardDispatch.dispatch("f", assigns(%{scene: %SceneState{pending_prefix: :d}}))
     end
 
-    test "d then invalid key clears prefix" do
-      # Use a truly unrecognized key (not a global key like z)
-      assert {:set_pending_prefix, nil} =
+    test "d then w selects freeform" do
+      assert {:select_tool, :freeform} =
                KeyboardDispatch.dispatch("w", assigns(%{scene: %SceneState{pending_prefix: :d}}))
+    end
+
+    test "d then invalid key clears prefix" do
+      assert {:set_pending_prefix, nil} =
+               KeyboardDispatch.dispatch("j", assigns(%{scene: %SceneState{pending_prefix: :d}}))
     end
   end
 

@@ -13,10 +13,16 @@
   data-tool-interaction={@tool_interaction}
   data-tool-rmb={@tool_rmb}
   data-tool-path-mode={@tool_path_mode}
+  data-draw-width={@draw_width}
 >
   <%= for {sid, tool} <- all_tool_draws(assigns) do %>
     <g id={"tool-#{sid}"}>
-      <.tool_shape tool={tool} map_geometry={@map_geometry} grid_size={@grid_size} />
+      <.tool_shape
+        tool={tool}
+        map_geometry={@map_geometry}
+        grid_size={@grid_size}
+        draw_width={@draw_width}
+      />
     </g>
   <% end %>
 </svg>

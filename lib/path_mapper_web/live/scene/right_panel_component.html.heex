@@ -65,7 +65,23 @@
       <div class="tool-separator"></div>
 
       <%= if assigns[:draw_owner] do %>
-        <%= for {tool, icon} <- [fill: "■", rect: "▬", draw_line: "╱", draw_circle: "○", text: "A", eraser: "✕"] do %>
+        <%= if width_tool?(@scene.active_tool) do %>
+          <div class="width-picker">
+            <input
+              type="range"
+              min="1"
+              max="20"
+              value={@scene.draw_width}
+              phx-change="set_draw_width"
+              phx-target={@myself}
+              title={gettext("Stroke width")}
+              class="width-slider"
+            />
+            <span class="width-value">{@scene.draw_width}</span>
+          </div>
+        <% end %>
+
+        <%= for {tool, icon} <- [fill: "■", rect: "▬", draw_line: "╱", draw_circle: "○", freeform: "~", text: "A", eraser: "✕"] do %>
           <button
             class={"tool-button #{if @scene.active_tool == tool, do: "active"}"}
             phx-click="select_tool"
@@ -245,7 +261,7 @@
         </div>
         <%= if assigns[:draw_owner] do %>
           <div class="cheatsheet-key">
-            <kbd>d</kbd>+<kbd>key</kbd> {gettext("Drawing")} (f r l c t x)
+            <kbd>d</kbd>+<kbd>key</kbd> {gettext("Drawing")} (f r l c t x w)
           </div>
           <div class="cheatsheet-key"><kbd>c</kbd>+<kbd>N</kbd> {gettext("Color")} (1-8)</div>
         <% end %>

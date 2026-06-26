@@ -33,7 +33,7 @@ defmodule PathMapper.Game.Actions.DrawTest do
     end
 
     test "supports all element types" do
-      for type <- [:fill, :rect, :line, :circle, :text] do
+      for type <- [:fill, :rect, :line, :circle, :text, :path] do
         {:ok, _state} = add_element(state_with_scene(), type: type)
       end
     end

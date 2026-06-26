@@ -6,7 +6,8 @@ defmodule PathMapperWeb.Scene.SceneState do
             pan: {0, 0},
             draw_color: "#8B4513",
             pending_prefix: nil,
-            digit_buffer: ""
+            digit_buffer: "",
+            draw_width: 4
 
   @zoom_min 0.5
   @zoom_max 3.0
@@ -39,6 +40,11 @@ defmodule PathMapperWeb.Scene.SceneState do
 
   def run_event(%__MODULE__{} = scene_state, {:set_draw_color, color}) when is_binary(color) do
     %{scene_state | draw_color: color}
+  end
+
+  def run_event(%__MODULE__{} = scene_state, {:set_draw_width, width})
+      when is_integer(width) and width >= 1 and width <= 20 do
+    %{scene_state | draw_width: width}
   end
 
   def run_event(%__MODULE__{} = scene_state, _unknown_event) do

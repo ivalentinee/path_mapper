@@ -3,7 +3,7 @@ defmodule PathMapperWeb.Scene.DrawnMapComponent do
 
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
 
-  @type_order %{fill: 0, rect: 0, line: 1, circle: 1, text: 2}
+  @type_order %{fill: 0, rect: 0, line: 1, circle: 1, path: 1, text: 2}
 
   @impl true
   def render(assigns) do
@@ -55,7 +55,7 @@ defmodule PathMapperWeb.Scene.DrawnMapComponent do
         height={sp((abs(@element.data["y2"] - @element.data["y1"]) + 1) * @grid_size, @geometry)}
         fill="none"
         stroke={@element.color}
-        stroke-width="2"
+        stroke-width={sp(@element.data["width"] || 1, @geometry)}
       />
       """
     end
@@ -67,6 +67,19 @@ defmodule PathMapperWeb.Scene.DrawnMapComponent do
       points={points_string(@element.data["points"], @geometry)}
       stroke={@element.color}
       stroke-width={sp(@element.data["width"] || 2, @geometry)}
+      fill="none"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    """
+  end
+
+  defp drawn_element(%{element: %{type: :path}} = assigns) do
+    ~H"""
+    <polyline
+      points={points_string(@element.data["points"], @geometry)}
+      stroke={@element.color}
+      stroke-width={sp(@element.data["width"] || 4, @geometry)}
       fill="none"
       stroke-linecap="round"
       stroke-linejoin="round"

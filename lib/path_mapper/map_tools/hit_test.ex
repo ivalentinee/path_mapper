@@ -3,7 +3,7 @@ defmodule PathMapper.MapTools.HitTest do
 
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
 
-  @type_order %{text: 2, line: 1, circle: 1, rect: 0, fill: 0}
+  @type_order %{text: 2, line: 1, circle: 1, path: 1, rect: 0, fill: 0}
   @click_threshold_px 10
 
   def find(drawn_elements, click_x_sp, click_y_sp, grid_size) when is_list(drawn_elements) do
@@ -30,8 +30,11 @@ defmodule PathMapper.MapTools.HitTest do
     cx >= x1 and cx < x2 and cy >= y1 and cy < y2
   end
 
-  defp hits?(%{type: :line, data: data}, cx, cy, _grid_size_sp, threshold) do
+  defp hits?(%{type: type, data: data}, cx, cy, _grid_size_sp, threshold)
+       when type in [:line, :path] do
     points = data["points"] || []
+    stroke_width_sp = GeometryMapper.to_subpixels(data["width"] || 2)
+    effective_threshold = threshold + div(stroke_width_sp, 2)
 
     points_sp =
       Enum.map(points, fn [x, y] ->
@@ -41,7 +44,7 @@ defmodule PathMapper.MapTools.HitTest do
     points_sp
     |> Enum.chunk_every(2, 1, :discard)
     |> Enum.any?(fn [{x1, y1}, {x2, y2}] ->
-      point_to_segment_distance(cx, cy, x1, y1, x2, y2) <= threshold
+      point_to_segment_distance(cx, cy, x1, y1, x2, y2) <= effective_threshold
     end)
   end
 

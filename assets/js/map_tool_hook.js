@@ -10,6 +10,7 @@ export const MapTool = {
   mounted() {
     this.drawing = null;
     this.path = null;
+    this.freeform = null;
     this._rafPending = false;
     this._pendingPathCoords = null;
     this.panStart = null;
@@ -28,7 +29,10 @@ export const MapTool = {
 
     this._keyHandler = (e) => {
       if (e.key === "Escape" || e.key === " ") {
-        if (this.path) {
+        if (this.freeform) {
+          this.cancelFreeform();
+          return;
+        } else if (this.path) {
           this.clearPath();
         } else {
           if (this.drawing) this.onPointerUp(e);
@@ -59,6 +63,12 @@ export const MapTool = {
     }
     if (this.panStart && cfg.interaction !== "pan") {
       this.clearPan();
+    }
+    if (this.freeform) {
+      const scaleChanged = parseFloat(this.el.dataset.scale) !== this.freeform.startScale;
+      if (cfg.interaction !== "freeform" || scaleChanged) {
+        this.cancelFreeform();
+      }
     }
   },
 
@@ -135,6 +145,35 @@ export const MapTool = {
       return;
     }
 
+    // Freeform interaction: accumulate points locally
+    if (cfg.interaction === "freeform" && e.button === 0) {
+      this.el.setPointerCapture(e.pointerId);
+      const coords = this.svgCoords(e, null);
+      const geo = this.getGeometry();
+      const width = parseInt(this.el.dataset.drawWidth) || 4;
+      const strokeWidth = width / geo.scale;
+      const color = this.el.dataset.toolColor || "#808080";
+
+      const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+      polyline.setAttribute("stroke", color);
+      polyline.setAttribute("stroke-width", strokeWidth);
+      polyline.setAttribute("stroke-linecap", "round");
+      polyline.setAttribute("stroke-linejoin", "round");
+      polyline.setAttribute("fill", "none");
+      polyline.setAttribute("pointer-events", "none");
+      polyline.setAttribute("points", `${coords.x},${coords.y}`);
+      this.el.appendChild(polyline);
+
+      this.freeform = {
+        points: [coords],
+        previewEl: polyline,
+        width: width,
+        startScale: geo.scale,
+        pointerId: e.pointerId,
+      };
+      return;
+    }
+
     if (e.button !== 0 && e.button !== 2) return;
 
     // RMB blocked for LMB-only tools
@@ -200,6 +239,27 @@ export const MapTool = {
       return;
     }
 
+    // Freeform mode: accumulate points
+    if (this.freeform && e.pointerId === this.freeform.pointerId) {
+      const events = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+      for (const ce of events) {
+        if (this.freeform.points.length >= 2000) break;
+        const coords = this.svgCoords(ce, null);
+        this.freeform.points.push(coords);
+      }
+      if (!this._rafPending) {
+        this._rafPending = true;
+        requestAnimationFrame(() => {
+          this._rafPending = false;
+          if (this.freeform) {
+            const pts = this.freeform.points.map(p => `${p.x},${p.y}`).join(" ");
+            this.freeform.previewEl.setAttribute("points", pts);
+          }
+        });
+      }
+      return;
+    }
+
     // Path mode: update pending endpoint
     if (this.path) {
       const cfg = this.getToolConfig();
@@ -237,6 +297,27 @@ export const MapTool = {
     if (this.panStart && e.pointerId === this.panStart.pointerId) {
       this.panStart = null;
       this.el.classList.remove("panning");
+      return;
+    }
+
+    // Freeform mode: commit or discard
+    if (this.freeform && (e.pointerId === undefined || e.pointerId === this.freeform.pointerId)) {
+      if (e.type === "pointercancel") {
+        this.cancelFreeform();
+        return;
+      }
+      const points = this.freeform.points;
+      const width = this.freeform.width;
+      this.freeform.previewEl.remove();
+      this.freeform = null;
+
+      if (points.length >= 2) {
+        this.pushEventTo(this.el, "draw_commit", {
+          tool: "freeform",
+          points: points.map(p => [p.x, p.y]),
+          width: width,
+        });
+      }
       return;
     }
 
@@ -291,6 +372,15 @@ export const MapTool = {
     this.path = null;
     this._pendingPathCoords = null;
     this.pushEventTo(this.el, "tool_clear", {});
+  },
+
+  // --- Freeform mode ---
+
+  cancelFreeform() {
+    if (this.freeform) {
+      this.freeform.previewEl.remove();
+      this.freeform = null;
+    }
   },
 
   // --- Drag mode ---

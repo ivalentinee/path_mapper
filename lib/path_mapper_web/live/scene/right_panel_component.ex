@@ -84,6 +84,19 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   end
 
   @impl true
+  def handle_event("set_draw_width", %{"value" => value_str}, socket) do
+    case Integer.parse(value_str) do
+      {width, _} when width >= 1 and width <= 20 ->
+        send(self(), %{session_event: {:set_draw_width, width}})
+
+      _ ->
+        :ok
+    end
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("set_draw_color", %{"color" => color}, socket) do
     send(self(), %{session_event: {:set_draw_color, color}})
     {:noreply, socket}
@@ -177,6 +190,7 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   defp tool_label(:rect), do: gettext("Rect")
   defp tool_label(:draw_line), do: gettext("Draw line")
   defp tool_label(:draw_circle), do: gettext("Draw circle")
+  defp tool_label(:freeform), do: gettext("Freeform")
   defp tool_label(:eraser), do: gettext("Eraser")
   defp tool_label(:text), do: gettext("Text")
 
@@ -191,10 +205,11 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
     {"#c4a84a", "Sand"}
   ]
 
-  @drawing_tools [:fill, :rect, :draw_line, :draw_circle, :text, :eraser]
+  @drawing_tools [:fill, :rect, :draw_line, :draw_circle, :freeform, :text, :eraser]
 
   defp draw_colors, do: @draw_colors
   defp drawing_tool?(tool), do: tool in @drawing_tools
+  defp width_tool?(tool), do: tool in [:freeform, :rect, :draw_line, :draw_circle]
 
   defp format_zoom(zoom) do
     :erlang.float_to_binary(zoom + 0.0, decimals: 2)

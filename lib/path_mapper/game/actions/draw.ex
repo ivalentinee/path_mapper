@@ -2,7 +2,7 @@ defmodule PathMapper.Game.Actions.Draw do
   alias PathMapper.Game.State
   alias PathMapper.Game.State.Scene.DrawnElement
 
-  @valid_types [:fill, :rect, :line, :circle, :text]
+  @valid_types [:fill, :rect, :line, :circle, :text, :path]
 
   def action(%State{} = state, [:draw, :add], %{
         type: type,

@@ -8,7 +8,7 @@ defmodule PathMapperWeb.Scene.ToolOverlayComponent do
   alias PathMapper.MapTools.Shapes
   alias PathMapper.MapTools.ToolConfig
 
-  @drawing_tools ~w(fill rect draw_line draw_circle)
+  @drawing_tools ~w(fill rect draw_line draw_circle freeform)
 
   @impl true
   def update(assigns, socket) do
@@ -21,6 +21,7 @@ defmodule PathMapperWeb.Scene.ToolOverlayComponent do
       |> assign(:tool_interaction, tool_cfg && tool_cfg.interaction)
       |> assign(:tool_rmb, tool_cfg && tool_cfg.allowed_buttons)
       |> assign(:tool_path_mode, tool_cfg && tool_cfg.path_mode)
+      |> assign(:draw_width, socket.assigns[:draw_width] || 4)
 
     {:ok, socket}
   end
@@ -116,7 +117,7 @@ defmodule PathMapperWeb.Scene.ToolOverlayComponent do
       type: :line,
       color: socket.assigns[:draw_color] || "#8B4513",
       owner: socket.assigns[:draw_owner] || "GM",
-      data: %{"points" => points, "width" => 2}
+      data: %{"points" => points, "width" => socket.assigns[:draw_width] || 2}
     })
 
     {:noreply, socket}
@@ -138,6 +139,42 @@ defmodule PathMapperWeb.Scene.ToolOverlayComponent do
         "font_size" => 14
       }
     })
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event(
+        "draw_commit",
+        %{"tool" => "freeform", "points" => points, "width" => width},
+        socket
+      )
+      when is_list(points) and is_integer(width) and width >= 1 and width <= 20 do
+    [_ | [_ | _]] = points
+    points = Enum.take(points, 2000)
+    geo = socket.assigns.map_geometry
+
+    converted_points =
+      Enum.map(points, fn
+        [x, y] when is_number(x) and is_number(y) ->
+          [
+            GeometryMapper.from_subpixels(GeometryMapper.scale_back(x, geo)),
+            GeometryMapper.from_subpixels(GeometryMapper.scale_back(y, geo))
+          ]
+
+        _ ->
+          nil
+      end)
+      |> Enum.reject(&is_nil/1)
+
+    if length(converted_points) >= 2 do
+      Game.run_action([:draw, :add], %{
+        type: :path,
+        color: socket.assigns[:draw_color] || "#8B4513",
+        owner: socket.assigns[:draw_owner] || "GM",
+        data: %{"points" => converted_points, "width" => width}
+      })
+    end
 
     {:noreply, socket}
   end
@@ -206,6 +243,7 @@ defmodule PathMapperWeb.Scene.ToolOverlayComponent do
   attr :tool, :map, required: true
   attr :map_geometry, :any, required: true
   attr :grid_size, :integer, required: true
+  attr :draw_width, :integer, default: 4
 
   def tool_shape(%{tool: tool, map_geometry: geo, grid_size: grid_size} = assigns) do
     grid_size_sp = GeometryMapper.to_subpixels(grid_size)
@@ -217,6 +255,7 @@ defmodule PathMapperWeb.Scene.ToolOverlayComponent do
       |> assign(:shape, shape)
       |> assign(:color, color)
       |> assign(:geo, geo)
+      |> assign(:draw_width, assigns[:draw_width] || 4)
 
     render_shape(assigns)
   end
@@ -341,6 +380,7 @@ defmodule PathMapperWeb.Scene.ToolOverlayComponent do
       |> assign(:cx, sp(shape.cx, geo))
       |> assign(:cy, sp(shape.cy, geo))
       |> assign(:r, sp(shape.r, geo))
+      |> assign(:sw, sp(GeometryMapper.to_subpixels(assigns.draw_width), geo))
 
     ~H"""
     <circle
@@ -351,7 +391,7 @@ defmodule PathMapperWeb.Scene.ToolOverlayComponent do
       fill-opacity="0.2"
       stroke={@color}
       stroke-opacity="0.8"
-      stroke-width="2"
+      stroke-width={@sw}
     />
     """
   end
@@ -408,13 +448,16 @@ defmodule PathMapperWeb.Scene.ToolOverlayComponent do
       assigns.shape.points
       |> Enum.map_join(" ", fn {x, y} -> "#{sp(x, geo)},#{sp(y, geo)}" end)
 
-    assigns = assign(assigns, :points, points)
+    assigns =
+      assigns
+      |> assign(:points, points)
+      |> assign(:sw, sp(GeometryMapper.to_subpixels(assigns.draw_width), geo))
 
     ~H"""
     <polyline
       points={@points}
       stroke={@color}
-      stroke-width="2"
+      stroke-width={@sw}
       stroke-dasharray="6,4"
       fill="none"
       stroke-linecap="round"
@@ -489,7 +532,8 @@ defmodule PathMapperWeb.Scene.ToolOverlayComponent do
         "y1" => div(sy, grid_size_sp),
         "x2" => div(cx, grid_size_sp),
         "y2" => div(cy, grid_size_sp),
-        "filled" => filled
+        "filled" => filled,
+        "width" => assigns[:draw_width] || 1
       }
     })
   end
@@ -510,7 +554,8 @@ defmodule PathMapperWeb.Scene.ToolOverlayComponent do
         "cx" => GeometryMapper.from_subpixels(sx),
         "cy" => GeometryMapper.from_subpixels(sy),
         "radius" => GeometryMapper.from_subpixels(round(radius)),
-        "filled" => filled
+        "filled" => filled,
+        "width" => assigns[:draw_width] || 2
       }
     })
   end

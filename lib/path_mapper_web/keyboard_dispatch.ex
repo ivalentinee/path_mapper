@@ -16,7 +16,8 @@ defmodule PathMapperWeb.KeyboardDispatch do
     "l" => :draw_line,
     "c" => :draw_circle,
     "t" => :text,
-    "x" => :eraser
+    "x" => :eraser,
+    "w" => :freeform
   }
 
   @measurement_tools Map.values(@measurement_keys)

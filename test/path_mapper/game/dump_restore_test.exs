@@ -202,6 +202,44 @@ defmodule PathMapper.Game.DumpRestoreTest do
       assert hd(restored.scenes[0].tokens).data.name == "Hero"
     end
 
+    test "drawn elements including :path survive round-trip" do
+      state = build_state()
+      scene = state.scenes[0]
+
+      drawn_elements = [
+        %State.Scene.DrawnElement{
+          id: "1",
+          type: :fill,
+          color: "#ff0000",
+          owner: "GM",
+          data: %{"x" => 1, "y" => 2}
+        },
+        %State.Scene.DrawnElement{
+          id: "2",
+          type: :path,
+          color: "#00ff00",
+          owner: "Alice",
+          data: %{"points" => [[10, 20], [30, 40], [50, 60]], "width" => 8}
+        }
+      ]
+
+      scene = %{scene | drawn_elements: drawn_elements}
+      state = %{state | scenes: %{0 => scene}}
+
+      serialized = Dump.serialize(state, @adventure_file, @group_file)
+      json = Jason.encode!(serialized)
+      {:ok, restored} = Restore.restore(json, build_adventure(), build_group())
+
+      assert length(restored.scenes[0].drawn_elements) == 2
+      [fill_el, path_el] = restored.scenes[0].drawn_elements
+      assert fill_el.type == :fill
+      assert path_el.type == :path
+      assert path_el.color == "#00ff00"
+      assert path_el.owner == "Alice"
+      assert path_el.data["points"] == [[10, 20], [30, 40], [50, 60]]
+      assert path_el.data["width"] == 8
+    end
+
     test "empty state round-trips" do
       state = %State{active_scene: nil, initiative: [], scenes: %{}}
       serialized = Dump.serialize(state, @adventure_file, @group_file)

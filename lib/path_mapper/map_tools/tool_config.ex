@@ -52,6 +52,12 @@ defmodule PathMapper.MapTools.ToolConfig do
       path_mode: "none"
     },
     text: %{snap_mode: nil, interaction: "prompt", allowed_buttons: "lmb", path_mode: "none"},
+    freeform: %{
+      snap_mode: nil,
+      interaction: "freeform",
+      allowed_buttons: "lmb",
+      path_mode: "none"
+    },
     eraser: %{snap_mode: nil, interaction: "drag", allowed_buttons: "lmb", path_mode: "none"}
   }
 

@@ -93,6 +93,64 @@ defmodule PathMapper.MapTools.HitTestTest do
     end
   end
 
+  defp path(points, width \\ 4) do
+    %DrawnElement{
+      id: "path",
+      type: :path,
+      color: "#ff0000",
+      owner: "GM",
+      data: %{"points" => points, "width" => width}
+    }
+  end
+
+  describe "path hit-test" do
+    test "click near path segment hits" do
+      assert %{id: "path"} =
+               HitTest.find([path([[100, 100], [200, 100]])], 1500, 1000, @grid_size)
+    end
+
+    test "click far from path misses" do
+      assert nil == HitTest.find([path([[100, 100], [200, 100]])], 1500, 5000, @grid_size)
+    end
+
+    test "width-aware threshold: thick path is hittable from farther" do
+      # Path at y=100, width=20 → half-width=10 map px = 100 sp
+      # Click threshold is 10 map px = 100 sp
+      # Effective threshold = 100 + 100 = 200 sp = 20 map px
+      # Click at y=118 (18 map px from center) should hit width=20 path
+      assert %{id: "path"} =
+               HitTest.find([path([[100, 100], [200, 100]], 20)], 1500, 1180, @grid_size)
+
+      # But NOT a thin path (width=2, effective threshold = 100 + 10 = 110 sp = 11 map px)
+      assert nil ==
+               HitTest.find([path([[100, 100], [200, 100]], 2)], 1500, 1180, @grid_size)
+    end
+  end
+
+  describe "line width-aware hit-test" do
+    test "thick line is hittable from farther than thin line" do
+      thick = %DrawnElement{
+        id: "thick",
+        type: :line,
+        color: "#ff0000",
+        owner: "GM",
+        data: %{"points" => [[100, 100], [200, 100]], "width" => 20}
+      }
+
+      thin = %DrawnElement{
+        id: "thin",
+        type: :line,
+        color: "#ff0000",
+        owner: "GM",
+        data: %{"points" => [[100, 100], [200, 100]], "width" => 2}
+      }
+
+      # Click at y=118 (18 map px from center)
+      assert %{id: "thick"} = HitTest.find([thick], 1500, 1180, @grid_size)
+      assert nil == HitTest.find([thin], 1500, 1180, @grid_size)
+    end
+  end
+
   describe "layering" do
     test "topmost element (newest) is hit first" do
       elements = [fill(2, 3), fill(2, 3)]
