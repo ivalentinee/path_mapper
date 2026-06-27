@@ -108,6 +108,15 @@
           </div>
         <% end %>
 
+        <button
+          class="tool-button undo-button"
+          phx-click="draw_undo"
+          phx-target={@myself}
+          title={gettext("Undo last drawing")}
+        >
+          ↩
+        </button>
+
         <div class="tool-separator"></div>
       <% end %>
 
@@ -264,6 +273,7 @@
             <kbd>d</kbd>+<kbd>key</kbd> {gettext("Drawing")} (f r l c t x w)
           </div>
           <div class="cheatsheet-key"><kbd>c</kbd>+<kbd>N</kbd> {gettext("Color")} (1-8)</div>
+          <div class="cheatsheet-key"><kbd>u</kbd> {gettext("Undo drawing")}</div>
         <% end %>
       </div>
       <%= unless assigns[:is_player] do %>

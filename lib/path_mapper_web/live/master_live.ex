@@ -179,6 +179,11 @@ defmodule PathMapperWeb.MasterLive do
     {:noreply, update_scene(socket, digit_buffer: "")}
   end
 
+  defp apply_keyboard_action(:draw_undo, socket) do
+    Game.run_action([:draw, :undo], %{owner: "GM"})
+    {:noreply, socket}
+  end
+
   defp apply_keyboard_action(event, socket) do
     send(self(), %{session_event: event})
     {:noreply, clear_keyboard_state(socket)}

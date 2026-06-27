@@ -45,6 +45,27 @@ defmodule PathMapper.Game.Actions.Draw do
     end
   end
 
+  def action(%State{} = state, [:draw, :undo], %{owner: owner}) when is_binary(owner) do
+    scene = State.scene(state)
+    elements = scene.drawn_elements
+
+    target =
+      if owner == "GM" do
+        List.last(elements)
+      else
+        elements |> Enum.reverse() |> Enum.find(&(&1.owner == owner))
+      end
+
+    case target do
+      nil ->
+        {:ok, state}
+
+      %{id: id} ->
+        new_elements = Enum.reject(elements, &(&1.id == id))
+        {:ok, State.put_scene(state, %{scene | drawn_elements: new_elements})}
+    end
+  end
+
   def action(%State{} = state, [:draw, :clear], %{owner: "GM"}) do
     scene = State.scene(state)
     new_scene = %{scene | drawn_elements: []}

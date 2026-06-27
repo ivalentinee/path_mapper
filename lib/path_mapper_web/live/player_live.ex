@@ -139,6 +139,16 @@ defmodule PathMapperWeb.PlayerLive do
   end
 
   @impl true
+  def handle_info(%{session_event: :draw_undo}, socket) do
+    owner =
+      socket.assigns.character.my_player &&
+        socket.assigns.character.my_player.character_name
+
+    if owner, do: Game.run_action([:draw, :undo], %{owner: owner})
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info(%{session_event: event}, socket) do
     {:noreply, SessionState.apply_event(socket, event)}
   end

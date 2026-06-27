@@ -112,6 +112,56 @@ defmodule PathMapper.Game.Actions.DrawTest do
     end
   end
 
+  describe "[:draw, :undo]" do
+    test "GM undoes the last element regardless of owner" do
+      {:ok, state} = add_element(state_with_scene(), owner: "Alice", color: "#111111")
+      {:ok, state} = add_element(state, owner: "Bob", color: "#222222")
+
+      {:ok, state} = Draw.action(state, [:draw, :undo], %{owner: "GM"})
+      elements = State.scene(state).drawn_elements
+      assert length(elements) == 1
+      assert hd(elements).color == "#111111"
+    end
+
+    test "player undoes their own last element" do
+      {:ok, state} = add_element(state_with_scene(), owner: "Alice", color: "#111111")
+      {:ok, state} = add_element(state, owner: "Bob", color: "#222222")
+      {:ok, state} = add_element(state, owner: "Alice", color: "#333333")
+
+      {:ok, state} = Draw.action(state, [:draw, :undo], %{owner: "Alice"})
+      elements = State.scene(state).drawn_elements
+      assert length(elements) == 2
+      colors = Enum.map(elements, & &1.color)
+      assert colors == ["#111111", "#222222"]
+    end
+
+    test "player cannot undo another player's element" do
+      {:ok, state} = add_element(state_with_scene(), owner: "Alice")
+
+      {:ok, state} = Draw.action(state, [:draw, :undo], %{owner: "Bob"})
+      assert length(State.scene(state).drawn_elements) == 1
+    end
+
+    test "undo with no elements is a no-op" do
+      state = state_with_scene()
+      {:ok, result} = Draw.action(state, [:draw, :undo], %{owner: "GM"})
+      assert State.scene(result).drawn_elements == []
+    end
+
+    test "repeated undo removes elements one by one" do
+      {:ok, state} = add_element(state_with_scene(), color: "#111111")
+      {:ok, state} = add_element(state, color: "#222222")
+      {:ok, state} = add_element(state, color: "#333333")
+
+      {:ok, state} = Draw.action(state, [:draw, :undo], %{owner: "GM"})
+      assert length(State.scene(state).drawn_elements) == 2
+      {:ok, state} = Draw.action(state, [:draw, :undo], %{owner: "GM"})
+      assert length(State.scene(state).drawn_elements) == 1
+      {:ok, state} = Draw.action(state, [:draw, :undo], %{owner: "GM"})
+      assert State.scene(state).drawn_elements == []
+    end
+  end
+
   describe "dispatch" do
     test "no active scene returns error" do
       state = %State{active_scene: nil, scenes: %{}}

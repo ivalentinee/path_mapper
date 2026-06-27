@@ -122,6 +122,15 @@ defmodule PathMapperWeb.KeyboardDispatchTest do
                KeyboardDispatch.dispatch("f", assigns(%{scene: %SceneState{active_tool: :rect}}))
     end
 
+    test "u triggers draw_undo when drawing tool active" do
+      assert :draw_undo =
+               KeyboardDispatch.dispatch("u", assigns(%{scene: %SceneState{active_tool: :fill}}))
+    end
+
+    test "u triggers draw_undo globally (no tool active)" do
+      assert :draw_undo = KeyboardDispatch.dispatch("u", assigns())
+    end
+
     test "switching suppressed when panel open" do
       assert nil ==
                KeyboardDispatch.dispatch(

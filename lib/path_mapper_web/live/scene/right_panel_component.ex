@@ -84,6 +84,12 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   end
 
   @impl true
+  def handle_event("draw_undo", _, socket) do
+    Game.run_action([:draw, :undo], %{owner: socket.assigns[:draw_owner] || "GM"})
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("set_draw_width", %{"value" => value_str}, socket) do
     case Integer.parse(value_str) do
       {width, _} when width >= 1 and width <= 20 ->

@@ -240,6 +240,8 @@ defmodule PathMapperWeb.KeyboardDispatch do
     %{left_panel_select: ["left-panel", "initiative"]}
   end
 
+  defp dispatch_global("u", _), do: :draw_undo
+
   defp dispatch_global(_, _), do: nil
 
   # Digit commit: map scope path to action
