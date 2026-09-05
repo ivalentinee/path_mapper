@@ -1,10 +1,10 @@
 # Map Construction
 
-A map is an ORA (OpenRaster) file with specially named layers. Maps are created in GIMP and exported to ORA format.
+A map is an ORA (OpenRaster) file with specially named layers.
 
-## Recommended Tools
+## Recommended Tool
 
-- **GIMP** version 2.10 or later ([download](https://www.gimp.org/downloads/))
+- **GIMP** 3.2 or later ([download](https://www.gimp.org/downloads/)) — best texture painting workflow (pattern stamp), built-in ORA export, layer groups for map objects. Use a pre-saved `.xcf` template with the `[L1]`/`[G]`/`[F]` layer structure.
 
 ## Canvas Dimensions
 
@@ -104,11 +104,27 @@ Map objects are interactive environmental props: doors, tables, barrels, furnitu
 
 ## Creating a Map in GIMP
 
+### Using a Template (.xcf)
+
+Create a `.xcf` file with the full layer structure pre-built, then use File > Open and immediately Save As to a new name for each new map:
+
+```
+[G] Grid [grid-50]
+[F] Fog of War
+[L5] Environment 3
+[L4] Environment 2
+[L3] Environment 1
+[L2] Room
+  [B] Walls
+[L1] Ground
+  [B] Floor
+```
+
 ### Simple Map (Flat Layer)
 
-1. File > New, set dimensions (e.g. 2000x2000)
-2. In the Layers panel, double-click the default layer name and rename it to `[L1] Background`
-3. Paint your map
+1. Open your template `.xcf`, File > Save As to a new name
+2. Or: File > New, set dimensions (e.g. 2000x2000), rename the default layer to `[L1] Background`
+3. Paint your map (use the pattern stamp tool for floor textures)
 4. File > Export As > choose **OpenRaster (.ora)** format
 
 ### Map with Objects (Layer Group)
@@ -126,3 +142,48 @@ Map objects are interactive environmental props: doors, tables, barrels, furnitu
 2. Name it `[G] Grid [grid-50]` (50 = grid cell size in pixels)
 3. Draw your grid on this layer. Path Mapper uses this image as the grid overlay. The layer name carries the grid configuration tags.
 4. To change the grid line width: `[G] Grid [grid-50] [grid-line-2]`
+
+## Uploading Maps to Path Mapper
+
+Maps can be uploaded directly from GIMP to a running Path Mapper instance.
+
+### Server Setup
+
+Set the `UPLOAD_TOKEN` environment variable before starting Path Mapper:
+
+```bash
+UPLOAD_TOKEN=my-secret-token mix phx.server
+```
+
+### GIMP Plugin Installation
+
+1. Create the plugin directory:
+   ```bash
+   mkdir -p ~/.config/GIMP/3.0/plug-ins/gimp-upload-to-pathmapper
+   ```
+
+2. Copy the plugin:
+   ```bash
+   cp scripts/gimp-upload-to-pathmapper.py \
+     ~/.config/GIMP/3.0/plug-ins/gimp-upload-to-pathmapper/gimp-upload-to-pathmapper.py
+   chmod +x ~/.config/GIMP/3.0/plug-ins/gimp-upload-to-pathmapper/gimp-upload-to-pathmapper.py
+   ```
+
+3. Edit the plugin file and set your configuration:
+   ```python
+   SERVER_URL = "http://localhost:4000"
+   UPLOAD_TOKEN = "my-secret-token"  # must match the server's UPLOAD_TOKEN
+   ```
+
+4. Restart GIMP. The plugin appears under **File → Upload to Path Mapper**.
+
+5. (Optional) Bind a keyboard shortcut: **Edit → Keyboard Shortcuts**, search for "Upload to Path Mapper".
+
+### Usage
+
+1. Select a custom scene in Path Mapper
+2. Draw your map in GIMP using the layer naming conventions
+3. **File → Upload to Path Mapper** (or your keyboard shortcut)
+4. The map appears in Path Mapper immediately for all connected clients
+
+Re-uploading updates the map while preserving token positions, drawn elements, and moved map objects.

@@ -63,14 +63,21 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent do
   end
 
   def adventure_layer(adventure, game_state, layer_state) do
-    case adventure && Adventure.get_scene_map(adventure, game_state.scene.index) do
+    adventure_map =
+      (adventure && Adventure.get_scene_map(adventure, game_state.scene.index)) ||
+        scene_data_map(game_state)
+
+    case adventure_map do
       nil -> nil
       map -> map |> Map.get(:layers) |> Enum.find(&(&1.index == layer_state.index))
     end
   end
 
   def objects_for_layer(layer_index, game_state, adventure) do
-    adventure_map = adventure && Adventure.get_scene_map(adventure, game_state.scene.index)
+    adventure_map =
+      (adventure && Adventure.get_scene_map(adventure, game_state.scene.index)) ||
+        scene_data_map(game_state)
+
     adventure_objects = if adventure_map, do: adventure_map.map_objects || [], else: []
 
     game_state.scene.map.map_objects
@@ -80,6 +87,13 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent do
       {adv_obj, obj_state}
     end)
     |> Enum.reject(fn {adv, _} -> is_nil(adv) end)
+  end
+
+  defp scene_data_map(game_state) do
+    case game_state.scene do
+      %{data: %{map: map}} when not is_nil(map) -> map
+      _ -> nil
+    end
   end
 
   def objects_group_open?(index, assigns) do

@@ -217,6 +217,8 @@ defmodule PathMapperWeb.Scene.SceneComponent do
     adventure_map =
       if adventure, do: Adventure.get_scene_map(adventure, game_state.scene.index), else: nil
 
+    adventure_map = adventure_map || scene_data_map(game_state)
+
     adventure_objects = if adventure_map, do: adventure_map.map_objects || [], else: []
 
     state_layers = game_state.scene.map.layers
@@ -235,6 +237,13 @@ defmodule PathMapperWeb.Scene.SceneComponent do
         layer_state.show and obj_state.show
       end
     end)
+  end
+
+  defp scene_data_map(game_state) do
+    case game_state.scene do
+      %{data: %{map: map}} when not is_nil(map) -> map
+      _ -> nil
+    end
   end
 
   defp object_style(obj, obj_state, layer_state, map_geometry, opts) do

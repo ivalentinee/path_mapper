@@ -4,6 +4,9 @@ defmodule PathMapper.Game.DumpRestoreTest do
   alias PathMapper.Adventures.Adventure
   alias PathMapper.Adventures.Adventure.Scene, as: AdventureScene
   alias PathMapper.Adventures.Adventure.Scene.Map, as: AdventureMap
+  alias PathMapper.Adventures.Adventure.Scene.Map.AdditionalLayer
+  alias PathMapper.Adventures.Adventure.Scene.Map.Layer, as: AdventureLayer
+  alias PathMapper.Adventures.Adventure.Scene.Map.MapObject, as: AdventureMapObject
   alias PathMapper.Adventures.Adventure.Scene.Token, as: AdventureToken
   alias PathMapper.Game.Dump
   alias PathMapper.Game.Restore
@@ -249,6 +252,163 @@ defmodule PathMapper.Game.DumpRestoreTest do
       assert restored.active_scene == nil
       assert restored.initiative == []
       assert restored.scenes == %{}
+    end
+
+    test "custom scene with uploaded map round-trips" do
+      custom_map = %AdventureMap{
+        width: 1000,
+        height: 800,
+        grid_size: 50,
+        grid_line_width: 2,
+        show_grid: true,
+        floors: [0, 1],
+        layers: [
+          %AdventureLayer{
+            name: "Ground",
+            image: "/custom/123.png",
+            images: [%{image: "/custom/456.png", x: 0, y: 0, width: 1000, height: 800}],
+            index: 1,
+            x: 0,
+            y: 0,
+            width: 1000,
+            height: 800,
+            tags: ["floor-0"],
+            show: true,
+            light: "bright",
+            floor: 0
+          }
+        ],
+        map_objects: [
+          %AdventureMapObject{
+            name: "Door",
+            image: "/custom/789.png",
+            x: 100,
+            y: 200,
+            width: 50,
+            height: 50,
+            layer_index: 1,
+            tags: [],
+            show: true
+          }
+        ],
+        grid: %AdditionalLayer{
+          name: "Grid",
+          image: "/custom/grid.png",
+          x: 0,
+          y: 0,
+          width: 1000,
+          height: 800,
+          tags: ["grid-50"]
+        },
+        fow: nil
+      }
+
+      custom_adventure_scene = %AdventureScene{
+        name: "Custom Map",
+        type: "battle",
+        map: custom_map,
+        tokens: [],
+        place_tokens: []
+      }
+
+      state = %State{
+        active_scene: 1,
+        scenes: %{
+          0 => build_state().scenes[0],
+          1 => %State.Scene{
+            index: 1,
+            custom: true,
+            name: "Custom Map",
+            data: custom_adventure_scene,
+            map: %State.Scene.Map{
+              width: 1000,
+              height: 800,
+              grid_size: 50,
+              grid_line_width: 2,
+              show_grid: true,
+              layers: [
+                %State.Scene.Map.Layer{index: 1, show: true, light: "bright", highlight: false}
+              ],
+              map_objects: [
+                %State.Scene.Map.MapObject{
+                  index: 0,
+                  layer_index: 1,
+                  x: 1000,
+                  y: 2000,
+                  locked: true,
+                  show: true
+                }
+              ]
+            },
+            tokens: [],
+            drawn_elements: []
+          }
+        }
+      }
+
+      serialized = Dump.serialize(state, @adventure_file, @group_file)
+      json = Jason.encode!(serialized)
+      {:ok, restored} = Restore.restore(json, build_adventure(), build_group())
+
+      custom = restored.scenes[1]
+      assert custom.custom == true
+      assert custom.name == "Custom Map"
+      assert custom.data != nil
+      assert custom.data.map.width == 1000
+      assert custom.data.map.height == 800
+      assert custom.data.map.grid_size == 50
+      assert custom.data.map.grid_line_width == 2
+      assert custom.data.map.show_grid == true
+      assert custom.data.map.floors == [0, 1]
+
+      assert length(custom.data.map.layers) == 1
+      layer = hd(custom.data.map.layers)
+      assert layer.name == "Ground"
+      assert layer.image == "/custom/123.png"
+      assert length(layer.images) == 1
+      assert layer.index == 1
+      assert layer.tags == ["floor-0"]
+
+      assert length(custom.data.map.map_objects) == 1
+      obj = hd(custom.data.map.map_objects)
+      assert obj.name == "Door"
+      assert obj.image == "/custom/789.png"
+      assert obj.x == 100
+
+      assert custom.data.map.grid != nil
+      assert custom.data.map.grid.image == "/custom/grid.png"
+      assert custom.data.map.fow == nil
+
+      # State map preserved
+      assert custom.map.grid_size == 50
+      assert length(custom.map.layers) == 1
+      assert hd(custom.map.layers).index == 1
+    end
+
+    test "custom scene without uploaded data round-trips (backward compat)" do
+      state = %State{
+        active_scene: 0,
+        scenes: %{
+          0 => %State.Scene{
+            index: 0,
+            custom: true,
+            name: "Blank Custom",
+            data: nil,
+            map: State.Scene.Map.blank(),
+            tokens: [],
+            drawn_elements: []
+          }
+        }
+      }
+
+      serialized = Dump.serialize(state, @adventure_file, @group_file)
+      json = Jason.encode!(serialized)
+      {:ok, restored} = Restore.restore(json, build_adventure(), build_group())
+
+      custom = restored.scenes[0]
+      assert custom.custom == true
+      assert custom.name == "Blank Custom"
+      assert custom.data == nil
     end
   end
 end

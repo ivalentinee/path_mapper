@@ -2,6 +2,11 @@ defmodule PathMapper.Game.Restore do
   @moduledoc false
 
   alias PathMapper.Adventures.Adventure
+  alias PathMapper.Adventures.Adventure.Scene, as: AdventureScene
+  alias PathMapper.Adventures.Adventure.Scene.Map, as: AdventureMap
+  alias PathMapper.Adventures.Adventure.Scene.Map.AdditionalLayer
+  alias PathMapper.Adventures.Adventure.Scene.Map.Layer, as: AdventureLayer
+  alias PathMapper.Adventures.Adventure.Scene.Map.MapObject, as: AdventureMapObject
   alias PathMapper.Game.State
 
   def restore(json_string, %Adventure{} = adventure, group) do
@@ -20,7 +25,7 @@ defmodule PathMapper.Game.Restore do
     end
   end
 
-  defp validate_version(%{"version" => 1}), do: :ok
+  defp validate_version(%{"version" => v}) when v in [1, 2], do: :ok
   defp validate_version(%{"version" => v}), do: {:error, "Unsupported version: #{v}"}
   defp validate_version(_), do: {:error, "Invalid format: missing version"}
 
@@ -84,14 +89,99 @@ defmodule PathMapper.Game.Restore do
   end
 
   defp build_custom_scene(scene_data, index, adventure) do
+    custom_map_data = scene_data["custom_map"]
+
+    adventure_scene_data =
+      if custom_map_data do
+        map = restore_custom_map(custom_map_data)
+
+        %AdventureScene{
+          name: scene_data["name"],
+          type: "battle",
+          map: map,
+          tokens: [],
+          place_tokens: []
+        }
+      end
+
     %State.Scene{
       index: index,
       custom: true,
       name: scene_data["name"],
-      data: nil,
+      data: adventure_scene_data,
       map: build_map(scene_data["map"] || %{}),
       tokens: build_tokens(scene_data["tokens"] || [], nil, adventure),
       drawn_elements: build_drawn_elements(scene_data["drawn_elements"] || [])
+    }
+  end
+
+  defp restore_custom_map(data) do
+    %AdventureMap{
+      width: data["width"],
+      height: data["height"],
+      grid_size: data["grid_size"],
+      grid_line_width: data["grid_line_width"],
+      show_grid: data["show_grid"],
+      floors: data["floors"] || [],
+      layers: Enum.map(data["layers"] || [], &restore_custom_layer/1),
+      map_objects: Enum.map(data["map_objects"] || [], &restore_custom_map_object/1),
+      grid: restore_custom_additional_layer(data["grid"]),
+      fow: restore_custom_additional_layer(data["fow"])
+    }
+  end
+
+  defp restore_custom_layer(data) do
+    %AdventureLayer{
+      name: data["name"],
+      image: data["image"],
+      images: Enum.map(data["images"] || [], &restore_sub_image/1),
+      index: data["index"],
+      x: data["x"],
+      y: data["y"],
+      width: data["width"],
+      height: data["height"],
+      tags: data["tags"] || [],
+      show: data["show"],
+      light: data["light"],
+      floor: data["floor"]
+    }
+  end
+
+  defp restore_sub_image(data) do
+    %{
+      image: data["image"],
+      x: data["x"],
+      y: data["y"],
+      width: data["width"],
+      height: data["height"]
+    }
+  end
+
+  defp restore_custom_map_object(data) do
+    %AdventureMapObject{
+      name: data["name"],
+      image: data["image"],
+      x: data["x"],
+      y: data["y"],
+      width: data["width"],
+      height: data["height"],
+      layer_index: data["layer_index"],
+      tags: data["tags"] || [],
+      show: data["show"]
+    }
+  end
+
+  defp restore_custom_additional_layer(nil), do: nil
+
+  defp restore_custom_additional_layer(data) do
+    %AdditionalLayer{
+      name: data["name"],
+      image: data["image"],
+      x: data["x"],
+      y: data["y"],
+      width: data["width"],
+      height: data["height"],
+      tags: data["tags"] || []
     }
   end
 

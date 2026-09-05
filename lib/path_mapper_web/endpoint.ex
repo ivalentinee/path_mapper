@@ -31,7 +31,7 @@ defmodule PathMapperWeb.Endpoint do
     at: "/",
     from: {:path_mapper, "priv/unpacked"},
     gzip: false,
-    only: ~w(adventure group global)
+    only: ~w(adventure group global custom)
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
@@ -47,7 +47,8 @@ defmodule PathMapperWeb.Endpoint do
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
-    json_decoder: Phoenix.json_library()
+    json_decoder: Phoenix.json_library(),
+    length: 50_000_000
 
   plug Plug.MethodOverride
   plug Plug.Head
