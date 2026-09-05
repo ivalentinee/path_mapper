@@ -1,0 +1,25 @@
+AllCops:
+  TargetRubyVersion: 3.3
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    - 'vendor/**/*'
+
+Style/Documentation:
+  Enabled: false
+
+Metrics/MethodLength:
+  Max: 30
+
+Metrics/AbcSize:
+  Max: 40
+
+Metrics/ClassLength:
+  Max: 200
+
+Layout/LineLength:
+  Max: 120
+
+Naming/PredicateMethod:
+  AllowedMethods:
+    - on_tree_click
