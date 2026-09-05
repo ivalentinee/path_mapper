@@ -26,6 +26,10 @@ config :path_mapper,
        :charkeeper_poll_interval,
        String.to_integer(System.get_env("CHARKEEPER_POLL_INTERVAL") || "10000")
 
+config :path_mapper,
+       :upload_token,
+       System.get_env("UPLOAD_TOKEN")
+
 if cacertfile = System.get_env("CACERTFILE") do
   config :path_mapper, :cacertfile, cacertfile
 end

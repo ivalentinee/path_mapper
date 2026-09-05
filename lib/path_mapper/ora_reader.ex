@@ -2,14 +2,15 @@ defmodule PathMapper.ORAReader do
   alias __MODULE__.Geometry
   alias __MODULE__.Layers
 
-  @tmp_file_path "/tmp/tmp.xml"
-
   def read_from_file(file) when is_binary(file) do
+    tmp_file_path =
+      Path.join(System.tmp_dir!(), "ora_stack_#{:erlang.unique_integer([:positive])}.xml")
+
     with {:ok, ora_files} <- :zip.unzip(file, [:memory]),
          {:ok, stack_file} <- find_ora_file(ora_files, "stack.xml"),
-         :ok <- File.write(@tmp_file_path, stack_file),
-         {document, _rest} <- :xmerl_scan.file(~c"/tmp/tmp.xml"),
-         :ok <- File.rm(@tmp_file_path),
+         :ok <- File.write(tmp_file_path, stack_file),
+         {document, _rest} <- :xmerl_scan.file(String.to_charlist(tmp_file_path)),
+         :ok <- File.rm(tmp_file_path),
          {:ok, {width, height}} <- Geometry.get_dimensions(document),
          {:ok, all_items} <- Layers.get_all_layers(document, ora_files) do
       layers = Layers.find_layers(all_items)

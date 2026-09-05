@@ -24,13 +24,17 @@ defmodule PathMapperWeb.Scene.MapComponent do
 
   def additional_map_layer(adventure, game_state, name, _override) when is_atom(name) do
     case adventure && Adventure.get_scene_map(adventure, game_state.scene.index) do
-      nil -> nil
+      nil -> scene_data_map_field(game_state, name)
       map -> Map.get(map, name)
     end
   end
 
   def map_adventure_layers_to_state(adventure, game_state) do
-    case adventure && Adventure.get_scene_map(adventure, game_state.scene.index) do
+    adventure_map =
+      (adventure && Adventure.get_scene_map(adventure, game_state.scene.index)) ||
+        scene_data_map(game_state)
+
+    case adventure_map do
       nil ->
         []
 
@@ -44,6 +48,20 @@ defmodule PathMapperWeb.Scene.MapComponent do
           {layer, state}
         end)
         |> Enum.reject(fn {_, state} -> is_nil(state) end)
+    end
+  end
+
+  defp scene_data_map(game_state) do
+    case game_state.scene do
+      %{data: %{map: map}} when not is_nil(map) -> map
+      _ -> nil
+    end
+  end
+
+  defp scene_data_map_field(game_state, field) do
+    case scene_data_map(game_state) do
+      nil -> nil
+      map -> Map.get(map, field)
     end
   end
 

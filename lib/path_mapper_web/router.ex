@@ -21,4 +21,10 @@ defmodule PathMapperWeb.Router do
     live "/", PlayerLive
     live "/master", MasterLive
   end
+
+  scope "/api", PathMapperWeb do
+    pipe_through [:api, PathMapperWeb.Plugs.TokenAuth]
+
+    post "/scenes/map", MapUploadController, :upload
+  end
 end

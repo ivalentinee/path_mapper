@@ -42,7 +42,7 @@
       <% end %>
     </div>
 
-    <%= if @game_state.scene.custom and @game_state.scene.map.show_grid do %>
+    <%= if @game_state.scene.custom and is_nil(@game_state.scene.data) and @game_state.scene.map.show_grid do %>
       <GridComponent.svg_grid
         width={@game_state.scene.map.width}
         height={@game_state.scene.map.height}
