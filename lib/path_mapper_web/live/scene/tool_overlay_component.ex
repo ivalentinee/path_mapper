@@ -183,12 +183,6 @@ defmodule PathMapperWeb.Scene.ToolOverlayComponent do
   def handle_event("draw_commit", _, socket), do: {:noreply, socket}
 
   @impl true
-  def handle_event("map_zoom", %{"delta" => delta}, socket) do
-    send(self(), %{session_event: {:map_zoom, delta}})
-    {:noreply, socket}
-  end
-
-  @impl true
   def handle_event("map_pan", %{"dx" => dx, "dy" => dy}, socket) do
     send(self(), %{session_event: {:map_pan, {dx, dy}}})
     {:noreply, socket}

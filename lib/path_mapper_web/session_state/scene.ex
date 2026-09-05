@@ -52,8 +52,8 @@ defmodule PathMapperWeb.SessionState.Scene do
   def run_event(:zoom_out, %{scene: state}), do: SceneState.run_event(state, :zoom_out)
   def run_event(:zoom_reset, %{scene: state}), do: SceneState.run_event(state, :zoom_reset)
 
-  def run_event({:map_zoom, delta}, %{scene: state}),
-    do: SceneState.run_event(state, {:map_zoom, delta})
+  def run_event({:map_zoom, delta, anchor}, %{scene: state}),
+    do: SceneState.run_event(state, {:map_zoom, delta, anchor})
 
   def run_event({:map_pan, delta}, %{scene: state}),
     do: SceneState.run_event(state, {:map_pan, delta})

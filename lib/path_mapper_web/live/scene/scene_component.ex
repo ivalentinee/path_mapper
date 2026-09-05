@@ -42,6 +42,51 @@ defmodule PathMapperWeb.Scene.SceneComponent do
     {:noreply, socket}
   end
 
+  # Ambient navigation (Hooks.Geometry on #scene). Available under every
+  # tool for zoom, and outside any tool for pan.
+  #
+  # The hook fires immediately on mount, so a wheel event can arrive before
+  # the viewport round-trip has reported a size to anchor against.
+  @impl true
+  def handle_event("map_zoom", _params, %{assigns: assigns} = socket)
+      when not is_map_key(assigns, :viewport_geometry) do
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("map_zoom", params, socket) do
+    %{
+      "delta_y" => delta_y,
+      "delta_mode" => delta_mode,
+      "ctrl_key" => ctrl_key,
+      "cx" => cx,
+      "cy" => cy
+    } = params
+
+    viewport = socket.assigns.viewport_geometry
+
+    # Recomputed rather than read off map_geometry: these are the zoom- and
+    # pan-independent inputs, so they stay valid even for wheel events queued
+    # behind a zoom that has not been applied yet. SceneState derives the
+    # current origin from its own authoritative zoom/pan.
+    base =
+      socket.assigns
+      |> get_map()
+      |> GeometryObject.build()
+      |> GeometryMapper.fit_to_viewport(viewport)
+
+    anchor = {cx, cy, base.width, base.height, viewport.width, viewport.height}
+    exponent = SceneState.wheel_exponent(delta_y, delta_mode, ctrl_key)
+    send(self(), %{session_event: {:map_zoom, exponent, anchor}})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("map_pan", %{"dx" => dx, "dy" => dy}, socket) do
+    send(self(), %{session_event: {:map_pan, {dx, dy}}})
+    {:noreply, socket}
+  end
+
   @impl true
   def handle_event("object_drag", %{"index" => index, "screen_x" => sx, "screen_y" => sy}, socket) do
     geo = socket.assigns.map_geometry
@@ -185,15 +230,8 @@ defmodule PathMapperWeb.Scene.SceneComponent do
   end
 
   defp apply_axis(geo, pos_key, size_key, pan, viewport_size) do
-    map_size = Map.get(geo, size_key)
-
-    if map_size <= viewport_size do
-      Map.put(geo, pos_key, floor((viewport_size - map_size) / 2))
-    else
-      min_pan = viewport_size - map_size
-      clamped = pan |> max(min_pan) |> min(0)
-      Map.put(geo, pos_key, round(clamped))
-    end
+    origin = SceneState.rendered_origin(pan, Map.get(geo, size_key), viewport_size)
+    Map.put(geo, pos_key, round(origin))
   end
 
   defp visible_tokens(game_state, opts) do

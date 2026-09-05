@@ -20,12 +20,8 @@ export const MapTool = {
     this.el.addEventListener("pointerup", (e) => this.onPointerUp(e));
     this.el.addEventListener("pointercancel", (e) => this.onPointerUp(e));
     this.el.addEventListener("contextmenu", (e) => e.preventDefault());
-    this.el.addEventListener("wheel", (e) => {
-      if (this.getToolConfig().interaction !== "pan") return;
-      e.preventDefault();
-      const delta = -Math.sign(e.deltaY);
-      this.pushEventTo(this.el, "map_zoom", { delta: delta });
-    }, { passive: false });
+    // Wheel zoom is handled by Hooks.Geometry on #scene, which these
+    // events bubble up to — ambient under every tool, not just the map tool.
 
     this._keyHandler = (e) => {
       if (e.key === "Escape" || e.key === " ") {

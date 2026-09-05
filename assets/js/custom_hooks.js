@@ -181,6 +181,12 @@ Hooks.LayerHover = {
   }
 };
 
+// Scene-level viewport hook: reports the viewport size and owns ambient
+// map navigation (wheel zoom, drag-to-pan).
+//
+// It lives on #scene because that is the only element receiving events in
+// every mode — .tools-overlay is pointer-events: none unless a tool is
+// active, and everything else in the scene bubbles up to here.
 Hooks.Geometry = {
   mounted() {
     const element = this.el;
@@ -195,6 +201,133 @@ Hooks.Geometry = {
     window.addEventListener("resize", () => {
       sendGeometry();
     });
+
+    // Zoom: ambient under every tool. Nothing else binds the wheel.
+    //
+    // Raw deltaY/deltaMode/ctrlKey are forwarded as-is; Elixir turns them
+    // into a zoom exponent. A trackpad emits wheel events far faster than
+    // the round-trip, so they are summed and flushed once per frame — the
+    // same rAF batching map_tool_hook.js uses for freeform strokes. This
+    // batches, it does not decide.
+    this.wheelPending = null;
+
+    this.flushWheel = () => {
+      this.wheelFrame = null;
+      const w = this.wheelPending;
+      this.wheelPending = null;
+      if (!w || !w.deltaY) return;
+      this.pushEventTo(this.el, "map_zoom", {
+        delta_y: w.deltaY,
+        delta_mode: w.deltaMode,
+        ctrl_key: w.ctrlKey,
+        cx: w.cx,
+        cy: w.cy
+      });
+    };
+
+    this.el.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      // Horizontal and shift-scroll carry no deltaY and would round-trip a
+      // no-op zoom that still re-derives pan.
+      if (!e.deltaY) return;
+
+      // Never sum across gesture kinds: a pinch (ctrlKey) and a plain wheel
+      // scale differently, and deltaMode changes the unit entirely.
+      const w = this.wheelPending;
+      if (w && (w.deltaMode !== e.deltaMode || w.ctrlKey !== e.ctrlKey)) {
+        this.flushWheel();
+      }
+
+      if (this.wheelPending) {
+        this.wheelPending.deltaY += e.deltaY;
+        this.wheelPending.cx = e.clientX;
+        this.wheelPending.cy = e.clientY;
+      } else {
+        this.wheelPending = {
+          deltaY: e.deltaY,
+          deltaMode: e.deltaMode,
+          ctrlKey: e.ctrlKey,
+          cx: e.clientX,
+          cy: e.clientY
+        };
+      }
+
+      if (!this.wheelFrame) {
+        this.wheelFrame = requestAnimationFrame(this.flushWheel);
+      }
+    }, { passive: false });
+
+    // Pan: only outside any tool, and only on map background. Drawing and
+    // panning are mutually exclusive.
+    this.pan = null;
+
+    this.el.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0) return;
+      if (this.pan) return; // a pan is already in flight; ignore extra pointers
+      if (!this.canPanFrom(e.target)) return;
+
+      // Without this the browser starts a native text/element selection and
+      // runs selection hit-testing on every move, which makes the drag feel
+      // laggy. The map tool avoids it because .tools-overlay.active sets
+      // user-select: none; #scene has no such rule. Hooks.PointerDrag does
+      // the same thing for map objects.
+      e.preventDefault();
+
+      this.el.setPointerCapture(e.pointerId);
+      this.pan = { x: e.clientX, y: e.clientY, pointerId: e.pointerId };
+      document.body.classList.add("panning-map");
+    });
+
+    this.el.addEventListener("pointermove", (e) => {
+      if (!this.pan || e.pointerId !== this.pan.pointerId) return;
+
+      // The button can be released outside the window without pointerup or
+      // pointercancel reaching us; without this the map would follow the
+      // cursor with no button held.
+      if (e.buttons === 0) return endPan(e);
+
+      const dx = e.clientX - this.pan.x;
+      const dy = e.clientY - this.pan.y;
+      this.pan.x = e.clientX;
+      this.pan.y = e.clientY;
+      this.pushEventTo(this.el, "map_pan", { dx: dx, dy: dy });
+    });
+
+    const endPan = (e) => {
+      if (!this.pan || e.pointerId !== this.pan.pointerId) return;
+      this.el.releasePointerCapture(e.pointerId);
+      this.pan = null;
+      document.body.classList.remove("panning-map");
+    };
+
+    this.el.addEventListener("pointerup", endPan);
+    this.el.addEventListener("pointercancel", endPan);
+  },
+
+  destroyed() {
+    // The class lives on <body>, which outlives this hook — unmounting
+    // mid-drag would otherwise leave the grabbing cursor on permanently.
+    this.pan = null;
+    document.body.classList.remove("panning-map");
+    if (this.wheelFrame) cancelAnimationFrame(this.wheelFrame);
+  },
+
+  // A gesture belongs to the map background unless it starts on something
+  // that owns it. A locked map object owns nothing — PointerDrag already
+  // refuses to drag it — so it falls through to panning rather than
+  // becoming a dead zone.
+  canPanFrom(target) {
+    // An active tool owns every gesture, so this is a mode check, not a
+    // hit test: .tools-overlay is sized to the map rect, not to #scene, so
+    // hit-testing it would miss the letterbox area around a map smaller
+    // than the viewport and pan there while a tool was active.
+    const overlay = this.el.querySelector(".tools-overlay");
+    if (overlay && overlay.classList.contains("active")) return false;
+
+    const hit = target.closest(".token, .map-object, .token-context-menu");
+    if (!hit) return true;
+
+    return hit.classList.contains("map-object") && hit.dataset.locked === "true";
   }
 };
 

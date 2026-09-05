@@ -8,3 +8,21 @@
   margin: 0;
   padding: 0;
 }
+
+/* Only while actually panning. A resting `grab` cursor would be a false
+   affordance here: unlike the map tool's single overlay surface, the scene
+   also covers tokens and objects that own their own gestures.
+
+   The class goes on <body>, not on #scene: every pan frame round-trips
+   through the server, and LiveView's DOM patch resets #scene's class
+   attribute to the server-rendered value, dropping the cursor mid-drag.
+   <body> is outside the LiveView root and survives patching. */
+body.panning-map,
+body.panning-map * {
+  cursor: grabbing;
+  /* Suppress selection for the duration of the drag, the way
+     .tools-overlay.active does for the map tool. Without it the browser
+     runs selection hit-testing on every pointermove and the pan stutters. */
+  user-select: none;
+  -webkit-user-select: none;
+}
