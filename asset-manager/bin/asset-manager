@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../lib/asset_manager/app'
+
+asset_root = ARGV[0]
+
+unless asset_root && Dir.exist?(asset_root)
+  puts 'Usage: asset-manager <path-to-asset-directory>'
+  puts 'Example: asset-manager /home/user/maps'
+  exit 1
+end
+
+AssetManager::App.new(asset_root).run

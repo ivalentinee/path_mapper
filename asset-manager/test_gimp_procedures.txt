@@ -1,0 +1,52 @@
+Paste these one at a time into GIMP's Script-Fu Console
+(Filters → Script-Fu → Console) to verify each procedure exists.
+Replace the path with a real asset PNG on your system.
+
+=== Step 1: Load image ===
+(car (file-png-load RUN-NONINTERACTIVE "/path/to/asset.png" "/path/to/asset.png"))
+Expected: returns an image ID (number)
+
+=== Step 2: Get width/height ===
+(car (gimp-image-get-width (car (gimp-image-list))))
+Expected: returns a number (image width in pixels)
+
+(car (gimp-image-get-height (car (gimp-image-list))))
+Expected: returns a number
+
+=== Step 3: Scale image ===
+(gimp-image-scale (car (gimp-image-list)) 100 100)
+Expected: no error
+
+=== Step 4: Get selected drawables ===
+(gimp-image-get-selected-drawables (car (gimp-image-list)))
+Expected: returns a vector or list of drawables
+
+=== Step 5: Select all ===
+(gimp-selection-all (car (gimp-image-list)))
+Expected: no error
+
+=== Step 6: Edit copy ===
+(let* ((drawables (gimp-image-get-selected-drawables (car (gimp-image-list)))) (drawable (car drawables))) (gimp-edit-copy 1 (vector drawable)))
+Expected: no error (copies to clipboard)
+
+=== Step 7: Delete image ===
+(gimp-image-delete (car (gimp-image-list)))
+Expected: no error
+
+=== Step 8: Set pattern ===
+(gimp-context-set-pattern "Clipboard Image")
+Expected: no error, "Clipboard Image" pattern is now active
+
+=== Step 9: Full pipeline (replace path) ===
+(let* ((img (car (file-png-load RUN-NONINTERACTIVE "/path/to/asset.png" "/path/to/asset.png"))) (w (car (gimp-image-get-width img))) (h (car (gimp-image-get-height img)))) (gimp-image-scale img (round (* w 0.5)) (round (* h 0.5))) (let* ((drawables (gimp-image-get-selected-drawables img)) (drawable (car drawables))) (gimp-selection-all img) (gimp-edit-copy 1 (vector drawable)) (gimp-image-delete img) (gimp-context-set-pattern "Clipboard Image")))
+Expected: no error, Clipboard Image pattern updated in Patterns dialog
+
+=== For Layer mode ===
+(gimp-image-list)
+Expected: returns list of open images
+
+(gimp-displays-flush)
+Expected: no error
+
+(gimp-file-load-layer RUN-NONINTERACTIVE (car (gimp-image-list)) "/path/to/asset.png")
+Expected: returns a layer ID
