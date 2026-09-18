@@ -5,7 +5,7 @@ defmodule PathMapper.CustomMapBuilder do
   alias PathMapper.Adventures.Adventure.Scene.Map.AdditionalLayer
   alias PathMapper.Adventures.Adventure.Scene.Map.Layer
   alias PathMapper.Adventures.Adventure.Scene.Map.MapObject
-  alias PathMapper.CustomFileStorage
+  alias PathMapper.UploadStorage
 
   @default_grid_size 50
   @grid_tag_regex ~r/grid-([0-9]+)/
@@ -149,7 +149,7 @@ defmodule PathMapper.CustomMapBuilder do
   defp store_image_if_present(nil), do: {:ok, nil}
 
   defp store_image_if_present(image) when is_binary(image) do
-    CustomFileStorage.store_image(image)
+    UploadStorage.store_image(image)
   end
 
   defp collect_all_tags(layers, grid, fow) do

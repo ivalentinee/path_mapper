@@ -1,6 +1,13 @@
 defmodule PathMapper.Game.PaletteTest do
   use ExUnit.Case
 
+  import PathMapperWeb.TestHelpers
+
+  setup do
+    PathMapper.Game.clear()
+    :ok
+  end
+
   alias PathMapper.Game.Palette
 
   describe "build/1" do
@@ -12,11 +19,11 @@ defmodule PathMapper.Game.PaletteTest do
     end
 
     test "merges player colors from group" do
-      {:ok, group} = PathMapper.Groups.load_group("group-1.zip")
+      {:ok, group} = load_group("tg0001-0000000001-group-1.zip")
       palette = Palette.build(group)
 
       player = Enum.at(group.players, 0)
-      assert palette[player.character_name] == player.color
+      assert palette[player.id] == player.color
       assert palette["enemy"] == "#db0909"
     end
   end
@@ -42,11 +49,11 @@ defmodule PathMapper.Game.PaletteTest do
     end
 
     test "returns player color when group is loaded" do
-      {:ok, group} = PathMapper.Groups.load_group("group-1.zip")
+      {:ok, group} = load_group("tg0001-0000000001-group-1.zip")
       Palette.build(group) |> Palette.store()
 
       player = Enum.at(group.players, 0)
-      assert Palette.resolve(player.character_name) == player.color
+      assert Palette.resolve(player.id) == player.color
     end
   end
 end

@@ -1,0 +1,11 @@
+error:
+  title: Error
+  description: What the server says when it will not do the thing.
+  type: object
+  additionalProperties: false
+  required: ['error']
+  properties:
+    error:
+      title: Reason
+      type: string
+      minLength: 1

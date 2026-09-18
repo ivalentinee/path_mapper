@@ -1,0 +1,27 @@
+delete:
+  summary: Remove an entity
+  description: >-
+    Takes one thing out of the session. Removing is a command like adding, because
+    a session that can only grow is not one a client can correct.
+
+    Removing an id the store does not hold is not an error: the outcome asked for
+    is the outcome that follows.
+  tags: ['Session']
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: The entity's id.
+      schema:
+        type: string
+  responses:
+    '200':
+      description: The store no longer holds it
+      content:
+        'application/json':
+          schema: { $ref: '../schemas/common/ok.yaml#/acknowledgement' }
+    '401':
+      description: The upload token was missing or wrong
+      content:
+        'application/json':
+          schema: { $ref: '../schemas/common/error.yaml#/error' }

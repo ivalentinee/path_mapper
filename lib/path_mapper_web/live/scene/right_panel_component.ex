@@ -162,7 +162,7 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   defp charkeeper_status_title(_), do: nil
 
   defp charkeeper_for(charkeeper_data, player) do
-    Map.get(charkeeper_data || %{}, player.character_name)
+    Map.get(charkeeper_data || %{}, player.id)
   end
 
   defp hp_bar_percent(_hp_current, _hp_temp, hp_max) when hp_max <= 0, do: {0, 0}

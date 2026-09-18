@@ -8,7 +8,7 @@ defmodule PathMapper.Game.Actions.DrawTest do
 
   defp state_with_scene do
     scene = Scene.initialize_custom("Test", 0)
-    %State{active_scene: 0, scenes: %{0 => scene}}
+    %State{active_scene: scene.id, scenes: %{scene.id => scene}}
   end
 
   defp add_element(state, opts \\ []) do

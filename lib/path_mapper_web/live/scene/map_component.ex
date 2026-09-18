@@ -1,7 +1,7 @@
 defmodule PathMapperWeb.Scene.MapComponent do
   use PathMapperWeb, :live_component
 
-  alias PathMapper.Adventures.Adventure
+  alias PathMapper.Game.State.Scene
   alias PathMapper.Game.State.Scene.Map.Layer
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
 
@@ -23,16 +23,14 @@ defmodule PathMapperWeb.Scene.MapComponent do
     do: nil
 
   def additional_map_layer(adventure, game_state, name, _override) when is_atom(name) do
-    case adventure && Adventure.get_scene_map(adventure, game_state.scene.index) do
-      nil -> scene_data_map_field(game_state, name)
+    case Scene.displayed_map(game_state.scene, adventure) do
+      nil -> nil
       map -> Map.get(map, name)
     end
   end
 
   def map_adventure_layers_to_state(adventure, game_state) do
-    adventure_map =
-      (adventure && Adventure.get_scene_map(adventure, game_state.scene.index)) ||
-        scene_data_map(game_state)
+    adventure_map = Scene.displayed_map(game_state.scene, adventure)
 
     case adventure_map do
       nil ->
@@ -48,20 +46,6 @@ defmodule PathMapperWeb.Scene.MapComponent do
           {layer, state}
         end)
         |> Enum.reject(fn {_, state} -> is_nil(state) end)
-    end
-  end
-
-  defp scene_data_map(game_state) do
-    case game_state.scene do
-      %{data: %{map: map}} when not is_nil(map) -> map
-      _ -> nil
-    end
-  end
-
-  defp scene_data_map_field(game_state, field) do
-    case scene_data_map(game_state) do
-      nil -> nil
-      map -> Map.get(map, field)
     end
   end
 

@@ -25,11 +25,13 @@ Open `http://your-server:4000/master` in your browser.
 
 ### Adventures
 
-Select which adventure to load from the dropdown list. The **Reload** button refreshes the file list from disk --- use this after uploading new ZIP files to the server.
+Shows the adventure the session currently holds. There is nothing to select: an
+adventure arrives from the [PathMapper client](../client/README.md), and the
+console plays what it is given.
 
 ### Groups
 
-Select which group to load. The **Reload** button refreshes the file list from disk.
+Shows the group the session currently holds, which arrives the same way.
 
 ### Scenes
 
@@ -80,11 +82,14 @@ Click outside panels to close them.
 
 ## Content Upload
 
-1. Copy new or updated ZIP files to the server's `adventures/` or `groups/` directories
-2. Click the **Reload** button in the Adventures or Groups panel to pick up changes
+1. Edit the adventure or group on your own machine
+2. Upload it again with the client --- `path-mapper my-adventure.pmadventure`, or a
+   double-click
 3. No server restart needed
 
-Reloading the list does **not** affect the currently active adventure or group --- the GM must re-select to pick up updated content.
+Uploading again replaces what the ids name and leaves everything else alone, so an
+edit reaches a running session without restarting it. Where a scene has gone, its
+placements go with it.
 
 ## What Your Players See
 

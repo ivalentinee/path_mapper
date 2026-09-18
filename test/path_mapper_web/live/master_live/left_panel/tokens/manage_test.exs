@@ -6,9 +6,9 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.ManageTest do
   alias PathMapper.Groups
 
   setup %{conn: conn} do
-    {:ok, _group} = Groups.load_group("group-1.zip")
-    load_adventure("adventure-1.zip")
-    :ok = Game.run_action([:scene, :select], 0)
+    {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
+    load_adventure("tt0001-0000000001-adventure-1.zip")
+    :ok = select_scene(1)
     :ok = Game.run_action([:tokens, :add], 0)
 
     conn = get(conn, "/master")

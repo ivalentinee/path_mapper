@@ -9,7 +9,7 @@ defmodule PathMapper.Game.Actions.Tokens.Player do
       when is_number(index_or_name) or is_binary(index_or_name) do
     token = find_player_token(index_or_name)
 
-    if token && !token_exists(state, token.name) do
+    if token && !token_exists(state, token.id) do
       Tokens.add_token(state, token)
     else
       {:ok, state}
@@ -18,10 +18,10 @@ defmodule PathMapper.Game.Actions.Tokens.Player do
 
   def action(%State{} = state, [:tokens, :player, :add_all], _) do
     with {:ok, group} <- Groups.get_loaded(),
-         character_names <- Enum.map(group.players, & &1.character_name) do
-      Enum.reduce(character_names, {:ok, state}, fn
-        character_name, {:ok, state} -> action(state, [:tokens, :player, :add], character_name)
-        _character_name, error -> error
+         player_ids <- Enum.map(group.players, & &1.id) do
+      Enum.reduce(player_ids, {:ok, state}, fn
+        player_id, {:ok, state} -> action(state, [:tokens, :player, :add], player_id)
+        _player_id, error -> error
       end)
     else
       _ -> {:ok, state}

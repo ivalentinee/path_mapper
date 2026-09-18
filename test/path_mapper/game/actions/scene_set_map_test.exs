@@ -22,7 +22,7 @@ defmodule PathMapper.Game.Actions.SceneSetMapTest do
           [
             %AdventureLayer{
               name: "Ground",
-              image: "/custom/ground.png",
+              image: "/upload/ground.png",
               images: [],
               index: 1,
               x: 0,
@@ -40,7 +40,7 @@ defmodule PathMapper.Game.Actions.SceneSetMapTest do
         opts[:grid] ||
           %AdditionalLayer{
             name: "Grid",
-            image: "/custom/grid.png",
+            image: "/upload/grid.png",
             x: 0,
             y: 0,
             width: 1000,
@@ -53,7 +53,8 @@ defmodule PathMapper.Game.Actions.SceneSetMapTest do
 
   defp build_custom_scene(opts \\ []) do
     %State.Scene{
-      index: opts[:index] || 0,
+      id: opts[:id] || "sc9999-0000000001",
+      order: opts[:order] || 0,
       custom: true,
       name: opts[:name] || "Test Scene",
       data: opts[:data],
@@ -65,8 +66,8 @@ defmodule PathMapper.Game.Actions.SceneSetMapTest do
 
   defp build_state(scene) do
     %State{
-      active_scene: scene.index,
-      scenes: %{scene.index => scene}
+      active_scene: scene.id,
+      scenes: %{scene.id => scene}
     }
   end
 
@@ -82,7 +83,7 @@ defmodule PathMapper.Game.Actions.SceneSetMapTest do
 
     assert {:ok, new_state} = SceneActions.action(state, [:scene, :set_map], adventure_map)
 
-    new_scene = new_state.scenes[0]
+    new_scene = State.scene(new_state)
     assert new_scene.data != nil
     assert new_scene.data.map == adventure_map
     assert new_scene.data.name == "Test Scene"
@@ -121,7 +122,7 @@ defmodule PathMapper.Game.Actions.SceneSetMapTest do
 
     assert {:ok, new_state} = SceneActions.action(state, [:scene, :set_map], adventure_map)
 
-    new_scene = new_state.scenes[0]
+    new_scene = State.scene(new_state)
     assert length(new_scene.tokens) == 1
     assert hd(new_scene.tokens).owner == "Alice"
     assert length(new_scene.drawn_elements) == 1
@@ -137,17 +138,17 @@ defmodule PathMapper.Game.Actions.SceneSetMapTest do
     {:ok, state_after_first} = SceneActions.action(state, [:scene, :set_map], adventure_map)
 
     # Simulate toggling the layer's show to false
-    scene1 = state_after_first.scenes[0]
+    scene1 = State.scene(state_after_first)
     modified_layer = %{hd(scene1.map.layers) | show: false, light: "dim", highlight: true}
     modified_map = %{scene1.map | layers: [modified_layer]}
     scene1 = %{scene1 | map: modified_map}
-    state_modified = %{state_after_first | scenes: %{0 => scene1}}
+    state_modified = %{state_after_first | scenes: %{scene1.id => scene1}}
 
     # Re-upload same map
     {:ok, state_after_second} =
       SceneActions.action(state_modified, [:scene, :set_map], adventure_map)
 
-    new_layer = hd(state_after_second.scenes[0].map.layers)
+    new_layer = hd(State.scene(state_after_second).map.layers)
     assert new_layer.show == false
     assert new_layer.light == "dim"
     assert new_layer.highlight == true
@@ -156,7 +157,7 @@ defmodule PathMapper.Game.Actions.SceneSetMapTest do
   test "preserves moved map object position by name on re-upload" do
     obj = %AdventureMapObject{
       name: "Door",
-      image: "/custom/door.png",
+      image: "/upload/door.png",
       x: 100,
       y: 200,
       width: 50,
@@ -174,16 +175,16 @@ defmodule PathMapper.Game.Actions.SceneSetMapTest do
     {:ok, state1} = SceneActions.action(state, [:scene, :set_map], adventure_map)
 
     # Simulate GM moving the object
-    scene1 = state1.scenes[0]
+    scene1 = State.scene(state1)
     moved_obj = %{hd(scene1.map.map_objects) | x: 5000, y: 6000}
     modified_map = %{scene1.map | map_objects: [moved_obj]}
     scene1 = %{scene1 | map: modified_map}
-    state_modified = %{state1 | scenes: %{0 => scene1}}
+    state_modified = %{state1 | scenes: %{scene1.id => scene1}}
 
     # Re-upload - object position should be preserved
     {:ok, state2} = SceneActions.action(state_modified, [:scene, :set_map], adventure_map)
 
-    result_obj = hd(state2.scenes[0].map.map_objects)
+    result_obj = hd(State.scene(state2).map.map_objects)
     assert result_obj.x == 5000
     assert result_obj.y == 6000
   end
@@ -191,7 +192,7 @@ defmodule PathMapper.Game.Actions.SceneSetMapTest do
   test "uses new ORA position for unmoved objects on re-upload" do
     obj = %AdventureMapObject{
       name: "Door",
-      image: "/custom/door.png",
+      image: "/upload/door.png",
       x: 100,
       y: 200,
       width: 50,
@@ -213,7 +214,7 @@ defmodule PathMapper.Game.Actions.SceneSetMapTest do
     new_map = build_adventure_map(map_objects: [new_obj])
     {:ok, state2} = SceneActions.action(state1, [:scene, :set_map], new_map)
 
-    result_obj = hd(state2.scenes[0].map.map_objects)
+    result_obj = hd(State.scene(state2).map.map_objects)
     assert result_obj.x == GeometryMapper.to_subpixels(300)
     assert result_obj.y == GeometryMapper.to_subpixels(400)
   end
@@ -221,7 +222,7 @@ defmodule PathMapper.Game.Actions.SceneSetMapTest do
   test "new layers get fresh state from ORA tags" do
     layer1 = %AdventureLayer{
       name: "Ground",
-      image: "/custom/ground.png",
+      image: "/upload/ground.png",
       images: [],
       index: 1,
       x: 0,
@@ -236,7 +237,7 @@ defmodule PathMapper.Game.Actions.SceneSetMapTest do
 
     layer2 = %AdventureLayer{
       name: "Upper",
-      image: "/custom/upper.png",
+      image: "/upload/upper.png",
       images: [],
       index: 2,
       x: 0,
@@ -259,7 +260,7 @@ defmodule PathMapper.Game.Actions.SceneSetMapTest do
     map2 = build_adventure_map(layers: [layer1, layer2])
     {:ok, state2} = SceneActions.action(state1, [:scene, :set_map], map2)
 
-    layers = state2.scenes[0].map.layers
+    layers = State.scene(state2).map.layers
     assert length(layers) == 2
     new_layer = Enum.find(layers, &(&1.index == 2))
     assert new_layer.show == false

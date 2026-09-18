@@ -2,7 +2,7 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map.AdditionalLayer do
   use Ecto.Schema
 
   import Ecto.Changeset
-  alias PathMapper.Adventures.Adventure.FileStorage
+  alias PathMapper.UploadStorage, as: FileStorage
 
   @primary_key false
 

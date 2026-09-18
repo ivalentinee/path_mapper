@@ -1,0 +1,4 @@
+openapi: 3.0.3
+info: { title: Fixture, version: v1 }
+paths:
+  '/thing': { $ref: './paths/thing.yaml' }

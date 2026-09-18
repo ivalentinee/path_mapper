@@ -7,13 +7,12 @@ defmodule PathMapperWeb.MasterLive do
   alias PathMapper.Groups
   alias PathMapperWeb.Scene.ContextMenuHelper
   alias PathMapperWeb.SessionState
-  alias PathMapperWeb.SessionState.Feedback
   alias PathMapperWeb.SessionState.Language
   alias PathMapperWeb.SessionState.LeftPanel
   alias PathMapperWeb.SessionState.RightPanel
   alias PathMapperWeb.SessionState.Scene
 
-  @plugins [LeftPanel, RightPanel, Scene, Feedback, Language]
+  @plugins [LeftPanel, RightPanel, Scene, Language]
 
   @impl true
   def mount(_params, session, socket) do
@@ -21,9 +20,7 @@ defmodule PathMapperWeb.MasterLive do
     locale = session["locale"] || connect_locale || "en"
     Gettext.put_locale(PathMapperWeb.Gettext, locale)
 
-    adventures = Adventures.get()
     adventure = get_selected_adventure()
-    groups = Groups.get()
     group = get_selected_group()
     game_state = Game.get_state()
     Adventures.subscribe()
@@ -44,9 +41,7 @@ defmodule PathMapperWeb.MasterLive do
     socket =
       socket
       |> assign(:page_title, gettext("GM"))
-      |> assign(:adventures, adventures)
       |> assign(:adventure, adventure)
-      |> assign(:groups, groups)
       |> assign(:group, group)
       |> assign(:game_state, game_state)
       |> assign(:session_state, session_state)
@@ -221,7 +216,6 @@ defmodule PathMapperWeb.MasterLive do
   defp scope_name(["left-panel", "tokens", "add-token"]), do: "[Tokens > Add]"
   defp scope_name(["left-panel", "tokens", "add-player-token"]), do: "[Tokens > Players]"
   defp scope_name(["left-panel", "tokens", "add-extra-token"]), do: "[Tokens > Extras]"
-  defp scope_name(["left-panel", "tokens", "add-adhoc-token"]), do: "[Tokens > Ad-hoc]"
 
   defp scope_name(["left-panel", "tokens", "add-extra-token", _idx, "add"]),
     do: "[Extras > Tokens]"
@@ -257,10 +251,6 @@ defmodule PathMapperWeb.MasterLive do
   end
 
   @impl true
-  def handle_event("dismiss_load_errors", _, socket) do
-    send(self(), %{session_event: :dismiss_load_errors})
-    {:noreply, socket}
-  end
 
   @impl true
   def handle_event("open_scene_selector", _, socket) do
@@ -280,25 +270,11 @@ defmodule PathMapperWeb.MasterLive do
   end
 
   @impl true
-  def handle_info(%{adventure_load_error: errors}, socket) do
-    {:noreply, SessionState.apply_event(socket, {:load_error, errors})}
-  end
 
   @impl true
-  def handle_info(%{group_load_error: errors}, socket) do
-    {:noreply, SessionState.apply_event(socket, {:load_error, errors})}
-  end
 
   @impl true
-  def handle_info(%{adventures_list_updated: adventures}, socket) do
-    {:noreply, assign(socket, :adventures, adventures)}
-  end
-
   @impl true
-  def handle_info(%{groups_list_updated: groups}, socket) do
-    {:noreply, assign(socket, :groups, groups)}
-  end
-
   @impl true
   def handle_info(%{game_update: game_state}, socket) do
     {:noreply, assign(socket, :game_state, game_state)}

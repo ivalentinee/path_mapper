@@ -1,0 +1,11 @@
+mapUpload:
+  title: Map upload
+  description: An OpenRaster image, posted as a single file part named "file".
+  type: object
+  additionalProperties: false
+  required: ['file']
+  properties:
+    file:
+      title: OpenRaster image
+      type: string
+      format: binary

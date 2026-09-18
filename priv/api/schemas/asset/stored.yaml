@@ -1,0 +1,16 @@
+storedAsset:
+  title: Stored asset
+  description: Where the asset can now be fetched from.
+  type: object
+  additionalProperties: false
+  required: ['status', 'path']
+  properties:
+    status:
+      title: Outcome
+      type: string
+      enum: ['ok']
+    path:
+      title: Public path
+      description: The path a description should name this asset by.
+      type: string
+      minLength: 1

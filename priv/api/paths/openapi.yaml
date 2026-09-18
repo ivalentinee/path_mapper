@@ -1,0 +1,16 @@
+get:
+  summary: Fetch the contract
+  description: >-
+    Returns this document with every reference resolved, as JSON. It is the same
+    document the server validates incoming requests against, so a client that
+    satisfies what it reads here is accepted.
+
+    Needs no token: the contract is readable by anyone who can reach the port.
+  tags: ['Contract']
+  responses:
+    '200':
+      description: The resolved contract
+      content:
+        'application/json':
+          schema:
+            type: object

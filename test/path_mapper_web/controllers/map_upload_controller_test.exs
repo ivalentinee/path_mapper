@@ -3,13 +3,14 @@ defmodule PathMapperWeb.MapUploadControllerTest do
 
   alias PathMapper.Game
   alias PathMapper.Groups
+  alias PathMapper.Session.Commands
 
   @test_token "test-upload-token"
 
   setup do
-    original = Application.get_env(:path_mapper, :upload_token)
-    Application.put_env(:path_mapper, :upload_token, @test_token)
-    on_exit(fn -> Application.put_env(:path_mapper, :upload_token, original) end)
+    original = Application.get_env(:path_mapper, :api_token)
+    Application.put_env(:path_mapper, :api_token, @test_token)
+    on_exit(fn -> Application.put_env(:path_mapper, :api_token, original) end)
     :ok
   end
 
@@ -24,7 +25,14 @@ defmodule PathMapperWeb.MapUploadControllerTest do
       content_type: "application/octet-stream"
     }
 
-    post(conn, "/api/scenes/map", %{"file" => upload})
+    conn |> as_form_data() |> post("/api/scenes/map", %{"file" => upload})
+  end
+
+  # Plug.Test labels an encoded body multipart/mixed; a real client sends
+  # multipart/form-data, which is what the contract describes. The boundary is
+  # the one Plug.Test encoded with, so the body still parses.
+  defp as_form_data(conn) do
+    put_req_header(conn, "content-type", "multipart/form-data; boundary=plug_conn_test")
   end
 
   describe "authentication" do
@@ -45,8 +53,8 @@ defmodule PathMapperWeb.MapUploadControllerTest do
 
   describe "upload" do
     test "returns 400 when no file uploaded", %{conn: conn} do
-      conn = conn |> auth_conn() |> post("/api/scenes/map", %{})
-      assert json_response(conn, 400) == %{"error" => "No file uploaded"}
+      conn = conn |> auth_conn() |> as_form_data() |> post("/api/scenes/map", %{})
+      assert %{"error" => _} = json_response(conn, 400)
     end
 
     test "returns 400 when no game loaded", %{conn: conn} do
@@ -57,11 +65,12 @@ defmodule PathMapperWeb.MapUploadControllerTest do
     end
 
     test "returns 400 when no active scene", %{conn: conn} do
-      load_adventure("adventure-1.zip")
-      {:ok, _group} = Groups.load_group("group-1.zip")
+      load_adventure("tt0001-0000000001-adventure-1.zip")
+      {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
 
       # Create a custom scene then unset active scene
-      :ok = Game.run_action([:scene, :create], %{"name" => "Upload Test"})
+      {:ok, scene} = Commands.create_scene("Upload Test")
+      :ok = Game.run_action([:scene, :select], scene.id)
       :ok = Game.run_action([:scene, :unset], nil)
 
       ora_path = "test/data/adventures/unpacked/map.ora"
@@ -70,9 +79,10 @@ defmodule PathMapperWeb.MapUploadControllerTest do
     end
 
     test "successfully uploads ORA file to active custom scene", %{conn: conn} do
-      load_adventure("adventure-1.zip")
-      {:ok, _group} = Groups.load_group("group-1.zip")
-      :ok = Game.run_action([:scene, :create], %{"name" => "Upload Test"})
+      load_adventure("tt0001-0000000001-adventure-1.zip")
+      {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
+      {:ok, scene} = Commands.create_scene("Upload Test")
+      :ok = Game.run_action([:scene, :select], scene.id)
 
       ora_path = "test/data/adventures/unpacked/map.ora"
       conn = conn |> auth_conn() |> upload_ora(ora_path)
@@ -87,17 +97,27 @@ defmodule PathMapperWeb.MapUploadControllerTest do
     end
 
     test "preserves tokens on re-upload", %{conn: conn} do
-      load_adventure("adventure-1.zip")
-      {:ok, _group} = Groups.load_group("group-1.zip")
-      :ok = Game.run_action([:scene, :create], %{"name" => "Upload Test"})
+      load_adventure("tt0001-0000000001-adventure-1.zip")
+      {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
+      {:ok, scene} = Commands.create_scene("Upload Test")
+      :ok = Game.run_action([:scene, :select], scene.id)
 
-      # Place a token first
-      :ok =
-        Game.run_action([:tokens, :add_adhoc], %{
-          label: "Test Token",
-          owner: "GM",
-          size: 1
+      # A token made at the table is a token entity with no image, declared by
+      # command and then placed like any other.
+      {:ok, _token} =
+        Commands.put(%PathMapper.Session.Entity{
+          id: "tk0009-0000000001",
+          kind: "token",
+          data: %PathMapper.Adventures.Adventure.Scene.Token{
+            id: "tk0009-0000000001",
+            name: "Test Token",
+            owner: "GM",
+            size: 1
+          }
         })
+
+      {:ok, _scene} = Commands.bind_token(scene.id, "tk0009-0000000001")
+      :ok = Game.run_action([:tokens, :add], "tk0009-0000000001")
 
       ora_path = "test/data/adventures/unpacked/map.ora"
 

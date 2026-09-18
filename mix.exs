@@ -57,6 +57,8 @@ defmodule PathMapper.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:tomerl, "~> 0.5.0"},
+      {:yaml_elixir, "~> 2.11"},
+      {:ex_json_schema, "~> 0.11"},
       {:credo, "~> 1.7.12", only: [:dev, :test], runtime: false}
     ]
   end

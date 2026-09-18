@@ -56,8 +56,8 @@ defmodule PathMapper.Charkeeper.PollerTest do
 
   test "start_or_restart starts and stops poller" do
     players = [
-      %{character_name: "Test Hero", charkeeper_id: "test-uuid-1"},
-      %{character_name: "No CK", charkeeper_id: nil}
+      %{id: "pg0001-0000000001", character_name: "Test Hero", charkeeper_id: "test-uuid-1"},
+      %{id: "pg0001-0000000002", character_name: "No CK", charkeeper_id: nil}
     ]
 
     Charkeeper.start_or_restart(players)

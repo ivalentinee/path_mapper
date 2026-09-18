@@ -1,0 +1,30 @@
+entity:
+  title: Entity
+  description: >-
+    One thing a session is made of. The kind says how to read the rest; the id names
+    it, uniquely everywhere rather than within a document.
+
+    Fields beyond id and kind belong to the kind and are validated by the server's
+    own schema, which reports a failure naming the field.
+  type: object
+  required: ['kind', 'id']
+  properties:
+    kind:
+      title: Kind
+      type: string
+      enum: ['adventure', 'group', 'scene', 'map', 'token']
+    id:
+      title: Id
+      description: Two letters, four series digits, ten entity digits.
+      type: string
+      pattern: '^[a-z]{2}[0-9]{4}-[0-9]{10}$'
+
+entityList:
+  title: The store
+  type: object
+  required: ['entities']
+  properties:
+    entities:
+      type: array
+      items:
+        type: object

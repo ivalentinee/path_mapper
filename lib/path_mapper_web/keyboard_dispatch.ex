@@ -126,10 +126,6 @@ defmodule PathMapperWeb.KeyboardDispatch do
     %{left_panel_select: ["left-panel", "tokens", "add-extra-token"]}
   end
 
-  def dispatch("h", %{left_panel: %{left_panel: ["left-panel", "tokens"]}}, _) do
-    %{left_panel_select: ["left-panel", "tokens", "add-adhoc-token"]}
-  end
-
   # Token action sub-scope (after selecting a token by index)
   def dispatch(key, %{left_panel: %{left_panel: ["left-panel", "tokens", idx]}}, _)
       when is_integer(idx) do

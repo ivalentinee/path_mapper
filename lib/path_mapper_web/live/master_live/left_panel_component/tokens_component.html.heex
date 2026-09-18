@@ -8,7 +8,7 @@
         tokens={if @game_state.scene.data, do: @game_state.scene.data.tokens, else: []}
         adventure={@adventure}
         is_custom={@game_state.scene.custom}
-        scene_index={@game_state.scene.index}
+        scene_index={@game_state.scene.id}
       />
     <% selected_panel(@left_panel) == "add-player-token" -> %>
       <.live_component
@@ -16,12 +16,6 @@
         id="add-player-token"
         left_panel={@left_panel}
         group={@group}
-      />
-    <% selected_panel(@left_panel) == "add-adhoc-token" -> %>
-      <.live_component
-        module={PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.AddAdhoc}
-        id="add-adhoc-token"
-        left_panel={@left_panel}
       />
     <% selected_panel(@left_panel) == "add-extra-token" -> %>
       <.live_component
@@ -57,15 +51,6 @@
           phx-target={@myself}
         >
           {gettext("Extras")}
-        </button>
-
-        <button
-          id="add-adhoc-token-button"
-          class="pure-button sub-button"
-          phx-click="go_to_adhoc_tokens"
-          phx-target={@myself}
-        >
-          {gettext("Ad-hoc")}
         </button>
 
         <button id="tokens-copy-button" class="pure-button sub-button" phx-hook="Copy">

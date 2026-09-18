@@ -1,52 +1,34 @@
-<div id="adventure-selector" class="adventure-selector" phx-hook="Download">
+<div id="adventure-selector" class="adventure-selector">
   <div class="sub-buttons">
-    <button
-      phx-click="reload"
-      phx-target={@myself}
-      class="pure-button sub-button"
-      title={gettext("Refresh adventure file list from disk")}
-    >
-      {gettext("Reload")}
-    </button>
     <button phx-click="start_empty" phx-target={@myself} class="pure-button sub-button">
       {gettext("Empty game")}
     </button>
   </div>
-  <%= for {item, index} <- Enum.with_index(@adventures, 1) do %>
-    <button
-      phx-click="select_adventure"
-      phx-target={@myself}
-      phx-value-name={item}
-      class={"pure-button item #{select_button_extra_classes(item, @adventure)}"}
-    >
-      <span class="index">{index}</span> {item}
-    </button>
-  <% end %>
 
   <%= if @adventure do %>
-    <div class="sub-buttons state-buttons">
-      <button phx-click="dump_state" phx-target={@myself} class="pure-button sub-button">
-        {gettext("Save state")}
-      </button>
-      <label class="pure-button sub-button restore-label">
-        {gettext("Restore state")}
-        <input
-          type="file"
-          accept=".json"
-          class="restore-file-input"
-          phx-hook="FileUpload"
-          id="state-restore-input"
-          data-target={@myself}
-          data-event="restore_state"
-        />
-      </label>
-      <button
-        phx-click="reset_all"
-        phx-target={@myself}
-        class={"pure-button sub-button danger #{if assigns[:confirm_reset], do: "confirm"}"}
-      >
-        {if assigns[:confirm_reset], do: gettext("Confirm?"), else: gettext("Reset all")}
-      </button>
+    <div class="item loaded-item">
+      <span class="item-name">{@adventure.title}</span>
+      <span class="item-id">{@adventure.id}</span>
     </div>
   <% end %>
+
+  <div class="sub-buttons state-buttons">
+    <%= if @adventure do %>
+      <a href={~p"/snapshot"} download class="pure-button sub-button">
+        {gettext("Save state")}
+      </a>
+    <% end %>
+    <label class="pure-button sub-button restore-label">
+      {gettext("Restore state")}
+      <input
+        type="file"
+        accept=".zip"
+        class="restore-file-input"
+        phx-hook="FileUpload"
+        id="state-restore-input"
+        data-target={@myself}
+        data-url={~p"/snapshot"}
+      />
+    </label>
+  </div>
 </div>

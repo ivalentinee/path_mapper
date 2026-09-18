@@ -2,8 +2,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.GroupSelectorTest do
   use PathMapperWeb.ConnCase
   import Phoenix.LiveViewTest
 
-  alias PathMapper.Groups
-
   setup %{conn: conn} do
     conn = get(conn, "/master")
     assert html_response(conn, 200)
@@ -12,38 +10,25 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.GroupSelectorTest do
     {:ok, %{conn: conn, view: view, html: html}}
   end
 
+  defp open(view) do
+    view |> element("#group-selector-button") |> render_click()
+    view
+  end
+
   test "opens 'group selector' with a click", %{view: view, html: html} do
     assert !find_html_element(html, "#group-selector")
-
-    view
-    |> element("#group-selector-button")
-    |> render_click()
-
-    assert find_html_element(render(view), "#group-selector")
+    assert find_html_element(render(open(view)), "#group-selector")
   end
 
-  test "selects 'group selector' item with a click", %{view: view} do
-    first_group_name = List.first(Groups.get())
-
-    view |> element("#group-selector-button") |> render_click()
-    assert find_html_element(render(view), "#group-selector")
-
-    view
-    |> element("#group-selector button.item", first_group_name)
-    |> render_click()
-
-    assert find_html_element(render(view), "button.item.selected")
+  test "says so when no group is loaded", %{view: view} do
+    assert find_html_element(render(open(view)), "#group-selector .empty-item")
   end
 
-  test "reload button refreshes group list", %{view: view} do
-    view |> element("#group-selector-button") |> render_click()
+  test "shows the loaded group's name and id", %{view: view} do
+    {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
+    html = render(open(view))
 
-    view
-    |> element("#group-selector button.sub-button", "Reload")
-    |> render_click()
-
-    html = render(view)
-    assert find_html_element(html, "#group-selector")
-    assert find_html_element(html, "#group-selector button.item")
+    assert Floki.text(find_html_element(html, "#group-selector .loaded-item .item-id")) ==
+             "tg0001-0000000001"
   end
 end

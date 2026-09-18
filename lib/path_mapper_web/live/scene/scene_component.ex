@@ -4,6 +4,7 @@ defmodule PathMapperWeb.Scene.SceneComponent do
   alias PathMapper.Adventures.Adventure
   alias PathMapper.Game
   alias PathMapper.Game.Palette
+  alias PathMapper.Game.State.Scene
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
   alias PathMapper.Geometry.Object, as: GeometryObject
   alias PathMapperWeb.Scene.GridComponent
@@ -180,7 +181,7 @@ defmodule PathMapperWeb.Scene.SceneComponent do
     if scene.custom do
       %{width: scene.map.width, height: scene.map.height, grid_size: scene.map.grid_size}
     else
-      Adventure.get_scene_map(assigns.adventure, scene.index)
+      scene_blob_map(assigns.adventure, scene.id)
     end
   end
 
@@ -252,10 +253,7 @@ defmodule PathMapperWeb.Scene.SceneComponent do
   end
 
   defp visible_objects(adventure, game_state, opts) do
-    adventure_map =
-      if adventure, do: Adventure.get_scene_map(adventure, game_state.scene.index), else: nil
-
-    adventure_map = adventure_map || scene_data_map(game_state)
+    adventure_map = Scene.displayed_map(game_state.scene, adventure)
 
     adventure_objects = if adventure_map, do: adventure_map.map_objects || [], else: []
 
@@ -275,13 +273,6 @@ defmodule PathMapperWeb.Scene.SceneComponent do
         layer_state.show and obj_state.show
       end
     end)
-  end
-
-  defp scene_data_map(game_state) do
-    case game_state.scene do
-      %{data: %{map: map}} when not is_nil(map) -> map
-      _ -> nil
-    end
   end
 
   defp object_style(obj, obj_state, layer_state, map_geometry, opts) do
@@ -308,5 +299,14 @@ defmodule PathMapperWeb.Scene.SceneComponent do
       "opacity" => opacity,
       "z-index" => 50
     })
+  end
+
+  defp scene_blob_map(nil, _id), do: nil
+
+  defp scene_blob_map(adventure, id) do
+    case Adventure.find_scene_by_id(adventure, id) do
+      %{map: map} -> map
+      _ -> nil
+    end
   end
 end

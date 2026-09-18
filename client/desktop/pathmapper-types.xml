@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The file manager has nothing but the extension to go on, so these types exist
+  for its sake. The client reads the same key, which is why the two cannot drift
+  apart.
+
+  Installed by desktop/install.sh. Note that a double dash cannot appear anywhere
+  in an XML comment: update-mime-database skips a malformed file without saying so,
+  and xdg-mime then reports success having registered nothing.
+-->
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-pathmapper-adventure">
+    <comment>PathMapper adventure</comment>
+    <glob pattern="*.pmadventure"/>
+  </mime-type>
+  <mime-type type="application/x-pathmapper-group">
+    <comment>PathMapper group</comment>
+    <glob pattern="*.pmgroup"/>
+  </mime-type>
+  <mime-type type="application/x-pathmapper-token">
+    <comment>PathMapper token</comment>
+    <glob pattern="*.pmtoken"/>
+  </mime-type>
+  <mime-type type="application/x-pathmapper-map">
+    <comment>PathMapper map</comment>
+    <glob pattern="*.pmmap"/>
+  </mime-type>
+  <mime-type type="application/x-pathmapper-snapshot">
+    <comment>PathMapper snapshot</comment>
+    <glob pattern="*.pmsnapshot"/>
+  </mime-type>
+</mime-info>

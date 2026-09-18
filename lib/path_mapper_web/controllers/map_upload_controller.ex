@@ -1,15 +1,15 @@
 defmodule PathMapperWeb.MapUploadController do
   use PathMapperWeb, :controller
 
-  alias PathMapper.CustomFileStorage
   alias PathMapper.CustomMapBuilder
   alias PathMapper.Game
   alias PathMapper.ORAReader
+  alias PathMapper.UploadStorage
 
   def upload(conn, %{"file" => %Plug.Upload{path: path}}) do
     with {:ok, binary} <- File.read(path),
          {:ok, ora_data} <- parse_ora(binary),
-         :ok <- CustomFileStorage.initialize(),
+         :ok <- UploadStorage.initialize(),
          {:ok, adventure_map} <- CustomMapBuilder.build(ora_data),
          :ok <- run_set_map(adventure_map) do
       json(conn, %{status: "ok"})

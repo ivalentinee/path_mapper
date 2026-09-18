@@ -6,8 +6,8 @@ defmodule PathMapperWeb.Scene.RightPanelTest do
 
   describe "GM view" do
     setup %{conn: conn} do
-      load_adventure("adventure-1.zip")
-      {:ok, _group} = Groups.load_group("group-1.zip")
+      load_adventure("tt0001-0000000001-adventure-1.zip")
+      {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
 
       conn = get(conn, "/master")
       assert html_response(conn, 200)
@@ -111,8 +111,8 @@ defmodule PathMapperWeb.Scene.RightPanelTest do
 
   describe "Player view" do
     setup %{conn: conn} do
-      load_adventure("adventure-1.zip")
-      {:ok, _group} = Groups.load_group("group-1.zip")
+      load_adventure("tt0001-0000000001-adventure-1.zip")
+      {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
 
       conn = get(conn, "/")
       assert html_response(conn, 200)
@@ -167,7 +167,7 @@ defmodule PathMapperWeb.Scene.RightPanelTest do
 
   describe "empty URLs" do
     setup %{conn: conn} do
-      load_adventure("adventure-2.zip")
+      load_adventure("tt0001-0000000002-adventure-2.zip")
 
       conn = get(conn, "/master")
       assert html_response(conn, 200)

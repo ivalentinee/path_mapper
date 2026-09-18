@@ -16,6 +16,3 @@ config :phoenix, :plug_init_mode, :runtime
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
-
-config :path_mapper, :adventure_base_path, "test/data/adventures"
-config :path_mapper, :group_base_path, "test/data/groups"

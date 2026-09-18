@@ -32,7 +32,10 @@ defmodule PathMapperWeb.ConnCase do
     end
   end
 
+  # Loading is refused while something is loaded, so every test starts from the
+  # same place the server starts from: holding nothing.
   setup _tags do
+    PathMapper.Game.clear()
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end

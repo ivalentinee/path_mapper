@@ -1,0 +1,22 @@
+post:
+  summary: Put the server back to holding nothing
+  description: >-
+    Unloads the adventure, the group and the session, and removes every stored
+    asset. Nothing survives it, which is the point: it is one of the two moments
+    that bound what the server holds, the other being a restart.
+
+    Loading anything while something is loaded is refused, so this is how a game
+    master switches adventures. It is deliberately not reachable from the browser -
+    an unauthenticated console must not carry a control that ends a session.
+  tags: ['Session']
+  responses:
+    '200':
+      description: The server now holds nothing
+      content:
+        'application/json':
+          schema: { $ref: '../schemas/common/ok.yaml#/acknowledgement' }
+    '401':
+      description: The upload token was missing or wrong
+      content:
+        'application/json':
+          schema: { $ref: '../schemas/common/error.yaml#/error' }

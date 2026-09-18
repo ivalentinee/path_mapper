@@ -2,6 +2,12 @@
 
 This guide covers deploying Path Mapper on a server. No Elixir knowledge is required --- the application ships as a self-contained release tarball or Docker image.
 
+The server holds nothing of its own. There are no adventure or group directories to
+populate and nothing to copy over when content changes: a session is fed to the
+running server by the [PathMapper client](../client/README.md) on your own machine,
+and the server forgets all of it when it restarts. What you deploy here is an empty
+board that a client fills.
+
 ## Deployment Options
 
 - **Docker** (recommended) --- single container, no runtime dependencies
@@ -24,12 +30,13 @@ docker run -d \
   -p 4000:4000 \
   -e SECRET_KEY_BASE="$(openssl rand -base64 48)" \
   -e PHX_HOST="your-domain.com" \
-  -v /path/to/adventures:/app/adventures \
-  -v /path/to/groups:/app/groups \
+  -e API_TOKEN="$(openssl rand -hex 32)" \
   path_mapper
 ```
 
-Replace `/path/to/adventures` and `/path/to/groups` with directories containing your ZIP files. See [Quick Start](quick-start.md) for how to create them.
+No volumes: the server stores nothing that should outlive the container. Keep the
+`API_TOKEN` --- the client needs the same value, and without one every API route
+refuses, which leaves you with a board nothing can fill.
 
 ### docker-compose
 
@@ -47,9 +54,7 @@ services:
     environment:
       SECRET_KEY_BASE: "generate-with-openssl-rand-base64-48"
       PHX_HOST: "your-domain.com"
-    volumes:
-      - ./adventures:/app/adventures
-      - ./groups:/app/groups
+      API_TOKEN: "generate-with-openssl-rand-hex-32"
     restart: unless-stopped
 ```
 
@@ -81,7 +86,6 @@ On the target server:
 ```bash
 mkdir -p /opt/path_mapper
 tar -xf release.tar -C /opt/path_mapper
-mkdir -p /opt/path_mapper/adventures /opt/path_mapper/groups
 ```
 
 ### Run
@@ -89,6 +93,7 @@ mkdir -p /opt/path_mapper/adventures /opt/path_mapper/groups
 ```bash
 export SECRET_KEY_BASE="$(openssl rand -base64 48)"
 export PHX_HOST="your-domain.com"
+export API_TOKEN="$(openssl rand -hex 32)"
 /opt/path_mapper/bin/path_mapper start
 ```
 
@@ -105,6 +110,7 @@ User=pathm
 WorkingDirectory=/opt/path_mapper
 Environment=SECRET_KEY_BASE=your-secret-key
 Environment=PHX_HOST=your-domain.com
+Environment=API_TOKEN=your-api-token
 ExecStart=/opt/path_mapper/bin/path_mapper start
 ExecStop=/opt/path_mapper/bin/path_mapper stop
 Restart=on-failure
@@ -120,6 +126,7 @@ WantedBy=multi-user.target
 | Variable          | Description                                                                              |
 |-------------------|------------------------------------------------------------------------------------------|
 | `SECRET_KEY_BASE` | Session signing key. Generate with `openssl rand -base64 48`. Must be at least 64 bytes. |
+| `API_TOKEN`       | Shared secret the client authenticates with. Generate with `openssl rand -hex 32`. Without it every API route refuses, so nothing can be uploaded. |
 
 ### Optional
 
@@ -127,12 +134,16 @@ WantedBy=multi-user.target
 |----------------------------|------------------|--------------------------------------------------------|
 | `PHX_HOST`                 | `example.com`    | Public hostname (used for URL generation)              |
 | `PORT`                     | `4000`           | HTTP listen port                                       |
-| `ADVENTURE_BASE_PATH`      | `adventures`     | Path to directory containing adventure ZIP files       |
-| `GROUP_BASE_PATH`          | `groups`         | Path to directory containing group ZIP files           |
 | `CHARKEEPER_SERVER`        | `charkeeper.ru`  | Charkeeper API host for live character stats           |
 | `CHARKEEPER_POLL_INTERVAL` | `10000`          | Charkeeper polling interval in milliseconds            |
 | `CACERTFILE`               | *(system CAs)*   | Path to a custom CA certificate bundle (PEM format)    |
 | `DNS_CLUSTER_QUERY`        | *(none)*         | DNS query for clustering (advanced, multi-node setups) |
+
+## Upload size
+
+A client sends one asset per request, so requests stay small however large an
+adventure is --- the biggest single thing that crosses the wire is one map image.
+If your reverse proxy caps request bodies, a limit of around 50 MB is comfortable.
 
 ## Reverse Proxy
 
@@ -186,10 +197,22 @@ Both open in a regular browser --- no client install needed. Share the player UR
 
 ## Content Setup
 
-After deploying, you need adventure and group ZIP files. See the [Quick Start](quick-start.md) guide for creating your first ones, then:
+Content never reaches the server as files. Install the
+[PathMapper client](../client/README.md) on the machine your adventures live on,
+point its config at this server, and feed a session from there:
 
-1. Copy `.zip` files into the `adventures/` and `groups/` directories.
-2. Open `/master` and click **Reload** in the Adventures or Groups panel to pick up new files (no restart needed).
+```toml
+# ~/.config/pathmapper/config.toml
+server = "https://your-domain.com"
+token = "the API_TOKEN you set above"
+snapshots = "~/snapshots"
+```
+
+```bash
+path-mapper my-adventure.pmadventure my-group.pmgroup
+```
+
+See the [Quick Start](quick-start.md) guide for creating your first adventure.
 
 ## Charkeeper Integration
 
@@ -216,7 +239,16 @@ Stats are polled every 10 seconds by default. Adjust with `CHARKEEPER_POLL_INTER
 
 **WebSocket connection fails behind proxy** --- Make sure your reverse proxy passes `Upgrade` and `Connection` headers. See the nginx example above.
 
-**Adventure/group not appearing after upload** --- Click **Reload** in the GM panel. Files must be `.zip` with `manifest.toml` at the ZIP root (not nested in a subdirectory).
+**Every upload is refused with 401** --- The server has no `API_TOKEN`, or the
+client's differs. An unset token refuses everything by design: a server that would
+accept anything is worse than one that accepts nothing.
+
+**An upload is refused naming a missing manifest** --- A `.pmadventure` must be a
+ZIP with `manifest.toml` at its root, not nested in a subdirectory.
+
+**The board is empty after a restart** --- Expected. The server keeps nothing
+between runs; upload the session again, or restore a snapshot with
+`path-mapper my-session.pmsnapshot`.
 
 **Charkeeper shows garbled text** --- Ensure the server can reach `charkeeper.ru` (or your custom `CHARKEEPER_SERVER`) over HTTPS. If using a custom CA, set `CACERTFILE`.
 

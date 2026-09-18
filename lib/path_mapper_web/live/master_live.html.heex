@@ -52,26 +52,10 @@
   <.live_component
     module={PathMapperWeb.MasterLive.LeftPanelComponent}
     id="left-panel"
-    adventures={@adventures}
     adventure={@adventure}
-    groups={@groups}
     group={@group}
     game_state={@game_state}
     left_panel={@left_panel}
     scene={@scene}
   />
-
-  <%= if @feedback.load_errors != [] do %>
-    <div class="load-errors-overlay">
-      <div class="load-errors-panel">
-        <div class="load-errors-header">
-          <span class="load-errors-title">{gettext("Load errors")}</span>
-          <button class="load-errors-dismiss" phx-click="dismiss_load_errors">✕</button>
-        </div>
-        <%= for error <- @feedback.load_errors do %>
-          <div class="load-error-item">{error}</div>
-        <% end %>
-      </div>
-    </div>
-  <% end %>
 </div>

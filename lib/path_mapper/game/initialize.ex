@@ -10,14 +10,14 @@ defmodule PathMapper.Game.Initialize do
   def build_all(%Adventure{scenes: adventure_scenes}) do
     adventure_scenes
     |> Enum.with_index()
-    |> Map.new(fn {adventure_scene, index} ->
-      {index, build_scene(adventure_scene, index)}
+    |> Map.new(fn {adventure_scene, order} ->
+      {adventure_scene.id, build_scene(adventure_scene, order)}
     end)
   end
 
-  def build_scene(%AdventureScene{} = adventure_scene, index) do
+  def build_scene(%AdventureScene{} = adventure_scene, order) do
     adventure_scene
-    |> State.Scene.initialize(index)
+    |> State.Scene.initialize(order)
     |> place_initial_tokens(adventure_scene)
   end
 
@@ -29,7 +29,7 @@ defmodule PathMapper.Game.Initialize do
   defp place_initial_tokens(scene, _adventure_scene), do: scene
 
   defp place_token(place_token, %State.Scene{} = scene) do
-    token = find_token(scene, place_token.name)
+    token = find_token(scene, place_token.id)
 
     if token do
       build_and_add_token(scene, token, Map.from_struct(place_token))
@@ -38,8 +38,8 @@ defmodule PathMapper.Game.Initialize do
     end
   end
 
-  defp find_token(%State.Scene{data: %{tokens: tokens}}, name) do
-    Enum.find(tokens, &(&1.name == name))
+  defp find_token(%State.Scene{data: %{tokens: tokens}}, id) do
+    Enum.find(tokens, &(&1.id == id))
   end
 
   defp build_and_add_token(%State.Scene{} = scene, %AdventureToken{} = token, params) do

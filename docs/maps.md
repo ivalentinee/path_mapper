@@ -149,10 +149,10 @@ Maps can be uploaded directly from GIMP to a running Path Mapper instance.
 
 ### Server Setup
 
-Set the `UPLOAD_TOKEN` environment variable before starting Path Mapper:
+Set the `API_TOKEN` environment variable before starting Path Mapper:
 
 ```bash
-UPLOAD_TOKEN=my-secret-token mix phx.server
+API_TOKEN=my-secret-token mix phx.server
 ```
 
 ### GIMP Plugin Installation
@@ -169,11 +169,16 @@ UPLOAD_TOKEN=my-secret-token mix phx.server
    chmod +x ~/.config/GIMP/3.0/plug-ins/gimp-upload-to-pathmapper/gimp-upload-to-pathmapper.py
    ```
 
-3. Edit the plugin file and set your configuration:
+3. Edit the plugin file and point it at the client:
    ```python
-   SERVER_URL = "http://localhost:4000"
-   UPLOAD_TOKEN = "my-secret-token"  # must match the server's UPLOAD_TOKEN
+   PATH_MAPPER_CLIENT_PATH = os.path.expanduser("~/path-mapper/client/bin/path-mapper")
    ```
+
+   The plug-in holds no server address and no token. It exports the image and hands
+   it to the [PathMapper client](../client/README.md), which is the only thing that
+   talks to the server — so there is one place to configure, and no credential in
+   this repository. The path is named outright rather than searched for on `PATH`,
+   because a GIMP plug-in can run with almost no environment.
 
 4. Restart GIMP. The plugin appears under **File → Upload to Path Mapper**.
 
@@ -181,9 +186,16 @@ UPLOAD_TOKEN=my-secret-token mix phx.server
 
 ### Usage
 
-1. Select a custom scene in Path Mapper
+1. Select a scene in Path Mapper
 2. Draw your map in GIMP using the layer naming conventions
 3. **File → Upload to Path Mapper** (or your keyboard shortcut)
 4. The map appears in Path Mapper immediately for all connected clients
 
-Re-uploading updates the map while preserving token positions, drawn elements, and moved map objects.
+Re-uploading updates the map while preserving token positions, drawn elements, and
+moved map objects. It works because an edited image has different bytes and so a
+different address, while the scene it belongs to keeps its id — connected browsers
+fetch the new image without being told to.
+
+The plug-in exports a `.pmmap` and hands it over, which is the same path a
+double-click takes. A `.pmmap` is an OpenRaster file; the extension only says who
+should open it.

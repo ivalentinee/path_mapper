@@ -1,0 +1,18 @@
+assetUpload:
+  title: Asset upload
+  description: One asset's bytes, sent under the name they hash to.
+  type: object
+  additionalProperties: false
+  required: ['name', 'file']
+  properties:
+    name:
+      title: Content name
+      description: >-
+        The asset's name, as the client computed it: the first eight bytes of the
+        SHA-256 of the content, lowercase hexadecimal, followed by an extension.
+      type: string
+      pattern: '^[0-9a-f]{16}\.[A-Za-z0-9]+$'
+    file:
+      title: Asset bytes
+      type: string
+      format: binary

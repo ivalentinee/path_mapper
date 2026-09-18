@@ -12,5 +12,5 @@ services:
       - ./:/app
     environment:
       MIX_ENV: null
-      UPLOAD_TOKEN: dev-upload-token
+      API_TOKEN: dev-api-token
     user: '1000:1000'

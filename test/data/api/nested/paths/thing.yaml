@@ -1,0 +1,17 @@
+post:
+  summary: Make a thing
+  requestBody:
+    content:
+      'application/json':
+        schema: { $ref: '../schemas/thing.yaml#/thing' }
+  responses:
+    '200':
+      description: Made
+      content:
+        'application/json':
+          schema: { $ref: '#/local' }
+local:
+  type: object
+  required: ['id']
+  properties:
+    id: { type: string }

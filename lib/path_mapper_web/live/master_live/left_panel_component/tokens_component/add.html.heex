@@ -25,7 +25,7 @@
 
   <%= for token <- @visible_tokens do %>
     <div class="item">
-      <button phx-click="add_token" phx-value-name={token.name} phx-target={@myself}>
+      <button phx-click="add_token" phx-value-id={token.id} phx-target={@myself}>
         {token.name}
       </button>
     </div>

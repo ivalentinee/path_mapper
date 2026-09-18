@@ -1,0 +1,36 @@
+post:
+  summary: Replace the active scene's map
+  description: >-
+    Accepts an OpenRaster image and makes it the map of whichever scene is
+    currently active, splitting it into its layers on the way in. Replaces any map
+    that scene already had. Takes effect immediately for every connected player.
+
+    Fails when no game is loaded and when no scene is active, because there is
+    then nothing for the map to belong to.
+  tags: ['Scene']
+  requestBody:
+    required: true
+    content:
+      'multipart/form-data':
+        schema: { $ref: '../../schemas/scene/map-upload.yaml#/mapUpload' }
+  responses:
+    '200':
+      description: The map is now the active scene's
+      content:
+        'application/json':
+          schema: { $ref: '../../schemas/common/ok.yaml#/acknowledgement' }
+    '400':
+      description: No game loaded, no active scene, or the image could not be read
+      content:
+        'application/json':
+          schema: { $ref: '../../schemas/common/error.yaml#/error' }
+    '401':
+      description: The upload token was missing or wrong
+      content:
+        'application/json':
+          schema: { $ref: '../../schemas/common/error.yaml#/error' }
+    '500':
+      description: The image was read but could not be turned into a map
+      content:
+        'application/json':
+          schema: { $ref: '../../schemas/common/error.yaml#/error' }

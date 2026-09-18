@@ -194,10 +194,8 @@ defmodule PathMapperWeb.PlayerLive do
   def handle_info({:close_all_context_menus, _}, socket), do: {:noreply, socket}
 
   @impl true
-  def handle_info(%{adventure_load_error: _}, socket), do: {:noreply, socket}
 
   @impl true
-  def handle_info(%{group_load_error: _}, socket), do: {:noreply, socket}
 
   @impl true
   def terminate(_reason, socket) do
@@ -217,7 +215,7 @@ defmodule PathMapperWeb.PlayerLive do
   defp find_player(nil, _name), do: nil
 
   defp find_player(group, name) do
-    Enum.find(group.players, &(&1.character_name == name))
+    Enum.find(group.players, &(&1.id == name))
   end
 
   defp get_selected_adventure do

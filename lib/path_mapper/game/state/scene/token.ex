@@ -45,7 +45,7 @@ defmodule PathMapper.Game.State.Scene.Token do
       end
 
     token_object =
-      "{ name = \"#{token.data.name}\", x = #{token.x}, y = #{token.y}, state = \"#{token.state}\", subpixel = #{GeometryMapper.subpixel_factor()}#{owner_part} }"
+      "{ id = \"#{token.data.id}\", x = #{token.x}, y = #{token.y}, state = \"#{token.state}\", subpixel = #{GeometryMapper.subpixel_factor()}#{owner_part} }"
 
     indent = "        "
     "#{indent}#{token_object}"

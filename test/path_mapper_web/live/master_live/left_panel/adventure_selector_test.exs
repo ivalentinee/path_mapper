@@ -2,8 +2,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.AdventureSelectorTest do
   use PathMapperWeb.ConnCase
   import Phoenix.LiveViewTest
 
-  alias PathMapper.Adventures
-
   setup %{conn: conn} do
     conn = get(conn, "/master")
     assert html_response(conn, 200)
@@ -12,59 +10,45 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.AdventureSelectorTest do
     {:ok, %{conn: conn, view: view, html: html}}
   end
 
+  defp open(view) do
+    view |> element("#adventure-selector-button") |> render_click()
+    view
+  end
+
   test "opens 'adventure selector' with a click", %{view: view, html: html} do
     assert !find_html_element(html, "#adventure-selector")
-
-    view
-    |> element("#adventure-selector-button")
-    |> render_click()
-
-    assert find_html_element(render(view), "#adventure-selector")
+    assert find_html_element(render(open(view)), "#adventure-selector")
   end
 
-  test "selects 'adventure selector' item with a click", %{view: view} do
-    first_adventure_name = List.first(Adventures.get())
+  test "offers no library to browse", %{view: view} do
+    html = render(open(view))
 
-    view |> element("#adventure-selector-button") |> render_click()
-    assert find_html_element(render(view), "#adventure-selector")
-
-    view
-    |> element("#adventure-selector button.item", first_adventure_name)
-    |> render_click()
-
-    assert find_html_element(render(view), "button.item.selected")
+    refute find_html_element(html, "#adventure-selector button.item")
+    refute find_html_element(html, ~s(#adventure-selector button[phx-click="reload"]))
   end
 
-  test "loading malformed adventure shows error overlay", %{view: view} do
-    view |> element("#adventure-selector-button") |> render_click()
+  test "restore is offered with no adventure loaded, and saving is not", %{view: view} do
+    PathMapper.Game.clear()
+    html = render(open(view))
 
-    view
-    |> element("#adventure-selector button.item", "bad-adventure.zip")
-    |> render_click()
-
-    html = render(view)
-    assert find_html_element(html, ".load-errors-overlay")
-    assert find_html_element(html, ".load-error-item")
+    assert find_html_element(html, "#state-restore-input")
+    refute find_html_element(html, ".state-buttons a[download]")
   end
 
-  test "dismiss button clears error overlay", %{view: view} do
-    view |> element("#adventure-selector-button") |> render_click()
-    view |> element("#adventure-selector button.item", "bad-adventure.zip") |> render_click()
-    assert find_html_element(render(view), ".load-errors-overlay")
+  test "shows the loaded adventure's name and id", %{view: view} do
+    load_adventure("tt0001-0000000001-adventure-1.zip")
+    html = render(open(view))
 
-    view |> element(".load-errors-dismiss") |> render_click()
-    refute find_html_element(render(view), ".load-errors-overlay")
+    assert Floki.text(find_html_element(html, "#adventure-selector .loaded-item .item-name")) ==
+             "Adventure example"
+
+    assert Floki.text(find_html_element(html, "#adventure-selector .loaded-item .item-id")) ==
+             "tt0001-0000000001"
   end
 
-  test "reload button refreshes adventure list", %{view: view} do
-    view |> element("#adventure-selector-button") |> render_click()
-
-    view
-    |> element("#adventure-selector button.sub-button", "Reload")
-    |> render_click()
-
-    html = render(view)
-    assert find_html_element(html, "#adventure-selector")
-    assert find_html_element(html, "#adventure-selector button.item")
+  # The console no longer initiates a load, so it no longer reports one failing:
+  # a command's failure goes back to the client that sent it.
+  test "offers no error overlay to dismiss", %{view: view} do
+    refute find_html_element(render(open(view)), ".load-errors-overlay")
   end
 end

@@ -1,13 +1,19 @@
 # Path Mapper
 
-Lightweight, playback-only VTT (Virtual Tabletop) for Pathfinder 2e and other square-grid TTRPGs. Built with Elixir/Phoenix LiveView. No database --- all state is in-memory via OTP, with content loaded from ZIP files.
+Lightweight, playback-only VTT (Virtual Tabletop) for Pathfinder 2e and other square-grid TTRPGs. Built with Elixir/Phoenix LiveView. No database, and no content of its own: everything is in memory, and a session is fed to the running server from the game master's own machine.
 
 - `/master` --- Game Master interface
 - `/` --- Player view
 
+PathMapper is a player rather than a composer. Adventures, maps and tokens are made
+in the tools you already use --- GIMP, Emacs, a text editor --- and PathMapper only
+plays them. That is why there is no built-in editor and nothing stored on the
+server: the [PathMapper client](client/README.md) sends a session over when you
+want one, and the server forgets it on restart.
+
 ## Documentation
 
-See the [docs/](docs/) folder for content authoring guides (adventures, groups, maps) and the [Installation Guide](docs/installation.md) for server deployment.
+See the [docs/](docs/) folder for content authoring guides (adventures, groups, maps), the [Installation Guide](docs/installation.md) for server deployment, and the [client README](client/README.md) for the program that feeds it.
 
 ## Development
 

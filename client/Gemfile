@@ -1,0 +1,18 @@
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+
+# Ruby has no zip in its standard library, and unpacking a blob is this program's
+# job rather than the server's.
+gem 'rubyzip', '~> 2.3'
+
+# Blob manifests are real TOML - arrays of tables, inline tables - so a subset
+# parser would be a bug waiting for an adventure that uses what it missed. The
+# configuration file is TOML too, so one parser covers both.
+gem 'toml-rb', '~> 4.2'
+
+group :development, :test do
+  gem 'minitest', '~> 5.0'
+  gem 'rake', '~> 13.0'
+  gem 'rubocop', '~> 1.88', require: false
+end

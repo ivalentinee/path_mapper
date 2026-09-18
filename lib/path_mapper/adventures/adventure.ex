@@ -2,14 +2,14 @@ defmodule PathMapper.Adventures.Adventure do
   use Ecto.Schema
 
   import Ecto.Changeset
-  alias PathMapper.Adventures.Adventure.FileStorage
-  alias PathMapper.Zip
+  alias PathMapper.StoredAsset
 
   @primary_key false
 
   embedded_schema do
+    field(:id, :string)
     field(:title, :string)
-    field(:wallpaper, :binary)
+    field(:wallpaper, :string)
     field(:file, :string)
     embeds_many(:urls, __MODULE__.URL)
     embeds_many(:scenes, __MODULE__.Scene)
@@ -33,34 +33,29 @@ defmodule PathMapper.Adventures.Adventure do
   def all_tokens(%__MODULE__{scenes: scenes}) do
     scenes
     |> Enum.flat_map(fn scene -> scene.tokens || [] end)
-    |> Enum.uniq_by(& &1.name)
+    |> Enum.uniq_by(& &1.id)
     |> Enum.sort_by(& &1.name)
   end
 
-  def find_token_by_name(%__MODULE__{scenes: scenes}, name) when is_binary(name) do
+  def find_token_by_id(%__MODULE__{scenes: scenes}, id) when is_binary(id) do
     Enum.find_value(scenes, fn scene ->
-      Enum.find(scene.tokens || [], &(&1.name == name))
+      Enum.find(scene.tokens || [], &(&1.id == id))
     end)
   end
 
-  def changeset(struct, params, adventure_zip) do
-    struct
-    |> cast(read_manifest_files(params, adventure_zip), [:title, :wallpaper, :file])
-    |> cast_embed(:urls)
-    |> cast_embed(:scenes,
-      required: true,
-      with: &__MODULE__.Scene.changeset(&1, &2, adventure_zip)
-    )
-    |> validate_required([:title, :file])
+  def find_token_by_id(%__MODULE__{}, _id), do: nil
+
+  def find_scene_by_id(%__MODULE__{scenes: scenes}, id) when is_binary(id) do
+    Enum.find(scenes, &(&1.id == id))
   end
 
-  defp read_manifest_files(params, adventure_zip) when is_map(params) do
-    with filename when is_binary(filename) <- params["wallpaper"],
-         {:ok, wallpaper} <- Zip.get_file(adventure_zip, filename),
-         {:ok, wallpaper_path} <- FileStorage.store_image(wallpaper) do
-      Map.put(params, "wallpaper", wallpaper_path)
-    else
-      _ -> params
-    end
+  def find_scene_by_id(%__MODULE__{}, _id), do: nil
+
+  def changeset(struct, params) do
+    struct
+    |> cast(params, [:id, :title, :wallpaper, :file])
+    |> StoredAsset.validate(:wallpaper)
+    |> cast_embed(:urls)
+    |> validate_required([:id, :title])
   end
 end

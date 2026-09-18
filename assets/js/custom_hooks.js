@@ -331,33 +331,30 @@ Hooks.Geometry = {
   }
 };
 
-Hooks.Download = {
-  mounted() {
-    this.handleEvent("download", ({ data, filename }) => {
-      const blob = new Blob([data], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-  },
-};
-
 Hooks.FileUpload = {
   mounted() {
-    this.el.addEventListener("change", (e) => {
+    this.el.addEventListener("change", async (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        const target = this.el.dataset.target;
-        const event = this.el.dataset.event;
-        this.pushEventTo(target, event, { content: reader.result });
-        this.el.value = "";
-      };
-      reader.readAsText(file);
+
+      const body = new FormData();
+      body.append("file", file);
+      this.el.value = "";
+
+      const token = document
+        .querySelector("meta[name='csrf-token']")
+        .getAttribute("content");
+
+      const response = await fetch(this.el.dataset.url, {
+        method: "POST",
+        headers: { "x-csrf-token": token },
+        body,
+      });
+
+      if (!response.ok) {
+        const { error } = await response.json().catch(() => ({ error: response.statusText }));
+        this.pushEventTo(this.el.dataset.target, "restore_failed", { error });
+      }
     });
   },
 };

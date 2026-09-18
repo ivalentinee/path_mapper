@@ -3,8 +3,8 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent do
 
   require PathMapperWeb.MasterLive.LeftPanelState
 
-  alias PathMapper.Adventures.Adventure
   alias PathMapper.Game
+  alias PathMapper.Game.State.Scene
 
   def handle_event("toggle_grid", _, socket) do
     Game.run_action([:map, :toggle_grid], nil)
@@ -63,9 +63,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent do
   end
 
   def adventure_layer(adventure, game_state, layer_state) do
-    adventure_map =
-      (adventure && Adventure.get_scene_map(adventure, game_state.scene.index)) ||
-        scene_data_map(game_state)
+    adventure_map = Scene.displayed_map(game_state.scene, adventure)
 
     case adventure_map do
       nil -> nil
@@ -74,9 +72,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent do
   end
 
   def objects_for_layer(layer_index, game_state, adventure) do
-    adventure_map =
-      (adventure && Adventure.get_scene_map(adventure, game_state.scene.index)) ||
-        scene_data_map(game_state)
+    adventure_map = Scene.displayed_map(game_state.scene, adventure)
 
     adventure_objects = if adventure_map, do: adventure_map.map_objects || [], else: []
 
@@ -87,13 +83,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent do
       {adv_obj, obj_state}
     end)
     |> Enum.reject(fn {adv, _} -> is_nil(adv) end)
-  end
-
-  defp scene_data_map(game_state) do
-    case game_state.scene do
-      %{data: %{map: map}} when not is_nil(map) -> map
-      _ -> nil
-    end
   end
 
   def objects_group_open?(index, assigns) do
