@@ -58,8 +58,7 @@ defmodule PathMapperWeb.KeyboardDispatch do
   end
 
   # 1c. Panel open → unwind one level
-  def dispatch("Escape", %{left_panel: %{left_panel: path}}, _)
-      when is_list(path) and length(path) > 0 do
+  def dispatch("Escape", %{left_panel: %{left_panel: [_ | _] = path}}, _) do
     parent = List.delete_at(path, -1)
 
     if length(parent) < 2 do
@@ -97,8 +96,8 @@ defmodule PathMapperWeb.KeyboardDispatch do
   end
 
   # === 4. Digit accumulation (when panel scope is open) ===
-  def dispatch(key, %{left_panel: %{left_panel: path}}, _)
-      when key in ~w(0 1 2 3 4 5 6 7 8 9) and is_list(path) and length(path) > 0 do
+  def dispatch(key, %{left_panel: %{left_panel: [_ | _]}}, _)
+      when key in ~w(0 1 2 3 4 5 6 7 8 9) do
     {:digit_append, key}
   end
 
@@ -124,10 +123,6 @@ defmodule PathMapperWeb.KeyboardDispatch do
 
   def dispatch("e", %{left_panel: %{left_panel: ["left-panel", "tokens"]}}, _) do
     %{left_panel_select: ["left-panel", "tokens", "add-extra-token"]}
-  end
-
-  def dispatch("h", %{left_panel: %{left_panel: ["left-panel", "tokens"]}}, _) do
-    %{left_panel_select: ["left-panel", "tokens", "add-adhoc-token"]}
   end
 
   # Token action sub-scope (after selecting a token by index)

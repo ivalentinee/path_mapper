@@ -3,7 +3,7 @@
     <div class="group-title">{@group.title}</div>
     <%= for player <- @group.players do %>
       <% ck = charkeeper_for(assigns[:charkeeper_data], player) %>
-      <div class={"group-character #{if @my_player && @my_player.character_name == player.character_name, do: "claimed"}"}>
+      <div class={"group-character #{if @my_player && @my_player.id == player.id, do: "claimed"}"}>
         <img
           class="group-character-portrait"
           src={player.token}
@@ -49,7 +49,7 @@
           <button
             class="claim-character-button"
             phx-click="claim_character"
-            phx-value-name={player.character_name}
+            phx-value-id={player.id}
             phx-target={assigns[:myself]}
           >
             {gettext("That's me!")}

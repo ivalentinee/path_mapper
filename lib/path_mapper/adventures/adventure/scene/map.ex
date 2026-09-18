@@ -2,8 +2,8 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map do
   use Ecto.Schema
 
   import Ecto.Changeset
+  alias PathMapper.FileStorage
   alias PathMapper.ORAReader
-  alias PathMapper.Zip
 
   @primary_key false
   @default_grid_size 50
@@ -11,6 +11,7 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map do
   @grid_line_tag_regex ~r/grid-line-([0-9]+)/
 
   embedded_schema do
+    field(:id, :string)
     field(:file, :string)
     field(:width, :integer)
     field(:height, :integer)
@@ -24,9 +25,10 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map do
     embeds_one(:fow, __MODULE__.AdditionalLayer)
   end
 
-  def changeset(struct, params, adventure_zip) do
+  def changeset(struct, params) do
     struct
-    |> cast(read_ora_file(params, adventure_zip), [:file, :width, :height])
+    |> cast(read_ora_file(params), [:id, :file, :width, :height])
+    |> reject_unreadable(params)
     |> validate_required([:file, :width, :height])
     |> cast_embed(:layers, required: true)
     |> cast_embed(:map_objects)
@@ -39,13 +41,25 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map do
     |> validate_required([:grid_size, :grid_line_width, :show_grid, :floors])
   end
 
-  defp read_ora_file(params, adventure_zip) when is_map(params) do
+  defp read_ora_file(params) when is_map(params) do
     with filename when is_binary(filename) <- params["file"],
-         {:ok, ora_file} <- Zip.get_file(adventure_zip, filename),
+         {:ok, ora_file} <- FileStorage.read_stored(filename),
          {:ok, ora_data} <- ORAReader.read_from_file(ora_file) do
-      Map.put(ora_data, :file, params["file"])
+      ora_data
+      |> Map.put(:file, params["file"])
+      |> Map.put(:id, params["id"] || params[:id])
     else
       _ -> params
+    end
+  end
+
+  # Without this a description naming an absent map fails as three blank fields,
+  # which tells a client author nothing about what actually went wrong.
+  defp reject_unreadable(changeset, params) do
+    if is_binary(params["file"]) and is_nil(get_change(changeset, :width)) do
+      add_error(changeset, :file, "names no readable map: #{params["file"]}")
+    else
+      changeset
     end
   end
 

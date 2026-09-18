@@ -9,7 +9,12 @@
       {if @expanded, do: gettext("All"), else: gettext("Scene")}
     </button>
     <%= if @expanded do %>
-      <form phx-change="search" phx-target={@myself} class="token-search-form">
+      <form
+        id="token-search-form"
+        phx-change="search"
+        phx-target={@myself}
+        class="token-search-form"
+      >
         <input
           type="text"
           name="search"
@@ -25,7 +30,7 @@
 
   <%= for token <- @visible_tokens do %>
     <div class="item">
-      <button phx-click="add_token" phx-value-name={token.name} phx-target={@myself}>
+      <button phx-click="add_token" phx-value-id={token.id} phx-target={@myself}>
         {token.name}
       </button>
     </div>

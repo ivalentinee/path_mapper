@@ -1,22 +1,8 @@
 import Config
 
 config :path_mapper,
-       :adventure_base_path,
-       Application.get_env(:path_mapper, :adventure_base_path) ||
-         System.get_env("ADVENTURE_BASE_PATH") || "adventures"
-
-config :path_mapper,
-       :group_base_path,
-       Application.get_env(:path_mapper, :group_base_path) ||
-         System.get_env("GROUP_BASE_PATH") || "groups"
-
-config :path_mapper,
        :subpixel_factor,
        Application.get_env(:path_mapper, :subpixel_factor) || 10
-
-config :path_mapper,
-       :global_tokens_path,
-       System.get_env("GLOBAL_TOKENS_PATH") || "tokens"
 
 config :path_mapper,
        :charkeeper_server,
@@ -27,8 +13,8 @@ config :path_mapper,
        String.to_integer(System.get_env("CHARKEEPER_POLL_INTERVAL") || "10000")
 
 config :path_mapper,
-       :upload_token,
-       System.get_env("UPLOAD_TOKEN")
+       :api_token,
+       System.get_env("API_TOKEN")
 
 if cacertfile = System.get_env("CACERTFILE") do
   config :path_mapper, :cacertfile, cacertfile
@@ -44,8 +30,6 @@ if config_env() == :prod do
 
   host = System.get_env("PHX_HOST") || "example.com"
   port = String.to_integer(System.get_env("PORT") || "4000")
-
-  config :path_mapper, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   config :path_mapper, PathMapperWeb.Endpoint,
     server: true,

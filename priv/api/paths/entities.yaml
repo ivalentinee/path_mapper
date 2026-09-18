@@ -1,0 +1,53 @@
+post:
+  summary: Add or replace an entity
+  description: >-
+    Declares one thing the session is made of: an adventure, a group, a scene, a
+    map or a token. An id the server already holds is replaced, which is ordinary
+    rather than exceptional - ids are unique everywhere, so a shared token declared
+    by a second adventure is the same token declared again.
+
+    Refused when the id currently holds a different kind. That is not sharing, it
+    is an authoring mistake, and the server has no other way to notice it.
+
+    This is how an adventure reaches the server. There is no route that takes one
+    whole: an adventure is a sequence of these, and so is a group, and so is
+    restoring a snapshot.
+  tags: ['Session']
+  requestBody:
+    required: true
+    content:
+      'application/json':
+        schema: { $ref: '../schemas/session/entity.yaml#/entity' }
+  responses:
+    '200':
+      description: The entity is in the store
+      content:
+        'application/json':
+          schema: { $ref: '../schemas/common/ok.yaml#/acknowledgement' }
+    '400':
+      description: Unknown kind, invalid payload, or an id that holds another kind
+      content:
+        'application/json':
+          schema: { $ref: '../schemas/common/error.yaml#/error' }
+    '401':
+      description: The upload token was missing or wrong
+      content:
+        'application/json':
+          schema: { $ref: '../schemas/common/error.yaml#/error' }
+get:
+  summary: Hand over the entity store
+  description: >-
+    Returns everything the session is made of, which is what a client needs to
+    build a snapshot: the entities, plus the assets they name, are the whole of it.
+  tags: ['Session']
+  responses:
+    '200':
+      description: The store
+      content:
+        'application/json':
+          schema: { $ref: '../schemas/session/entity.yaml#/entityList' }
+    '401':
+      description: The upload token was missing or wrong
+      content:
+        'application/json':
+          schema: { $ref: '../schemas/common/error.yaml#/error' }

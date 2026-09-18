@@ -11,8 +11,14 @@ defmodule PathMapperWeb.Router do
     plug PathMapperWeb.Plugs.Locale
   end
 
+  pipeline :api_public do
+    plug :accepts, ["json"]
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
+    plug PathMapperWeb.Plugs.TokenAuth
+    plug PathMapperWeb.Plugs.SchemaGate
   end
 
   scope "/", PathMapperWeb do
@@ -23,8 +29,21 @@ defmodule PathMapperWeb.Router do
   end
 
   scope "/api", PathMapperWeb do
-    pipe_through [:api, PathMapperWeb.Plugs.TokenAuth]
+    pipe_through :api_public
+
+    get "/openapi.json", ApiDocumentController, :show
+  end
+
+  scope "/api", PathMapperWeb do
+    pipe_through :api
 
     post "/scenes/map", MapUploadController, :upload
+    post "/assets", AssetController, :create
+    post "/reset", SessionController, :reset
+    post "/entities", EntityController, :create
+    get "/entities", EntityController, :index
+    delete "/entities/:id", EntityController, :delete
+    get "/state", StateController, :show
+    post "/state", StateController, :update
   end
 end

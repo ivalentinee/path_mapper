@@ -7,8 +7,8 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
   alias PathMapper.Groups
 
   setup %{conn: conn} do
-    load_adventure("adventure-1.zip")
-    {:ok, _group} = Groups.load_group("group-1.zip")
+    load_adventure("tt0001-0000000001-adventure-1.zip")
+    {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
 
     conn = get(conn, "/master")
     assert html_response(conn, 200)
@@ -73,7 +73,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
     initial_token_count = Enum.count(Game.get_state().scene.tokens)
 
     # Add a token to scene 0
-    Game.run_action([:tokens, :add], "monster 1")
+    Game.run_action([:tokens, :add], "tk0001-0000000001")
     assert Enum.count(Game.get_state().scene.tokens) === initial_token_count + 1
 
     # Switch to scene 1
@@ -93,7 +93,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
     scene_0_tokens = Enum.count(Game.get_state().scene.tokens)
 
     # Add a token to scene 0
-    Game.run_action([:tokens, :add], "monster 1")
+    Game.run_action([:tokens, :add], "tk0001-0000000001")
     assert Enum.count(Game.get_state().scene.tokens) === scene_0_tokens + 1
 
     # Switch to scene 1 — should NOT have the extra token
@@ -107,7 +107,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
     select_scene(view, first_scene_name())
 
     # Add a token
-    Game.run_action([:tokens, :add], "monster 1")
+    Game.run_action([:tokens, :add], "tk0001-0000000001")
     token_count = Enum.count(Game.get_state().scene.tokens)
 
     # Unset
@@ -126,7 +126,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
     initial_token_count = Enum.count(Game.get_state().scene.tokens)
 
     # Add a token
-    Game.run_action([:tokens, :add], "monster 1")
+    Game.run_action([:tokens, :add], "tk0001-0000000001")
     assert Enum.count(Game.get_state().scene.tokens) === initial_token_count + 1
 
     # Reset (first click shows confirmation, second executes)
@@ -142,7 +142,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
     initial_token_count = Enum.count(Game.get_state().scene.tokens)
 
     # Add a token then reset
-    Game.run_action([:tokens, :add], "monster 1")
+    Game.run_action([:tokens, :add], "tk0001-0000000001")
     view |> element("#reset_scene") |> render_click()
     view |> element("#reset_scene") |> render_click()
 
@@ -159,7 +159,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.SceneSelectorTest do
     select_scene(view, first_scene_name())
 
     # Add a token
-    Game.run_action([:tokens, :add], "monster 1")
+    Game.run_action([:tokens, :add], "tk0001-0000000001")
     token_count = Enum.count(Game.get_state().scene.tokens)
 
     # Re-select same scene

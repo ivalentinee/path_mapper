@@ -25,23 +25,23 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   end
 
   @impl true
-  def handle_event("claim_character", %{"name" => name}, socket) do
+  def handle_event("claim_character", %{"id" => id}, socket) do
     if socket.assigns[:is_player] do
-      send(self(), %{session_event: {:claim_character, name}})
+      send(self(), %{session_event: {:claim_character, id}})
     end
 
     {:noreply, socket}
   end
 
   @impl true
-  def handle_event("add_player_token", %{"name" => name}, socket) do
-    Game.run_action([:tokens, :player, :add], name)
+  def handle_event("add_player_token", %{"id" => id}, socket) do
+    Game.run_action([:tokens, :player, :add], id)
     {:noreply, socket}
   end
 
   @impl true
-  def handle_event("remove_player_token", %{"name" => name}, socket) do
-    case find_token_index_by_name(name) do
+  def handle_event("remove_player_token", %{"id" => token_id}, socket) do
+    case find_token_index(token_id) do
       nil -> :ok
       index -> Game.run_action([:tokens, :delete], index)
     end
@@ -50,9 +50,9 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   end
 
   @impl true
-  def handle_event("add_extra_token", %{"name" => name, "index" => index_str}, socket) do
+  def handle_event("add_extra_token", %{"id" => id, "index" => index_str}, socket) do
     case Integer.parse(index_str) do
-      {index, _} -> Game.run_action([:tokens, :player, :add_extra], {name, index})
+      {index, _} -> Game.run_action([:tokens, :player, :add_extra], {id, index})
       _ -> :ok
     end
 
@@ -162,7 +162,7 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   defp charkeeper_status_title(_), do: nil
 
   defp charkeeper_for(charkeeper_data, player) do
-    Map.get(charkeeper_data || %{}, player.character_name)
+    Map.get(charkeeper_data || %{}, player.id)
   end
 
   defp hp_bar_percent(_hp_current, _hp_temp, hp_max) when hp_max <= 0, do: {0, 0}
@@ -234,11 +234,13 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   defp initiative_color(nil), do: "#808080"
   defp initiative_color(owner), do: Palette.resolve(owner)
 
-  defp find_token_index_by_name(name) do
+  # By token id rather than by displayed name: two characters may share a name,
+  # and the player's own token already carries the id the group declared for it.
+  defp find_token_index(token_id) do
     tokens = scene_tokens()
 
     Enum.find_value(Enum.with_index(tokens), fn {token, index} ->
-      if token.data.name == name, do: index
+      if token.data.id == token_id, do: index
     end)
   end
 

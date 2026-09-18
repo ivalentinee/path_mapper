@@ -77,6 +77,13 @@ defmodule PathMapper.Game.Actions.Tokens.FindFreeSpace do
     end
   end
 
+  # A scene whose declaration names no map yet - one made at the table, before a
+  # map is bound to it - falls back to the blank map state gave it.
+  defp get_map_size(%State.Scene{data: %{map: nil}, map: map}, token_size) do
+    {GeometryMapper.to_subpixels(map.width) - token_size,
+     GeometryMapper.to_subpixels(map.height) - token_size}
+  end
+
   defp get_map_size(%State.Scene{custom: true, map: map}, token_size) do
     {GeometryMapper.to_subpixels(map.width) - token_size,
      GeometryMapper.to_subpixels(map.height) - token_size}

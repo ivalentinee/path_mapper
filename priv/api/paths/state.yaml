@@ -1,0 +1,59 @@
+get:
+  summary: Hand over game state
+  description: >-
+    Returns what has happened in the session, as distinct from what it is made of:
+    which scene is active, and for every declared scene, where things stand on it.
+
+    It carries no assets and names entities by id, so it is small. Fetching it on
+    its own is how a checkpoint is taken - repeatedly, if a replay is wanted.
+  tags: ['Session']
+  responses:
+    '200':
+      description: The current game state
+      content:
+        'application/json':
+          schema:
+            type: object
+    '400':
+      description: There is no session to describe
+      content:
+        'application/json':
+          schema: { $ref: '../schemas/common/error.yaml#/error' }
+    '401':
+      description: The upload token was missing or wrong
+      content:
+        'application/json':
+          schema: { $ref: '../schemas/common/error.yaml#/error' }
+post:
+  summary: Apply game state
+  description: >-
+    Puts a session back where a state says it was. All or nothing: a state naming an
+    entity the store does not hold is refused outright, and nothing is written.
+
+    Repairing or skipping the missing parts would cost the code that decides what a
+    half-applied state means, for a case a real session is unlikely to reach. A
+    state is only meaningful against the entities it names, and refusing is what
+    makes that visible rather than producing a session with holes in it.
+  tags: ['Session']
+  requestBody:
+    required: true
+    content:
+      'application/json':
+        schema:
+          type: object
+  responses:
+    '200':
+      description: The session is where the state said
+      content:
+        'application/json':
+          schema: { $ref: '../schemas/common/ok.yaml#/acknowledgement' }
+    '400':
+      description: The state names something the store does not hold
+      content:
+        'application/json':
+          schema: { $ref: '../schemas/common/error.yaml#/error' }
+    '401':
+      description: The upload token was missing or wrong
+      content:
+        'application/json':
+          schema: { $ref: '../schemas/common/error.yaml#/error' }

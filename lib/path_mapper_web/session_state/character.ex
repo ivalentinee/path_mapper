@@ -21,14 +21,14 @@ defmodule PathMapperWeb.SessionState.Character do
     %{state | my_player: my_player, my_token_on_map: compute_on_map(game_state, my_player)}
   end
 
-  defp refresh_player(%{character_name: name}, group) when not is_nil(group) do
-    Enum.find(group.players, &(&1.character_name == name))
+  defp refresh_player(%{id: id}, group) when not is_nil(group) do
+    Enum.find(group.players, &(&1.id == id))
   end
 
   defp refresh_player(_, _), do: nil
 
-  defp compute_on_map(%{scene: %{tokens: tokens}}, %{character_name: name}) do
-    Enum.any?(tokens, &(&1.data.name == name))
+  defp compute_on_map(%{scene: %{tokens: tokens}}, %{id: id}) do
+    Enum.any?(tokens, &(&1.owner == id))
   end
 
   defp compute_on_map(_, _), do: false

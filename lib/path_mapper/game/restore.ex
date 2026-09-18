@@ -7,43 +7,26 @@ defmodule PathMapper.Game.Restore do
   alias PathMapper.Adventures.Adventure.Scene.Map.AdditionalLayer
   alias PathMapper.Adventures.Adventure.Scene.Map.Layer, as: AdventureLayer
   alias PathMapper.Adventures.Adventure.Scene.Map.MapObject, as: AdventureMapObject
+  alias PathMapper.Game.Actions.Tokens.Find
   alias PathMapper.Game.State
 
-  def restore(json_string, %Adventure{} = adventure, group) do
-    with {:ok, data} <- decode_json(json_string),
-         :ok <- validate_version(data),
-         :ok <- validate_adventure(data, adventure),
-         :ok <- validate_group(data, group) do
-      build_state(data, adventure)
+  def read(data) when is_map(data) do
+    with :ok <- validate_version(data),
+         {:ok, adventure_id} <- fetch_adventure_id(data) do
+      {:ok, %{data: data, adventure_id: adventure_id, group_id: data["group_id"]}}
     end
   end
 
-  defp decode_json(json_string) do
-    case Jason.decode(json_string) do
-      {:ok, data} -> {:ok, data}
-      {:error, _} -> {:error, "Invalid JSON"}
-    end
+  def build(data, %Adventure{} = adventure) when is_map(data) do
+    build_state(data, adventure)
   end
 
-  defp validate_version(%{"version" => v}) when v in [1, 2], do: :ok
+  defp fetch_adventure_id(%{"adventure_id" => id}) when is_binary(id), do: {:ok, id}
+  defp fetch_adventure_id(_), do: {:error, "Snapshot names no adventure"}
+
+  defp validate_version(%{"version" => 3}), do: :ok
   defp validate_version(%{"version" => v}), do: {:error, "Unsupported version: #{v}"}
   defp validate_version(_), do: {:error, "Invalid format: missing version"}
-
-  defp validate_adventure(%{"adventure_file" => file}, %Adventure{file: file}), do: :ok
-
-  defp validate_adventure(%{"adventure_file" => dump_file}, %Adventure{file: loaded_file}) do
-    {:error, "Adventure mismatch: dump is for '#{dump_file}', loaded is '#{loaded_file}'"}
-  end
-
-  defp validate_adventure(_, _), do: :ok
-
-  defp validate_group(%{"group_file" => file}, group) when not is_nil(group) do
-    if group.file == file,
-      do: :ok,
-      else: {:error, "Group mismatch: dump is for '#{file}', loaded is '#{group.file}'"}
-  end
-
-  defp validate_group(_, _), do: :ok
 
   defp build_state(data, adventure) do
     scenes = build_scenes(data["scenes"] || %{}, adventure)
@@ -59,15 +42,15 @@ defmodule PathMapper.Game.Restore do
 
   defp build_scenes(scenes_map, adventure) do
     scenes_map
-    |> Enum.map(fn {index_str, scene_data} ->
-      index = String.to_integer(index_str)
+    |> Enum.map(fn {scene_id, scene_data} ->
+      order = scene_data["order"]
 
       cond do
         scene_data["custom"] == true ->
-          {index, build_custom_scene(scene_data, index, adventure)}
+          {scene_id, build_custom_scene(scene_data, scene_id, order, adventure)}
 
-        adventure_scene = Enum.at(adventure.scenes, index) ->
-          {index, build_scene(scene_data, adventure_scene, index, adventure)}
+        adventure_scene = Adventure.find_scene_by_id(adventure, scene_id) ->
+          {scene_id, build_scene(scene_data, adventure_scene, order, adventure)}
 
         true ->
           nil
@@ -77,18 +60,61 @@ defmodule PathMapper.Game.Restore do
     |> Map.new()
   end
 
-  defp build_scene(scene_data, adventure_scene, index, adventure) do
+  defp build_scene(scene_data, adventure_scene, order, adventure) do
+    data =
+      adventure_scene
+      |> apply_uploaded_map(scene_data["custom_map"])
+      |> apply_roster(scene_data["roster"])
+
     %State.Scene{
-      index: index,
+      id: adventure_scene.id,
+      order: order,
       name: adventure_scene.name,
-      data: adventure_scene,
+      uploaded_map: scene_data["uploaded_map"] == true,
+      data: data,
       map: build_map(scene_data["map"] || %{}),
-      tokens: build_tokens(scene_data["tokens"] || [], adventure_scene, adventure),
+      tokens: build_tokens(scene_data["tokens"] || [], data, adventure),
       drawn_elements: build_drawn_elements(scene_data["drawn_elements"] || [])
     }
   end
 
-  defp build_custom_scene(scene_data, index, adventure) do
+  defp apply_uploaded_map(adventure_scene, nil), do: adventure_scene
+
+  defp apply_uploaded_map(adventure_scene, map_data) do
+    %{adventure_scene | map: restore_custom_map(map_data)}
+  end
+
+  # The blob stays the source of what it declares, so its entries come first and
+  # a name it declares wins. Only what no blob supplies is taken from the snapshot.
+  defp apply_roster(adventure_scene, carried) when carried in [nil, []], do: adventure_scene
+
+  defp apply_roster(adventure_scene, carried) when is_list(carried) do
+    declared = MapSet.new(adventure_scene.tokens || [], & &1.id)
+    extra = carried |> Enum.map(&restore_roster_entry/1) |> Enum.reject(&is_nil/1)
+    extra = Enum.reject(extra, &MapSet.member?(declared, &1.id))
+
+    %{adventure_scene | tokens: (adventure_scene.tokens || []) ++ extra}
+  end
+
+  defp restore_roster_entry(%{"id" => id} = entry) when is_binary(id) do
+    %Adventure.Scene.Token{
+      id: id,
+      name: entry["name"],
+      owner: entry["owner"],
+      image: entry["image"],
+      size: entry["size"]
+    }
+  end
+
+  defp restore_roster_entry(_entry), do: nil
+
+  defp restored_roster(carried) when is_list(carried) do
+    carried |> Enum.map(&restore_roster_entry/1) |> Enum.reject(&is_nil/1)
+  end
+
+  defp restored_roster(_carried), do: []
+
+  defp build_custom_scene(scene_data, scene_id, order, adventure) do
     custom_map_data = scene_data["custom_map"]
 
     adventure_scene_data =
@@ -96,17 +122,20 @@ defmodule PathMapper.Game.Restore do
         map = restore_custom_map(custom_map_data)
 
         %AdventureScene{
+          id: scene_id,
           name: scene_data["name"],
           type: "battle",
           map: map,
-          tokens: [],
+          tokens: restored_roster(scene_data["roster"]),
           place_tokens: []
         }
       end
 
     %State.Scene{
-      index: index,
+      id: scene_id,
+      order: order,
       custom: true,
+      uploaded_map: scene_data["uploaded_map"] == true,
       name: scene_data["name"],
       data: adventure_scene_data,
       map: build_map(scene_data["map"] || %{}),
@@ -229,7 +258,8 @@ defmodule PathMapper.Game.Restore do
       adhoc = data["adhoc"]
 
       adventure_token = %Adventure.Scene.Token{
-        name: adhoc["label"] || data["data_name"],
+        id: adhoc["id"] || data["data_id"],
+        name: adhoc["label"],
         owner: adhoc["owner"] || "none",
         image: nil,
         size: adhoc["size"] || 1
@@ -251,14 +281,14 @@ defmodule PathMapper.Game.Restore do
   defp build_adventure_token(data, adventure_scene, adventure) do
     adventure_token =
       case adventure_scene do
-        %{tokens: tokens} -> Enum.find(tokens, &(&1.name == data["data_name"]))
+        %{tokens: tokens} -> Enum.find(tokens, &(&1.id == data["data_id"]))
         _ -> nil
       end
 
     adventure_token =
       adventure_token ||
-        Adventure.find_token_by_name(adventure, data["data_name"]) ||
-        find_global_token(data["data_name"])
+        Find.find_group_token(data["data_id"]) ||
+        Adventure.find_token_by_id(adventure, data["data_id"])
 
     case adventure_token do
       nil ->
@@ -273,13 +303,6 @@ defmodule PathMapper.Game.Restore do
           owner: data["owner"],
           data: token
         }
-    end
-  end
-
-  defp find_global_token(name) do
-    case Enum.find(PathMapper.GlobalTokens.get(), fn entry -> entry.token.name == name end) do
-      %{token: token} -> token
-      _ -> nil
     end
   end
 

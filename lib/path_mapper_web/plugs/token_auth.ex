@@ -20,7 +20,7 @@ defmodule PathMapperWeb.Plugs.TokenAuth do
   end
 
   defp get_configured_token do
-    case Application.get_env(:path_mapper, :upload_token) do
+    case Application.get_env(:path_mapper, :api_token) do
       nil -> :error
       "" -> :error
       token when is_binary(token) -> {:ok, token}

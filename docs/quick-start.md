@@ -123,13 +123,26 @@ Use the build script to package your directories into ZIP files:
 
 ## Upload and Run
 
-1. Copy the ZIP files to the server's `adventures/` and `groups/` directories.
-2. Click **Reload** in the GM panel's Adventures or Groups section to pick up new files (no server restart needed).
-3. Open `http://your-server:4000/master` in your browser.
-4. Select your adventure from the Adventures panel.
-5. Select your group from the Groups panel.
-6. Select a scene from the Scenes panel.
-7. Open `http://your-server:4000/` in a second tab to see the player view.
+Rename the ZIPs so their extension says what they are --- `.pmadventure` and
+`.pmgroup` --- and open them with the [PathMapper client](../client/README.md):
+
+```bash
+path-mapper my-adventure.pmadventure my-group.pmgroup
+```
+
+Or double-click them, once the client's desktop entries are installed. Either way
+the client unpacks them, uploads what they contain, and tells the server what to
+make of it. Nothing is copied to the server and nothing has to be reloaded.
+
+Then:
+
+1. Open `http://your-server:4000/master` in your browser.
+2. Select a scene from the Scenes panel.
+3. Open `http://your-server:4000/` in a second tab to see the player view.
+
+The server keeps none of this. A restart leaves an empty board, and the same
+command fills it again --- which is also how you pick up an edit: change the
+adventure, upload it again.
 
 ## Next Steps
 

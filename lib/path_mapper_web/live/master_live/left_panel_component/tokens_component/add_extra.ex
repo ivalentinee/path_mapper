@@ -18,10 +18,10 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.AddExtra d
     {:noreply, socket}
   end
 
-  def handle_event("add_token", %{"player" => player_name, "index" => index_string}, socket) do
+  def handle_event("add_token", %{"player" => player_id, "index" => index_string}, socket) do
     with_parsed_index(
       index_string,
-      &Game.run_action([:tokens, :player, :add_extra], {player_name, &1})
+      &Game.run_action([:tokens, :player, :add_extra], {player_id, &1})
     )
 
     {:noreply, socket}

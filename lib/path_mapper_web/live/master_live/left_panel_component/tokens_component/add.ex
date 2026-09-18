@@ -5,7 +5,6 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Add do
 
   alias PathMapper.Adventures.Adventure
   alias PathMapper.Game
-  alias PathMapper.GlobalTokens
 
   @impl true
   def update(assigns, socket) do
@@ -29,8 +28,8 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Add do
   end
 
   @impl true
-  def handle_event("add_token", %{"name" => name}, socket) do
-    Game.run_action([:tokens, :add], name)
+  def handle_event("add_token", %{"id" => id}, socket) do
+    Game.run_action([:tokens, :add], id)
     {:noreply, socket}
   end
 
@@ -49,45 +48,26 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Add do
 
   defp visible_tokens(assigns) do
     if assigns.expanded do
-      adventure_tokens =
-        case assigns[:adventure] do
-          %Adventure{} = adv -> Adventure.all_tokens(adv)
-          _ -> []
-        end
-
-      global_entries = GlobalTokens.get()
-      global_tokens = Enum.map(global_entries, & &1.token)
-
-      # Adventure tokens win on name collision
-      adventure_names = MapSet.new(adventure_tokens, & &1.name)
-      unique_globals = Enum.reject(global_tokens, &MapSet.member?(adventure_names, &1.name))
-
-      all = (adventure_tokens ++ unique_globals) |> Enum.sort_by(& &1.name)
-
-      case String.trim(assigns.search || "") do
-        "" -> all
-        query -> filter_with_metadata(all, global_entries, query)
-      end
+      assigns[:adventure]
+      |> adventure_tokens()
+      |> Enum.sort_by(& &1.name)
+      |> filter_by_name(assigns.search)
     else
       assigns.tokens
     end
   end
 
-  defp filter_with_metadata(tokens, global_entries, query) do
-    q = String.downcase(query)
-    global_index = Map.new(global_entries, fn e -> {e.token.name, e} end)
-    Enum.filter(tokens, &token_matches?(&1, global_index, q))
-  end
+  defp adventure_tokens(%Adventure{} = adventure), do: Adventure.all_tokens(adventure)
+  defp adventure_tokens(_), do: []
 
-  defp token_matches?(token, global_index, query) do
-    String.contains?(String.downcase(token.name), query) ||
-      metadata_matches?(global_index[token.name], query)
-  end
+  defp filter_by_name(tokens, search) do
+    case String.trim(search || "") do
+      "" ->
+        tokens
 
-  defp metadata_matches?(%GlobalTokens.Entry{group: group, tags: tags}, query) do
-    (group && String.contains?(String.downcase(group), query)) ||
-      Enum.any?(tags || [], &String.contains?(String.downcase(&1), query))
+      query ->
+        q = String.downcase(query)
+        Enum.filter(tokens, &String.contains?(String.downcase(&1.name), q))
+    end
   end
-
-  defp metadata_matches?(_, _), do: false
 end

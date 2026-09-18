@@ -1,0 +1,6 @@
+openapi: 3.0.3
+info: { title: Cyclic, version: v1 }
+paths:
+  '/loop': { $ref: '#/a' }
+a: { $ref: '#/b' }
+b: { $ref: '#/a' }

@@ -52,7 +52,7 @@
       <button
         class="pure-button character-menu-button on-map"
         phx-click="remove_player_token"
-        phx-value-name={@my_player.character_name}
+        phx-value-id={@my_player.token_id}
         phx-target={assigns[:myself]}
         disabled={!@has_scene}
       >
@@ -62,7 +62,7 @@
       <button
         class="pure-button character-menu-button"
         phx-click="add_player_token"
-        phx-value-name={@my_player.character_name}
+        phx-value-id={@my_player.id}
         phx-target={assigns[:myself]}
         disabled={!@has_scene}
       >
@@ -80,7 +80,7 @@
           <button
             class="pure-button character-menu-extra-add"
             phx-click="add_extra_token"
-            phx-value-name={@my_player.character_name}
+            phx-value-id={@my_player.id}
             phx-value-index={index}
             phx-target={assigns[:myself]}
             disabled={!@has_scene}

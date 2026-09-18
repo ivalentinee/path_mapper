@@ -2,99 +2,96 @@
 """
 GIMP 3.2+ Plugin: Upload to Path Mapper
 
-Exports the current image as ORA and uploads it to a running
-Path Mapper instance via the /api/scenes/map endpoint.
+Exports the current image as a .pmmap and hands it to the PathMapper client,
+which is the only thing that speaks to the server. The plug-in holds no server
+address and no token: those live in the client's own configuration, so there is
+one place to change them and no credential in this repository.
+
+Exporting to .pmmap rather than .ora is deliberate - it makes this path identical
+to opening the same file from a file manager, so there is one way a map reaches
+the server rather than two.
 
 Installation:
   Copy this file to ~/.config/GIMP/3.0/plug-ins/gimp-upload-to-pathmapper/
   (create the directory, make the file executable)
 
 Configuration:
-  Edit SERVER_URL and UPLOAD_TOKEN below.
+  Set PATH_MAPPER_CLIENT_PATH below to wherever the client is installed. It is
+  named outright rather than searched for on PATH, because a GIMP plug-in can run
+  with an environment that has almost nothing in it.
 
 Usage:
-  File → Upload to Path Mapper
-  Bind a keyboard shortcut via Edit → Keyboard Shortcuts
+  File -> Upload to Path Mapper
+  Bind a keyboard shortcut via Edit -> Keyboard Shortcuts
 """
 
 import gi
 gi.require_version('Gimp', '3.0')
 gi.require_version('GimpUi', '3.0')
 from gi.repository import Gimp, GimpUi, GObject, GLib, Gio
-import json
 import os
+import subprocess
 import sys
 import tempfile
-import urllib.request
-import urllib.error
 
 # --- Configuration ---
-SERVER_URL = "http://localhost:4000"
-UPLOAD_TOKEN = "dev-upload-token"
+PATH_MAPPER_CLIENT_PATH = os.path.expanduser("~/path-mapper/client/bin/path-mapper")
+
+TIMEOUT_SECONDS = 120
 
 
 def upload_to_pathmapper(procedure, run_mode, image, *args):
-    """Main plugin procedure."""
-    # Export as ORA to a temp file
-    tmp_fd, tmp_path = tempfile.mkstemp(suffix='.ora')
+    """Export the image and hand it to the client."""
+    if not os.path.exists(PATH_MAPPER_CLIENT_PATH):
+        Gimp.message(
+            "PathMapper client not found at %s.\n\n"
+            "Install it, or edit PATH_MAPPER_CLIENT_PATH in this plug-in."
+            % PATH_MAPPER_CLIENT_PATH
+        )
+        return procedure.new_return_values(Gimp.PDBStatusType.EXECUTION_ERROR, GLib.Error())
+
+    # GIMP chooses the export format from the extension, and .pmmap is not one it
+    # knows - so the export is an .ora and the rename gives it the name the client
+    # dispatches on.
+    tmp_fd, ora_path = tempfile.mkstemp(suffix='.ora')
     os.close(tmp_fd)
+    tmp_path = ora_path[:-len('.ora')] + '.pmmap'
 
     try:
-        # Save as ORA
-        file = Gio.File.new_for_path(tmp_path)
-        Gimp.file_save(Gimp.RunMode.NONINTERACTIVE, image, file)
+        Gimp.file_save(Gimp.RunMode.NONINTERACTIVE, image, Gio.File.new_for_path(ora_path))
+        os.replace(ora_path, tmp_path)
 
-        # Read the ORA file
-        with open(tmp_path, 'rb') as f:
-            ora_data = f.read()
-
-        # Build multipart/form-data request
-        boundary = '----PythonFormBoundary'
-        body = (
-            f'--{boundary}\r\n'
-            f'Content-Disposition: form-data; name="file"; filename="map.ora"\r\n'
-            f'Content-Type: application/octet-stream\r\n\r\n'
-        ).encode('utf-8') + ora_data + f'\r\n--{boundary}--\r\n'.encode('utf-8')
-
-        url = f'{SERVER_URL}/api/scenes/map'
-        req = urllib.request.Request(
-            url,
-            data=body,
-            headers={
-                'Content-Type': f'multipart/form-data; boundary={boundary}',
-                'Authorization': f'Bearer {UPLOAD_TOKEN}',
-                'Accept': 'application/json',
-            },
-            method='POST',
+        # Synchronous: the temporary file has to outlive the upload, and there is
+        # nothing useful to do while it runs.
+        result = subprocess.run(
+            [PATH_MAPPER_CLIENT_PATH, tmp_path],
+            capture_output=True,
+            text=True,
+            timeout=TIMEOUT_SECONDS,
         )
 
-        response = urllib.request.urlopen(req, timeout=30)
-        result = json.loads(response.read().decode('utf-8'))
-
-        if result.get('status') == 'ok':
-            Gimp.message('Map uploaded successfully!')
+        if result.returncode == 0:
+            Gimp.message("Map uploaded to Path Mapper")
+            status = Gimp.PDBStatusType.SUCCESS
         else:
-            Gimp.message(f'Upload response: {result}')
+            # The client decides how a failure reads, so it is shown verbatim.
+            Gimp.message(result.stderr.strip() or "Upload failed with no message")
+            status = Gimp.PDBStatusType.EXECUTION_ERROR
 
-    except urllib.error.HTTPError as e:
-        try:
-            error_body = json.loads(e.read().decode('utf-8'))
-            msg = error_body.get('error', str(e))
-        except Exception:
-            msg = str(e)
-        Gimp.message(f'Upload failed: {msg}')
-
-    except urllib.error.URLError as e:
-        Gimp.message(f'Cannot connect to Path Mapper at {SERVER_URL}: {e.reason}')
-
-    except Exception as e:
-        Gimp.message(f'Upload error: {e}')
-
+    except subprocess.TimeoutExpired:
+        Gimp.message("Upload timed out after %d seconds" % TIMEOUT_SECONDS)
+        status = Gimp.PDBStatusType.EXECUTION_ERROR
+    except Exception as error:
+        Gimp.message("Upload failed: %s" % error)
+        status = Gimp.PDBStatusType.EXECUTION_ERROR
     finally:
-        if os.path.exists(tmp_path):
-            os.unlink(tmp_path)
+        for path in (ora_path, tmp_path):
+            try:
+                os.unlink(path)
+            except OSError:
+                pass
 
-    return procedure.new_return_values(Gimp.PDBStatusType.SUCCESS, GLib.Error())
+    return procedure.new_return_values(status, GLib.Error())
 
 
 class UploadToPathMapper(Gimp.PlugIn):
@@ -117,8 +114,8 @@ class UploadToPathMapper(Gimp.PlugIn):
         procedure.set_menu_label('Upload to Path Mapper')
         procedure.add_menu_path('<Image>/File')
         procedure.set_documentation(
-            'Upload current image as ORA to Path Mapper',
-            'Exports the image as OpenRaster and uploads it to the active scene in Path Mapper',
+            'Upload the current image to Path Mapper',
+            'Exports the image as a .pmmap and hands it to the PathMapper client',
             name,
         )
         procedure.set_attribution(

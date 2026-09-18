@@ -8,7 +8,7 @@ defmodule PathMapper.Game.Palette do
   def build(group) do
     player_colors =
       if group do
-        Map.new(group.players, &{&1.character_name, &1.color})
+        Map.new(group.players, &{&1.id, &1.color})
       else
         %{}
       end

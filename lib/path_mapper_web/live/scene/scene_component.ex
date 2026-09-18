@@ -1,9 +1,9 @@
 defmodule PathMapperWeb.Scene.SceneComponent do
   use PathMapperWeb, :live_component
 
-  alias PathMapper.Adventures.Adventure
   alias PathMapper.Game
   alias PathMapper.Game.Palette
+  alias PathMapper.Game.State.Scene
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
   alias PathMapper.Geometry.Object, as: GeometryObject
   alias PathMapperWeb.Scene.GridComponent
@@ -174,24 +174,39 @@ defmodule PathMapperWeb.Scene.SceneComponent do
     Map.get(assigns, :map_geometry) && Map.get(assigns, :viewport_geometry)
   end
 
+  # The map the geometry is fitted to has to be the map being drawn, so both ask
+  # the same function. This used to decide for itself with a `custom` check, which
+  # stopped meaning anything once every scene became an entity - and a scene with a
+  # map uploaded onto it was then measured against the one its blob declares.
+  #
+  # A scene declared with no map yet falls back to the blank map state gave it.
   defp get_map(assigns) do
     scene = assigns.game_state.scene
 
-    if scene.custom do
-      %{width: scene.map.width, height: scene.map.height, grid_size: scene.map.grid_size}
-    else
-      Adventure.get_scene_map(assigns.adventure, scene.index)
-    end
+    Scene.displayed_map(scene, assigns.adventure) || scene.map
   end
 
-  defp scene_was_updated?(
-         %{assigns: %{game_state: %{scene: %{index: old_index}}}},
-         %{game_state: %{scene: %{index: new_index}}}
-       ) do
-    old_index != new_index
+  # Geometry is derived from the map's dimensions, so it is stale exactly when
+  # those change - whether because another scene was selected, or because a map was
+  # uploaded onto this one. Comparing the dimensions catches both; comparing the
+  # scene's identity catches only the first.
+  #
+  # This matched on scene.index until that field was removed. A map pattern against
+  # a key that no longer exists simply fails, so the clause stopped matching, every
+  # comparison fell through to false, and a scene switch quietly kept the previous
+  # scene's scaling.
+  defp scene_was_updated?(%{assigns: %{game_state: %{scene: _}} = old}, %{game_state: _} = new) do
+    shape_of(old) != shape_of(new)
   end
 
   defp scene_was_updated?(_socket, _new_assigns), do: false
+
+  defp shape_of(assigns) do
+    scene = assigns.game_state.scene
+    map = Scene.displayed_map(scene, assigns[:adventure]) || scene.map
+
+    {scene.id, map && map.width, map && map.height}
+  end
 
   defp zoom_or_pan_changed?(
          %{assigns: %{scene: %{zoom: old_z, pan: old_p}}},
@@ -252,10 +267,7 @@ defmodule PathMapperWeb.Scene.SceneComponent do
   end
 
   defp visible_objects(adventure, game_state, opts) do
-    adventure_map =
-      if adventure, do: Adventure.get_scene_map(adventure, game_state.scene.index), else: nil
-
-    adventure_map = adventure_map || scene_data_map(game_state)
+    adventure_map = Scene.displayed_map(game_state.scene, adventure)
 
     adventure_objects = if adventure_map, do: adventure_map.map_objects || [], else: []
 
@@ -275,13 +287,6 @@ defmodule PathMapperWeb.Scene.SceneComponent do
         layer_state.show and obj_state.show
       end
     end)
-  end
-
-  defp scene_data_map(game_state) do
-    case game_state.scene do
-      %{data: %{map: map}} when not is_nil(map) -> map
-      _ -> nil
-    end
   end
 
   defp object_style(obj, obj_state, layer_state, map_geometry, opts) do

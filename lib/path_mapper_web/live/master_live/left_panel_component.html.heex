@@ -1,14 +1,8 @@
 <div class="left-panel" phx-click="noop" phx-target={@myself}>
   <div class="panel-selector">
     {panel_select_button(%{
-      text: gettext("Adventures"),
-      panel_name: "adventure-selector",
-      myself: @myself,
-      left_panel_state: @left_panel
-    })}
-    {panel_select_button(%{
-      text: gettext("Groups"),
-      panel_name: "group-selector",
+      text: gettext("Game"),
+      panel_name: "game-panel",
       myself: @myself,
       left_panel_state: @left_panel
     })}
@@ -50,23 +44,12 @@
     <% end %>
   </div>
 
-  <%= if selected_panel(@left_panel) == "adventure-selector" do %>
+  <%= if selected_panel(@left_panel) == "game-panel" do %>
     <div class="panel-content">
       <.live_component
-        module={PathMapperWeb.MasterLive.LeftPanelComponent.AdventureSelectorComponent}
-        id="adventure-selector"
-        adventures={@adventures}
+        module={PathMapperWeb.MasterLive.LeftPanelComponent.GameComponent}
+        id="game-panel"
         adventure={@adventure}
-      />
-    </div>
-  <% end %>
-
-  <%= if selected_panel(@left_panel) == "group-selector" do %>
-    <div class="panel-content">
-      <.live_component
-        module={PathMapperWeb.MasterLive.LeftPanelComponent.GroupSelectorComponent}
-        id="group-selector"
-        groups={@groups}
         group={@group}
       />
     </div>

@@ -31,6 +31,15 @@ defmodule PathMapper.Game.State.Scene.Map do
     }
   end
 
+  @doc """
+  Builds a scene's map state.
+
+  A scene declared without a map is blank rather than an error: a scene made at the
+  table exists before anything is bound to it, and binding a map is a separate
+  command.
+  """
+  def initialize(nil), do: blank()
+
   def initialize(%AdventureMap{
         layers: layers,
         map_objects: map_objects,

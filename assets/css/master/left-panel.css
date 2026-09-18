@@ -42,6 +42,9 @@
 }
 
 .left-panel .item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
   text-align: start;
   width: 100%;
   color: #c8c8e0;
@@ -50,13 +53,30 @@
 
 .left-panel .item .item-name {
   font-size: 1.4rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.left-panel .item .scene-ref {
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  color: #8a8aaa;
+}
+
+.left-panel .item .item-id {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: #5a5575;
 }
 
 .left-panel .item .index {
   font-size: 1.5rem;
   font-weight: 700;
   color: #5a5575;
-  margin-right: 8px;
 }
 
 .left-panel .sub-buttons {
@@ -251,4 +271,19 @@
 
 .adhoc-create {
   margin-top: 4px;
+}
+
+/* The Game panel is two short readings under one tab, so each needs saying which
+   it is. Muted and small: the label is orientation, the value is the content. */
+.left-panel .panel-section-label {
+  padding: 10px 8px 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5a5575;
+}
+
+.left-panel .panel-section-label:first-child {
+  padding-top: 4px;
 }

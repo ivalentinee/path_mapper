@@ -1,0 +1,11 @@
+acknowledgement:
+  title: Acknowledgement
+  description: What the server says when it did the thing and has nothing to return.
+  type: object
+  additionalProperties: false
+  required: ['status']
+  properties:
+    status:
+      title: Outcome
+      type: string
+      enum: ['ok']

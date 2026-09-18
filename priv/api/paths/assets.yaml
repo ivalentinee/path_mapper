@@ -1,0 +1,36 @@
+post:
+  summary: Store one asset
+  description: >-
+    Stores the bytes of a single asset under the name they hash to. The name is
+    supplied by the client, which can compute it without asking: an asset's name is
+    a pure function of its content, so a client that holds the bytes already knows
+    the address they will have.
+
+    The server recomputes that hash and refuses a mismatch, which is what keeps
+    content addressing honest - without the check a client could store bytes at any
+    address and every cache assumption downstream would be false.
+
+    Storing the same bytes twice is not an error and changes nothing: the second
+    upload addresses what the first one stored.
+  tags: ['Assets']
+  requestBody:
+    required: true
+    content:
+      'multipart/form-data':
+        schema: { $ref: '../schemas/asset/upload.yaml#/assetUpload' }
+  responses:
+    '200':
+      description: The asset is stored and reachable at the returned path
+      content:
+        'application/json':
+          schema: { $ref: '../schemas/asset/stored.yaml#/storedAsset' }
+    '400':
+      description: The bytes do not hash to the name they were sent under
+      content:
+        'application/json':
+          schema: { $ref: '../schemas/common/error.yaml#/error' }
+    '401':
+      description: The upload token was missing or wrong
+      content:
+        'application/json':
+          schema: { $ref: '../schemas/common/error.yaml#/error' }

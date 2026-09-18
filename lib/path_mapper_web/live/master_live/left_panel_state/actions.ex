@@ -13,10 +13,12 @@ defmodule PathMapperWeb.MasterLive.LeftPanelState.Actions do
     end
   end
 
-  def select_scene_selector_item(state, index)
-      when is_number(index) do
-    Game.run_action([:scene, :select], index - 1)
-    state
+  def select_scene_selector_item(state, position)
+      when is_number(position) do
+    case Game.scene_id_at(trunc(position)) do
+      nil -> state
+      id -> tap(state, fn _ -> Game.run_action([:scene, :select], id) end)
+    end
   end
 
   def select_scene_selector_item(state, _index_string), do: state

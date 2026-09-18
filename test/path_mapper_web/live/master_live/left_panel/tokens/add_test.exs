@@ -6,15 +6,33 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.AddTest do
   alias PathMapper.Groups
 
   setup %{conn: conn} do
-    load_adventure("adventure-1.zip")
-    {:ok, _group} = Groups.load_group("group-1.zip")
-    :ok = Game.run_action([:scene, :select], 0)
+    load_adventure("tt0001-0000000001-adventure-1.zip")
+    {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
+    :ok = select_scene(1)
 
     conn = get(conn, "/master")
     assert html_response(conn, 200)
     {:ok, view, html} = live(conn)
 
     {:ok, %{conn: conn, view: view, html: html}}
+  end
+
+  test "expanded, the panel lists the adventure's tokens and filters them by name", %{view: view} do
+    view |> element("#tokens-button") |> render_click()
+    view |> element("#add-token-button") |> render_click()
+    view |> element("#add-token [phx-click=toggle_expanded]") |> render_click()
+
+    html = render(view)
+    assert html =~ "monster 1"
+    assert html =~ "NPC 1"
+
+    view
+    |> element("#add-token form[phx-change=search]")
+    |> render_change(%{"search" => "monster"})
+
+    filtered = render(view)
+    assert filtered =~ "monster 1"
+    refute filtered =~ "NPC 1"
   end
 
   test "adds a token", %{view: view, html: html} do

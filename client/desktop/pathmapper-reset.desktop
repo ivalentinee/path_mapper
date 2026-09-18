@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Reset PathMapper
+Comment=Unload everything the server holds
+Exec=path-mapper reset
+Terminal=false

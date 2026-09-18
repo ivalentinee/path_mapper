@@ -1,43 +1,64 @@
 defmodule PathMapper.Game.Dump do
   @moduledoc false
 
+  alias PathMapper.Adventures.Adventure
   alias PathMapper.Game.State
 
-  @version 2
+  @version 3
 
-  def serialize(%State{} = state, adventure_file, group_file) do
+  def serialize(%State{} = state, adventure, group_id) do
     %{
       version: @version,
-      adventure_file: adventure_file,
-      group_file: group_file,
+      adventure_id: adventure.id,
+      group_id: group_id,
       active_scene: state.active_scene,
       initiative: state.initiative,
       scenes:
-        Map.new(state.scenes, fn {idx, scene} ->
-          {to_string(idx), serialize_scene(scene)}
+        Map.new(state.scenes, fn {_idx, scene} ->
+          {scene.id, serialize_scene(scene, blob_roster(adventure, scene))}
         end)
     }
   end
 
-  defp serialize_scene(%State.Scene{} = scene) do
+  defp blob_roster(_adventure, %State.Scene{custom: true}), do: []
+
+  defp blob_roster(adventure, %State.Scene{id: id}) do
+    case Adventure.find_scene_by_id(adventure, id) do
+      %{tokens: tokens} when is_list(tokens) -> tokens
+      _ -> []
+    end
+  end
+
+  defp serialize_scene(%State.Scene{} = scene, blob_roster) do
     base = %{
-      index: scene.index,
+      order: scene.order,
       custom: scene.custom,
+      uploaded_map: scene.uploaded_map,
       map: serialize_map(scene.map),
+      roster: serialize_roster(scene, blob_roster),
       tokens: Enum.map(scene.tokens, &serialize_token/1),
       drawn_elements: Enum.map(scene.drawn_elements, &serialize_drawn_element/1)
     }
 
     base = if scene.custom, do: Map.put(base, :name, scene.name), else: base
 
-    case scene do
-      %{custom: true, data: %{map: map}} when not is_nil(map) ->
-        Map.put(base, :custom_map, serialize_custom_map(map))
-
-      _ ->
-        base
+    if ((scene.custom or scene.uploaded_map) and scene.data) && scene.data.map do
+      Map.put(base, :custom_map, serialize_custom_map(scene.data.map))
+    else
+      base
     end
   end
+
+  defp serialize_roster(%State.Scene{data: %{tokens: tokens}}, blob_roster)
+       when is_list(tokens) do
+    declared = MapSet.new(blob_roster, & &1.id)
+
+    tokens
+    |> Enum.reject(&MapSet.member?(declared, &1.id))
+    |> Enum.map(&%{id: &1.id, name: &1.name, owner: &1.owner, image: &1.image, size: &1.size})
+  end
+
+  defp serialize_roster(_scene, _blob_roster), do: []
 
   defp serialize_map(%State.Scene.Map{} = map) do
     %{
@@ -68,7 +89,7 @@ defmodule PathMapper.Game.Dump do
 
   defp serialize_token(%State.Scene.Token{} = token) do
     base = %{
-      data_name: token.data.name,
+      data_id: token.data.id,
       x: token.x,
       y: token.y,
       state: token.state,
@@ -78,6 +99,7 @@ defmodule PathMapper.Game.Dump do
 
     if token.data.image == nil do
       Map.put(base, :adhoc, %{
+        id: token.data.id,
         label: token.data.name,
         owner: token.data.owner,
         size: token.data.size

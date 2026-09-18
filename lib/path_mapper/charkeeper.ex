@@ -42,7 +42,7 @@ defmodule PathMapper.Charkeeper do
   defp extract_charkeeper_ids(players) do
     players
     |> Enum.filter(& &1.charkeeper_id)
-    |> Enum.map(&{&1.character_name, &1.charkeeper_id})
+    |> Enum.map(&{&1.id, &1.charkeeper_id})
   end
 
   defp do_start(ids) do

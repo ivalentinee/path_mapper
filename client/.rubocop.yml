@@ -1,0 +1,16 @@
+AllCops:
+  TargetRubyVersion: 3.3
+  NewCops: enable
+  Exclude:
+    - 'vendor/**/*'
+
+Metrics/MethodLength:
+  Max: 20
+
+# Commands is a translation table from one format to another. Splitting it by size
+# alone would put halves of one mapping in two files.
+Metrics/ClassLength:
+  Max: 130
+
+Style/Documentation:
+  Enabled: true

@@ -74,6 +74,12 @@ defmodule PathMapperWeb.PlayerLive do
     end
   end
 
+  @impl true
+  def handle_event("close_panel", _, socket) do
+    send(self(), %{session_event: :close_all_panels})
+    {:noreply, socket}
+  end
+
   defp handle_arrow_pan(socket, direction) do
     grid_size =
       socket.assigns.game_state[:scene] && socket.assigns.game_state.scene.map.grid_size
@@ -90,12 +96,6 @@ defmodule PathMapperWeb.PlayerLive do
       send(self(), %{session_event: {:map_pan, {dx, dy}}})
     end
 
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_event("close_panel", _, socket) do
-    send(self(), %{session_event: :close_all_panels})
     {:noreply, socket}
   end
 
@@ -123,9 +123,9 @@ defmodule PathMapperWeb.PlayerLive do
 
   # Session events (unified dispatch)
   @impl true
-  def handle_info(%{session_event: {:claim_character, name}}, socket) do
+  def handle_info(%{session_event: {:claim_character, id}}, socket) do
     group = socket.assigns.group
-    my_player = find_player(group, name)
+    my_player = find_player(group, id)
 
     identity =
       Character.set_player(socket.assigns.character, my_player, socket.assigns.game_state)
@@ -194,12 +194,6 @@ defmodule PathMapperWeb.PlayerLive do
   def handle_info({:close_all_context_menus, _}, socket), do: {:noreply, socket}
 
   @impl true
-  def handle_info(%{adventure_load_error: _}, socket), do: {:noreply, socket}
-
-  @impl true
-  def handle_info(%{group_load_error: _}, socket), do: {:noreply, socket}
-
-  @impl true
   def terminate(_reason, socket) do
     PathMapper.MapTools.clear(socket.assigns[:session_id])
     :ok
@@ -214,10 +208,14 @@ defmodule PathMapperWeb.PlayerLive do
     |> assign(:character, identity)
   end
 
-  defp find_player(nil, _name), do: nil
+  defp find_player(nil, _id), do: nil
 
-  defp find_player(group, name) do
-    Enum.find(group.players, &(&1.character_name == name))
+  # A player is claimed by id, not by character name. Two characters may share a
+  # name, a name may be edited between sessions, and everything downstream of the
+  # claim - token ownership, refreshing the player when the group is replaced -
+  # already keys on the id.
+  defp find_player(group, id) do
+    Enum.find(group.players, &(&1.id == id))
   end
 
   defp get_selected_adventure do

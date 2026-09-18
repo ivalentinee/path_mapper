@@ -107,7 +107,7 @@ defmodule PathMapper.MapTools.ShapesTest do
       result = Shapes.compute(tool_data, @grid_size)
 
       assert result.type == :grid_cells
-      assert length(result.cells) > 0
+      assert result.cells != []
       assert result.cell_size == @grid_size
     end
 
@@ -124,7 +124,7 @@ defmodule PathMapper.MapTools.ShapesTest do
       result = Shapes.compute(tool_data, @grid_size)
 
       assert result.type == :grid_cells
-      assert length(result.cells) > 0
+      assert result.cells != []
     end
 
     test "line grid produces cells" do
@@ -132,7 +132,7 @@ defmodule PathMapper.MapTools.ShapesTest do
       result = Shapes.compute(tool_data, @grid_size)
 
       assert result.type == :grid_cells
-      assert length(result.cells) > 0
+      assert result.cells != []
     end
 
     test "grid mode with pointer returns empty cells" do

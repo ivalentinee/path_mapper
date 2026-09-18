@@ -1,11 +1,13 @@
 defmodule PathMapper.FileStorage do
   alias Ecto.Changeset
-  alias PathMapper.Zip
+  alias PathMapper.AssetSource
+
+  require PathMapper.AssetSource
 
   @public_directory "unpacked"
   @image_extension "png"
 
-  def initialize(subdirectory) do
+  def initialize(subdirectory) when AssetSource.is_source(subdirectory) do
     case File.mkdir_p(storage_directory_path(subdirectory)) do
       :ok -> :ok
       _error -> {:error, "Failed to initialize #{subdirectory} file storage"}
@@ -16,8 +18,8 @@ defmodule PathMapper.FileStorage do
     do: store(file, @image_extension, subdirectory)
 
   def store(file, extension, subdirectory)
-      when is_binary(file) and is_binary(extension) do
-    filename = "#{random_name()}.#{extension}"
+      when is_binary(file) and is_binary(extension) and AssetSource.is_source(subdirectory) do
+    filename = "#{content_name(file)}.#{extension}"
 
     case File.write(Path.join(storage_directory_path(subdirectory), filename), file) do
       :ok -> {:ok, Path.join(["/", subdirectory, filename])}
@@ -41,21 +43,24 @@ defmodule PathMapper.FileStorage do
     end
   end
 
-  def store_image_from_zip(%Changeset{} = changeset, property, zip_file, subdirectory) do
-    with zip_filename when is_binary(zip_filename) <- Changeset.get_change(changeset, property),
-         {:ok, image} <- Zip.get_file(zip_file, zip_filename),
-         {:ok, filename} <- store_image(image, subdirectory) do
-      Changeset.put_change(changeset, property, filename)
-    else
-      nil ->
-        changeset
+  def referenced_paths(data, subdirectory) do
+    data |> collect_paths("/#{subdirectory}/") |> Enum.uniq()
+  end
 
-      {:error, reason} ->
-        Changeset.add_error(changeset, property, "failed to load file: %{reason}",
-          reason: inspect(reason),
-          validation: :file_storage
-        )
-    end
+  def read_stored(path) when is_binary(path) do
+    File.read(Path.join([:code.priv_dir(:path_mapper), @public_directory, path]))
+  end
+
+  def clear(subdirectory) when AssetSource.is_source(subdirectory) do
+    subdirectory
+    |> storage_directory_path()
+    |> File.ls!()
+    |> Enum.each(&File.rm!(Path.join(storage_directory_path(subdirectory), &1)))
+  end
+
+  @doc "The name an asset's bytes give it. Pure, so a client can compute it too."
+  def content_name(file) when is_binary(file) do
+    :crypto.hash(:sha256, file) |> binary_part(0, 8) |> Base.encode16(case: :lower)
   end
 
   def cleanup(subdirectory, data) do
@@ -91,10 +96,6 @@ defmodule PathMapper.FileStorage do
   end
 
   defp collect_paths(_, _), do: []
-
-  defp random_name do
-    to_string(round(:rand.uniform() * 10_000_100))
-  end
 
   defp storage_directory_path(subdirectory) do
     Path.join([:code.priv_dir(:path_mapper), @public_directory, subdirectory])

@@ -9,7 +9,7 @@ defmodule PathMapper.Adventures.Adventure.Scene.PlaceToken do
   @primary_key false
 
   embedded_schema do
-    field(:name, :string)
+    field(:id, :string)
     field(:x, :integer)
     field(:y, :integer)
     field(:state, :string)
@@ -18,8 +18,8 @@ defmodule PathMapper.Adventures.Adventure.Scene.PlaceToken do
 
   def changeset(struct, params) do
     struct
-    |> cast(params, [:name, :x, :y, :state, :subpixel])
-    |> validate_required([:name, :x, :y])
+    |> cast(params, [:id, :x, :y, :state, :subpixel])
+    |> validate_required([:id, :x, :y])
     |> validate_inclusion(:state, states())
   end
 end

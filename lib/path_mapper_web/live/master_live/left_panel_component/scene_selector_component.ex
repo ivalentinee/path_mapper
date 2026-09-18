@@ -5,8 +5,8 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.SceneSelectorComponent do
 
   alias PathMapper.Game
 
-  def handle_event("select_scene", %{"index" => index_string}, socket) do
-    with_parsed_index(index_string, &Game.run_action([:scene, :select], &1))
+  def handle_event("select_scene", %{"id" => id}, socket) do
+    Game.run_action([:scene, :select], id)
     {:noreply, clear_ui_state(socket)}
   end
 
@@ -24,40 +24,12 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.SceneSelectorComponent do
     end
   end
 
-  def handle_event("start_add_scene", _, socket) do
-    {:noreply, socket |> clear_ui_state() |> assign(:adding_scene, true)}
-  end
-
-  def handle_event("dismiss_scene_ui", _, socket) do
-    {:noreply, clear_ui_state(socket)}
-  end
-
-  def handle_event("create_scene", %{"name" => name}, socket) do
-    case Game.run_action([:scene, :create], %{"name" => name}) do
-      {:ok, _} -> {:noreply, clear_ui_state(socket)}
-      _ -> {:noreply, socket}
-    end
-  end
-
-  def handle_event("delete_scene", %{"index" => index_string}, socket) do
-    index = String.to_integer(index_string)
-
-    if socket.assigns[:confirm_delete_index] == index do
-      Game.run_action([:scene, :delete], index)
-      {:noreply, assign(socket, :confirm_delete_index, nil)}
-    else
-      {:noreply, socket |> clear_ui_state() |> assign(:confirm_delete_index, index)}
-    end
-  end
-
-  def select_button_extra_classes(scene_index, selected_scene) do
-    if selected_scene && selected_scene.index == scene_index, do: "selected", else: ""
+  def select_button_extra_classes(scene_id, selected_scene) do
+    if selected_scene && selected_scene.id == scene_id, do: "selected", else: ""
   end
 
   defp clear_ui_state(socket) do
     socket
     |> assign(:confirm_reset, false)
-    |> assign(:confirm_delete_index, nil)
-    |> assign(:adding_scene, false)
   end
 end

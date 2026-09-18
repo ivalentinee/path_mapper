@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Find our own Gemfile rather than one relative to wherever we were invoked from.
+#
+# Without this the script needs `bundle exec` from inside the project, which a file
+# manager cannot provide: it runs the Exec line from an arbitrary directory, and
+# Bundler searches upwards from there. Naming the Gemfile makes the working
+# directory irrelevant, so the same executable serves a terminal, a double-click and
+# a GIMP plug-in.
+ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../Gemfile', __dir__)
+
+# Only the default group. `require 'bundler/setup'` would activate the development
+# gems too, and rubocop asks for json >= 2.3 - which resolves to a version newer
+# than the one Ruby ships as a default gem. Where anything has already loaded json,
+# activating a second copy is a pile of "already initialized constant" warnings at
+# best and a Gem::LoadError at worst. A linter has no business deciding which JSON a
+# token upload uses.
+require 'bundler'
+Bundler.setup(:default)
+
+require_relative '../lib/path_mapper'
+
+exit PathMapper::CLI.run(ARGV)

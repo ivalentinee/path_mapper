@@ -2,8 +2,8 @@ defmodule PathMapper.ErrorsTest do
   use ExUnit.Case
 
   alias Ecto.Changeset
-  alias PathMapper.Adventures.Loader, as: AdventureLoader
   alias PathMapper.Errors
+  alias PathMapper.Session.Scene
 
   describe "format_load_error/1" do
     test "changeset with flat field errors" do
@@ -19,12 +19,15 @@ defmodule PathMapper.ErrorsTest do
     end
 
     test "changeset with nested embed errors produces human-readable paths" do
-      # Load a malformed adventure to get a real changeset error
-      AdventureLoader.load("bad-adventure.zip")
+      %Scene{}
+      |> Scene.changeset(%{
+        "id" => "st0001-0000000001",
+        "tokens" => [%{"name" => "nameless"}]
+      })
+      |> Changeset.apply_action(:insert)
       |> Errors.format_load_error()
       |> then(fn errors ->
-        assert Enum.any?(errors, &String.contains?(&1, "title"))
-        assert Enum.any?(errors, &String.contains?(&1, "Scene #1"))
+        assert Enum.any?(errors, &String.contains?(&1, "name"))
       end)
     end
 

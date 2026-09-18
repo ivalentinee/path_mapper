@@ -8,13 +8,13 @@ defmodule PathMapperWeb.Plugs.TokenAuthTest do
   @test_token "test-secret-token"
 
   setup do
-    original = Application.get_env(:path_mapper, :upload_token)
-    on_exit(fn -> Application.put_env(:path_mapper, :upload_token, original) end)
+    original = Application.get_env(:path_mapper, :api_token)
+    on_exit(fn -> Application.put_env(:path_mapper, :api_token, original) end)
     :ok
   end
 
   test "passes through with valid token" do
-    Application.put_env(:path_mapper, :upload_token, @test_token)
+    Application.put_env(:path_mapper, :api_token, @test_token)
 
     conn =
       :post
@@ -26,7 +26,7 @@ defmodule PathMapperWeb.Plugs.TokenAuthTest do
   end
 
   test "halts with 401 when token is wrong" do
-    Application.put_env(:path_mapper, :upload_token, @test_token)
+    Application.put_env(:path_mapper, :api_token, @test_token)
 
     conn =
       :post
@@ -40,7 +40,7 @@ defmodule PathMapperWeb.Plugs.TokenAuthTest do
   end
 
   test "halts with 401 when no authorization header" do
-    Application.put_env(:path_mapper, :upload_token, @test_token)
+    Application.put_env(:path_mapper, :api_token, @test_token)
 
     conn =
       :post
@@ -52,7 +52,7 @@ defmodule PathMapperWeb.Plugs.TokenAuthTest do
   end
 
   test "halts with 401 when no token configured (nil)" do
-    Application.put_env(:path_mapper, :upload_token, nil)
+    Application.put_env(:path_mapper, :api_token, nil)
 
     conn =
       :post
@@ -65,7 +65,7 @@ defmodule PathMapperWeb.Plugs.TokenAuthTest do
   end
 
   test "halts with 401 when token configured as empty string" do
-    Application.put_env(:path_mapper, :upload_token, "")
+    Application.put_env(:path_mapper, :api_token, "")
 
     conn =
       :post
@@ -78,7 +78,7 @@ defmodule PathMapperWeb.Plugs.TokenAuthTest do
   end
 
   test "halts with 401 for non-Bearer authorization" do
-    Application.put_env(:path_mapper, :upload_token, @test_token)
+    Application.put_env(:path_mapper, :api_token, @test_token)
 
     conn =
       :post

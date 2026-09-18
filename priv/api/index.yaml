@@ -1,0 +1,24 @@
+openapi: 3.0.3
+info:
+  title: PathMapper
+  version: v1
+  description: >-
+    The contract between a PathMapper server and the clients that feed it.
+    The server holds no library of its own: adventures, groups, maps, tokens and
+    snapshots all live on the game master's machine and reach the server through
+    these routes.
+
+    This document is written by hand and is authoritative. The server resolves it
+    at boot, refuses any request it does not describe, and serves this same
+    resolved document from /api/openapi.json. A client for another operating
+    system can be built from it alone.
+paths:
+  '/api/openapi.json': { $ref: './paths/openapi.yaml' }
+  '/api/scenes/map': { $ref: './paths/scenes/map.yaml' }
+
+  '/api/assets': { $ref: './paths/assets.yaml' }
+  '/api/reset': { $ref: './paths/reset.yaml' }
+
+  '/api/entities': { $ref: './paths/entities.yaml' }
+  '/api/entities/{id}': { $ref: './paths/entity.yaml' }
+  '/api/state': { $ref: './paths/state.yaml' }
