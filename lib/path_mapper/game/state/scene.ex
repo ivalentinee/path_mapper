@@ -40,6 +40,17 @@ defmodule PathMapper.Game.State.Scene do
   defp data_map(%__MODULE__{data: %{map: map}}) when not is_nil(map), do: map
   defp data_map(_scene), do: nil
 
+  @doc """
+  The grid a scene's positions are measured against.
+
+  The live map's, not the declaration's: the live one is what the board draws and
+  what a game master sees, and the two can differ. Both sides of a copied
+  arrangement read it here, because they are one contract and drifted once
+  already by each reading its own source.
+  """
+  def grid_size(%{map: %{grid_size: size}}) when is_integer(size) and size > 0, do: size
+  def grid_size(_scene), do: PathMapper.Adventures.Adventure.Scene.Map.default_grid_size()
+
   def initialize(%AdventureScene{map: map} = adventure_scene, order) do
     %__MODULE__{
       id: adventure_scene.id,

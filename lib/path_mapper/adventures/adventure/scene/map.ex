@@ -7,6 +7,9 @@ defmodule PathMapper.Adventures.Adventure.Scene.Map do
 
   @primary_key false
   @default_grid_size 50
+
+  @doc "The grid a map is assumed to use when it declares none."
+  def default_grid_size, do: @default_grid_size
   @grid_tag_regex ~r/grid-([0-9]+)/
   @grid_line_tag_regex ~r/grid-line-([0-9]+)/
 

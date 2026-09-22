@@ -89,6 +89,8 @@ defmodule PathMapper.Game.Dump do
 
   defp serialize_token(%State.Scene.Token{} = token) do
     base = %{
+      game_id: token.game_id,
+      name: token.name,
       data_id: token.data.id,
       x: token.x,
       y: token.y,

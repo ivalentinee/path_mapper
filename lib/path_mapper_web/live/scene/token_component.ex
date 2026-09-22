@@ -3,6 +3,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
 
   alias PathMapper.Game
   alias PathMapper.Game.Palette
+  alias PathMapper.Game.State.Scene.Token, as: GameToken
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
   alias PathMapper.Geometry.Object, as: GeometryObject
 
@@ -57,7 +58,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
     snap_to_grid = socket.assigns.scene.snap_to_grid
 
     Game.run_action(
-      [:tokens, socket.assigns.index, :move],
+      [:tokens, socket.assigns.token.game_id, :move],
       {socket.assigns.token.drag_x, socket.assigns.token.drag_y, %{snap: snap_to_grid}}
     )
 
@@ -73,7 +74,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
       {map_x, map_y} =
         GeometryMapper.viewport_to_map(viewport_x, viewport_y, socket.assigns.map_geometry)
 
-      Game.run_action([:tokens, socket.assigns.index, :drag], {map_x, map_y, %{}})
+      Game.run_action([:tokens, socket.assigns.token.game_id, :drag], {map_x, map_y, %{}})
 
       {:noreply, socket}
     else
@@ -99,13 +100,13 @@ defmodule PathMapperWeb.Scene.TokenComponent do
   @impl true
   def handle_event("context_set_state", %{"state" => state}, socket)
       when state in states() do
-    Game.run_action([:tokens, socket.assigns.index, :set_state], state)
+    Game.run_action([:tokens, socket.assigns.token.game_id, :set_state], state)
     {:noreply, assign(socket, context_menu: nil)}
   end
 
   @impl true
   def handle_event("context_delete", _, socket) do
-    Game.run_action([:tokens, :delete], socket.assigns.index)
+    Game.run_action([:tokens, :delete], socket.assigns.token.game_id)
     {:noreply, assign(socket, context_menu: nil)}
   end
 
@@ -130,8 +131,11 @@ defmodule PathMapperWeb.Scene.TokenComponent do
 
   defp can_manage_token?(%{opts: %{manage_tokens: true}}), do: true
 
-  defp can_manage_token?(%{my_player_name: name, token: token}) when is_binary(name) do
-    token.owner == name
+  # A placed token's owner is the player's id, which is what the group declared
+  # and what the palette is keyed by. Comparing a character name here matched
+  # nothing, so a player could not manage their own token.
+  defp can_manage_token?(%{my_player_id: player_id, token: token}) when is_binary(player_id) do
+    token.owner == player_id
   end
 
   defp can_manage_token?(_), do: false

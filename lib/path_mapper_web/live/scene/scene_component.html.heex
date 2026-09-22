@@ -31,7 +31,7 @@
           data-object-index={obj_state.index}
           data-locked={to_string(obj_state.locked)}
           style={object_style(obj, obj_state, layer_state, @map_geometry, @opts)}
-          class="map-object"
+          class={"map-object #{object_light_class(layer_state)}"}
         >
           <img
             src={obj.image}
@@ -89,7 +89,7 @@
           opts={@opts}
           selected_token_index={@selected_token_index}
           scene={@scene}
-          my_player_name={@opts[:my_player_name]}
+          my_player_id={@opts[:my_player_id]}
         />
       <% end %>
     </div>

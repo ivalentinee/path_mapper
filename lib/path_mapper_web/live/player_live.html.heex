@@ -14,12 +14,12 @@
       scene={@scene}
       adventure={@adventure}
       game_state={@game_state}
-      opts={%{my_player_name: @character.my_player && @character.my_player.character_name}}
+      opts={%{my_player_id: @character.my_player && @character.my_player.id}}
       selected_layer_index={nil}
       selected_token_index={nil}
       session_id={@session_id}
       tool_draws={@tool_draws}
-      draw_owner={@character.my_player && @character.my_player.character_name}
+      draw_owner={@character.my_player && @character.my_player.id}
     />
   <% end %>
 
@@ -38,6 +38,6 @@
     language={@language}
     charkeeper_data={@charkeeper_data}
     charkeeper_status={@charkeeper_status}
-    draw_owner={@character.my_player && @character.my_player.character_name}
+    draw_owner={@character.my_player && @character.my_player.id}
   />
 </div>

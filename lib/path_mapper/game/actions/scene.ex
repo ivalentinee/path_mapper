@@ -29,8 +29,8 @@ defmodule PathMapper.Game.Actions.Scene do
     if scene.custom do
       {:error, "Cannot reset custom scenes"}
     else
-      new_scene = Initialize.build_scene(scene.data, scene.order)
-      {:ok, State.put_scene(state, new_scene)}
+      {new_scene, dismissed} = Initialize.build_scene(scene.data, scene.order)
+      {:ok, State.put_scene(state, new_scene), dismissed}
     end
   end
 

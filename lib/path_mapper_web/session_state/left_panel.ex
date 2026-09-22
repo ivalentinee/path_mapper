@@ -7,9 +7,9 @@ defmodule PathMapperWeb.SessionState.LeftPanel do
 
   def run_event(%{left_panel_select: panel}, %{left_panel: state}) when is_list(panel) do
     if state.left_panel == panel do
-      %{state | left_panel: nil, owner_selector_index: nil}
+      %{state | left_panel: nil, owner_selector_index: nil, naming: nil}
     else
-      %{state | left_panel: panel, owner_selector_index: nil}
+      %{state | left_panel: panel, owner_selector_index: nil, naming: nil}
     end
   end
 
@@ -17,12 +17,28 @@ defmodule PathMapperWeb.SessionState.LeftPanel do
     Map.put(state, :hovered_layer, index)
   end
 
+  # Single focus: opening either of these closes the other, so a placement is
+  # never being renamed and reassigned at once.
   def run_event({:toggle_owner_selector, index}, %{left_panel: state}) when is_integer(index) do
     if state.owner_selector_index == index do
       %{state | owner_selector_index: nil}
     else
-      %{state | owner_selector_index: index}
+      %{state | owner_selector_index: index, naming: nil}
     end
+  end
+
+  # Keyed by game id rather than by position: the editor stays on the placement it
+  # was opened for even if the list changes underneath it.
+  def run_event({:toggle_naming, game_id}, %{left_panel: state}) when is_binary(game_id) do
+    if state.naming == game_id do
+      %{state | naming: nil}
+    else
+      %{state | naming: game_id, owner_selector_index: nil}
+    end
+  end
+
+  def run_event(:close_naming, %{left_panel: state}) do
+    %{state | naming: nil}
   end
 
   def run_event(:close_owner_selector, %{left_panel: state}) do
@@ -30,7 +46,7 @@ defmodule PathMapperWeb.SessionState.LeftPanel do
   end
 
   def run_event(:close_all_panels, %{left_panel: state}) do
-    %{state | left_panel: nil, owner_selector_index: nil}
+    %{state | left_panel: nil, owner_selector_index: nil, naming: nil}
   end
 
   def run_event(_, %{left_panel: state}), do: state

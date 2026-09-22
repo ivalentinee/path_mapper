@@ -2,12 +2,12 @@
   <%= for {token, index} <- selected_tokens(@game_state, @left_panel) do %>
     <div class="item token">
       <span class="index">{index + 1}</span>
-      <span class="name">{token.data.name}</span>
+      <span class="name">{GameToken.displayed_name(token)}</span>
       <div class="buttons">
         <button
           class="delete"
           phx-click="delete_token"
-          phx-value-index={index}
+          phx-value-game-id={token.game_id}
           phx-target={@myself}
         >
           ✕
@@ -49,6 +49,16 @@
           target={@myself}
         />
 
+        <button
+          class="rename-button"
+          phx-click="toggle_naming"
+          phx-value-game-id={token.game_id}
+          phx-target={@myself}
+          title={gettext("Name this token")}
+        >
+          ✎
+        </button>
+
         <% owner_color = PathMapper.Game.Palette.resolve(token.owner) %>
         <button
           class="owner-button"
@@ -62,6 +72,34 @@
       </div>
     </div>
 
+    <%= if @left_panel.naming == token.game_id do %>
+      <form
+        class="token-naming"
+        phx-submit="set_token_name"
+        phx-value-game-id={token.game_id}
+        phx-target={@myself}
+      >
+        <input
+          type="text"
+          name="name"
+          value={token.name}
+          placeholder={token.data.name}
+          class="token-naming-input"
+          autocomplete="off"
+        />
+        <button type="submit" class="token-naming-save">{gettext("Name")}</button>
+        <button
+          type="button"
+          class="token-naming-clear"
+          phx-click="clear_token_name"
+          phx-value-game-id={token.game_id}
+          phx-target={@myself}
+        >
+          {gettext("Reset")}
+        </button>
+      </form>
+    <% end %>
+
     <%= if @left_panel.owner_selector_index == index do %>
       <div class="owner-selector">
         <%= for owner <- available_owners() do %>
@@ -69,7 +107,7 @@
           <button
             class={"owner-option #{if token.owner == owner, do: "active"}"}
             phx-click="set_token_owner"
-            phx-value-index={index}
+            phx-value-game-id={token.game_id}
             phx-value-owner={owner}
             phx-target={@myself}
           >

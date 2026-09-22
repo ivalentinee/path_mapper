@@ -4,6 +4,12 @@ defmodule PathMapper.Game.Actions.Draw do
 
   @valid_types [:fill, :rect, :line, :circle, :text, :path]
 
+  # Not an identity but an authority: the game master erases and clears whatever
+  # a scene holds. It is a reserved word rather than an id on purpose - a player
+  # owns their drawings by id, and no id can ever equal this, so the two cannot
+  # be confused however a character is named.
+  @gm "GM"
+
   def action(%State{} = state, [:draw, :add], %{
         type: type,
         color: color,
@@ -50,7 +56,7 @@ defmodule PathMapper.Game.Actions.Draw do
     elements = scene.drawn_elements
 
     target =
-      if owner == "GM" do
+      if owner == @gm do
         List.last(elements)
       else
         elements |> Enum.reverse() |> Enum.find(&(&1.owner == owner))
@@ -66,7 +72,7 @@ defmodule PathMapper.Game.Actions.Draw do
     end
   end
 
-  def action(%State{} = state, [:draw, :clear], %{owner: "GM"}) do
+  def action(%State{} = state, [:draw, :clear], %{owner: @gm}) do
     scene = State.scene(state)
     new_scene = %{scene | drawn_elements: []}
     {:ok, State.put_scene(state, new_scene)}
@@ -76,7 +82,7 @@ defmodule PathMapper.Game.Actions.Draw do
     {:error, "Only GM can clear all drawn elements"}
   end
 
-  defp can_erase?("GM", _), do: true
+  defp can_erase?(@gm, _), do: true
   defp can_erase?(owner, owner), do: true
   defp can_erase?(_, _), do: false
 end

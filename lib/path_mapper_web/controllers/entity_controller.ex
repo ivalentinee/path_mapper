@@ -6,11 +6,14 @@ defmodule PathMapperWeb.EntityController do
   alias PathMapper.Session.Entity
   alias PathMapper.Session.Store
 
+  # The command is accepted even where part of it is declined: a placement whose
+  # game id the scene already holds is dismissed, and the response says which, so
+  # an adventure with two entries under one id is told rather than quietly short
+  # of a token.
   def create(conn, %{"kind" => kind} = params) do
     with {:ok, entity} <- Entity.build(kind, Map.drop(params, ~w(kind action controller))),
          {:ok, _stored} <- Store.put(entity) do
-      Game.reconcile()
-      json(conn, %{status: "ok"})
+      json(conn, acknowledge(Game.reconcile()))
     else
       error -> refuse(conn, error)
     end
@@ -20,8 +23,7 @@ defmodule PathMapperWeb.EntityController do
 
   def delete(conn, %{"id" => id}) do
     :ok = Store.delete(id)
-    Game.reconcile()
-    json(conn, %{status: "ok"})
+    json(conn, acknowledge(Game.reconcile()))
   end
 
   # In dependency order, so replaying the list as it stands works: what a scene
@@ -36,6 +38,11 @@ defmodule PathMapperWeb.EntityController do
 
     json(conn, %{entities: entities})
   end
+
+  defp acknowledge(:ok), do: %{status: "ok"}
+
+  defp acknowledge({:ok, dismissed}),
+    do: %{status: "ok", warnings: Enum.map(dismissed, &"#{&1} is already placed; dismissed")}
 
   defp refuse(conn, {:error, reason}) when is_binary(reason),
     do: conn |> put_status(400) |> json(%{error: reason})

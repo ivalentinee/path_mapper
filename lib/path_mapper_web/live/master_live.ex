@@ -130,13 +130,16 @@ defmodule PathMapperWeb.MasterLive do
   end
 
   defp apply_keyboard_action({:token_action, index, "delete"}, socket) do
-    Game.run_action([:tokens, :delete], index - 1)
+    run_on_placement(index, fn game_id -> Game.run_action([:tokens, :delete], game_id) end)
     send(self(), %{session_event: %{left_panel_select: ["left-panel", "tokens"]}})
     {:noreply, clear_keyboard_state(socket)}
   end
 
   defp apply_keyboard_action({:token_action, index, state}, socket) do
-    Game.run_action([:tokens, index - 1, :set_state], state)
+    run_on_placement(index, fn game_id ->
+      Game.run_action([:tokens, game_id, :set_state], state)
+    end)
+
     {:noreply, socket}
   end
 
@@ -199,6 +202,14 @@ defmodule PathMapperWeb.MasterLive do
   defp update_scene(socket, updates) do
     scene = Enum.reduce(updates, socket.assigns.scene, fn {k, v}, s -> Map.put(s, k, v) end)
     assign(socket, :scene, scene)
+  end
+
+  # The number on a token is its position; commands take its id.
+  defp run_on_placement(position, command) do
+    case Game.placement_id_at(position) do
+      nil -> :ok
+      game_id -> command.(game_id)
+    end
   end
 
   defp clear_keyboard_state(socket) do

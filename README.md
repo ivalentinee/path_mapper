@@ -64,8 +64,7 @@ docker build -t path_mapper --target=release .
 | `SECRET_KEY_BASE`          | prod     | ---              | Session signing key (`mix phx.gen.secret`) |
 | `PHX_HOST`                 | no       | `example.com`    | Public hostname                            |
 | `PORT`                     | no       | `4000`           | HTTP port                                  |
-| `ADVENTURE_BASE_PATH`      | no       | `adventures`     | Path to adventure ZIPs                     |
-| `GROUP_BASE_PATH`          | no       | `groups`         | Path to group ZIPs                         |
+| `API_TOKEN`                | prod     | ---              | Bearer token every command needs           |
 | `CHARKEEPER_SERVER`        | no       | `charkeeper.ru`  | Charkeeper API host                        |
 | `CHARKEEPER_POLL_INTERVAL` | no       | `10000`          | Charkeeper poll interval (ms)              |
 

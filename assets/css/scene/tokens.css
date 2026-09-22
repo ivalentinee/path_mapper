@@ -17,6 +17,14 @@
   z-index: 60;
 }
 
+.objects-container .map-object.dimmed {
+  filter: brightness(50%);
+}
+
+.objects-container .map-object.highlight {
+  filter: brightness(200%);
+}
+
 .objects-container .map-object {
   pointer-events: auto;
 }

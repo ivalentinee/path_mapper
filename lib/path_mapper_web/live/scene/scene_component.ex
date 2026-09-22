@@ -150,8 +150,8 @@ defmodule PathMapperWeb.Scene.SceneComponent do
       assigns[:opts][:manage_tokens] ->
         "#db0909"
 
-      assigns[:opts][:my_player_name] ->
-        Palette.resolve(assigns[:opts][:my_player_name]) || "#808080"
+      assigns[:opts][:my_player_id] ->
+        Palette.resolve(assigns[:opts][:my_player_id]) || "#808080"
 
       true ->
         "#808080"
@@ -256,9 +256,9 @@ defmodule PathMapperWeb.Scene.SceneComponent do
       opts[:show_hidden] ->
         tokens_with_index
 
-      opts[:my_player_name] ->
+      opts[:my_player_id] ->
         Enum.filter(tokens_with_index, fn {token, _index} ->
-          token.state !== "hidden" or token.owner == opts[:my_player_name]
+          token.state !== "hidden" or token.owner == opts[:my_player_id]
         end)
 
       true ->
@@ -288,6 +288,13 @@ defmodule PathMapperWeb.Scene.SceneComponent do
       end
     end)
   end
+
+  # A map object sits on a layer and is lit by it. The layer's image already takes
+  # its lighting from a CSS class; objects were taking only its visibility, so a
+  # dimmed layer dimmed its floor and left the furniture on it bright.
+  defp object_light_class(%{highlight: true}), do: "highlight"
+  defp object_light_class(%{light: "dim"}), do: "dimmed"
+  defp object_light_class(_layer_state), do: ""
 
   defp object_style(obj, obj_state, layer_state, map_geometry, opts) do
     x = GeometryMapper.scale_to(obj_state.drag_x || obj_state.x, map_geometry)

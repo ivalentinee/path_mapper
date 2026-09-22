@@ -25,6 +25,14 @@ defmodule PathMapperWeb.SessionState.RightPanel do
     RightPanelState.run_event(state, :toggle_cheatsheet_panel)
   end
 
+  def run_event({:toggle_tool_group, group}, %{right_panel: state}) do
+    RightPanelState.run_event(state, {:toggle_tool_group, group})
+  end
+
+  def run_event(:close_tool_group, %{right_panel: state}) do
+    RightPanelState.run_event(state, :close_tool_group)
+  end
+
   def run_event(:close, %{right_panel: state}) do
     RightPanelState.run_event(state, :close)
   end

@@ -1,11 +1,37 @@
 /* Tool buttons in right panel selector bar */
 
+/* The palette outgrew the rail: claiming a character adds the drawing tools, and
+   on a 900px screen that put 424px of it below the fold with no way to reach it.
+   Widening the rail to two columns fixed the fit and cost too much board.
+
+   So the two large families collapse behind one toggle each, and only one is
+   open at a time. The rail stays one column wide. */
 .tool-buttons {
   display: flex;
   flex-direction: column;
   gap: 2px;
   padding: 4px 0;
   border-top: 1px solid #2a2540;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #3a3355 transparent;
+}
+
+/* An expanded family, inset so it reads as belonging to the toggle above it. */
+.tool-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 2px 0;
+  padding: 2px 0;
+  border-left: 2px solid #3a3355;
+  background: #15111f;
+}
+
+.tool-button.group-toggle.active {
+  background: #2a2540;
 }
 
 .tool-button {

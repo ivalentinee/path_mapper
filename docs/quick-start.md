@@ -4,7 +4,15 @@ This guide walks you through creating a minimal adventure and group, building ZI
 
 ## What is Path Mapper?
 
-Path Mapper is a playback-only VTT. You cannot create or edit content inside the application --- all maps, tokens, and manifests are authored externally, packaged into ZIP files, and loaded by the server. The GM controls the session through a web interface; players see a live-synced view.
+Path Mapper is a playback-only VTT. You cannot create or edit content inside the
+application --- maps, tokens and manifests are authored externally, packaged into
+ZIP files, and uploaded into a running session by the
+[client](../client/README.md) on your own machine. The server holds none of it
+and forgets everything on restart. The GM controls the session through a web
+interface; players see a live-synced view.
+
+**Every asset's id comes from its filename**, so the names below are not
+decoration --- see [Adventures](adventures.md#identity-every-id-comes-from-a-filename).
 
 ## Prerequisites
 
@@ -50,9 +58,9 @@ A group defines the player characters for your session.
 ### Directory Structure
 
 ```
-my-group/
+tg0001-0000000001-my-group/
   manifest.toml
-  player-1.png
+  tk0002-0000000001-valeros.png
 ```
 
 ### manifest.toml
@@ -61,10 +69,11 @@ my-group/
 title = "My Group"
 
 [[players]]
+id = "pg0001-0000000001"
 character_name = "Valeros"
 player_name = "Alice"
 color = "#328546"
-token = "player-1.png"
+token = "tk0002-0000000001-valeros.png"
 ```
 
 The `token` field points to a round PNG image (transparent background recommended).
@@ -76,9 +85,9 @@ An adventure contains one or more scenes, each with a map and optional tokens.
 ### Directory Structure
 
 ```
-my-adventure/
+tt0001-0000000001-my-adventure/
   manifest.toml
-  map.ora
+  mt0001-0000000001-tavern.ora
 ```
 
 ### manifest.toml
@@ -87,9 +96,10 @@ my-adventure/
 title = "My Adventure"
 
 [[scenes]]
+id = "st0001-0000000001"
 name = "Tavern"
 type = "battle"
-map.file = "map.ora"
+map.file = "mt0001-0000000001-tavern.ora"
 ```
 
 ### Create the Map in GIMP
@@ -97,7 +107,9 @@ map.file = "map.ora"
 1. Open GIMP, create a new image (File > New). Recommended starting size: 1000x1000 pixels.
 2. In the Layers panel, double-click the layer name and rename it to `[L1] Background`.
 3. Paint or fill the layer with a color (this is your map).
-4. Export: File > Export As, choose **OpenRaster (.ora)** format. Save as `map.ora` in your adventure directory.
+4. Export: File > Export As, choose **OpenRaster (.ora)** format. Save as
+   `mt0001-0000000001-tavern.ora` in your adventure directory --- the id in the
+   name is how the map is identified.
 
 That is all you need for a minimal map. See the [Maps guide](maps.md) for the full layer naming convention.
 
@@ -106,20 +118,17 @@ That is all you need for a minimal map. See the [Maps guide](maps.md) for the fu
 Use the build script to package your directories into ZIP files:
 
 ```bash
-./scripts/build.sh my-adventure/
-# produces my-adventure.zip
-
-./scripts/build.sh my-group/
-# produces my-group.zip
+./scripts/build.sh tt0001-0000000001-my-adventure/
+./scripts/build.sh tg0001-0000000001-my-group/
 ```
 
 > **WARNING:** The ZIP must contain `manifest.toml` at its root. If the ZIP contains a nested directory (`my-adventure/manifest.toml` instead of `manifest.toml`), Path Mapper will not load it. The build script handles this correctly. If building manually:
 >
 > ```bash
-> cd my-adventure && zip -r ../my-adventure.zip .
+> cd tt0001-0000000001-my-adventure && zip -r ../tt0001-0000000001-my-adventure.zip .
 > ```
 >
-> NOT: `zip -r my-adventure.zip my-adventure/`
+> NOT: `zip -r out.zip tt0001-0000000001-my-adventure/`
 
 ## Upload and Run
 
@@ -127,7 +136,7 @@ Rename the ZIPs so their extension says what they are --- `.pmadventure` and
 `.pmgroup` --- and open them with the [PathMapper client](../client/README.md):
 
 ```bash
-path-mapper my-adventure.pmadventure my-group.pmgroup
+path-mapper tt0001-0000000001-my-adventure.pmadventure tg0001-0000000001-my-group.pmgroup
 ```
 
 Or double-click them, once the client's desktop entries are installed. Either way
@@ -148,6 +157,7 @@ adventure, upload it again.
 
 - [Groups](groups.md) --- add classes, extra tokens, and multiple players
 - [Maps](maps.md) --- layer groups, map objects, grid configuration
+- [Tokens](tokens.md) --- what a PNG may say about itself, and placements
 - [Adventures](adventures.md) --- tokens, placement, multiple scenes
 - [GM Guide](gm-guide.md) --- session controls, token management
 
@@ -155,5 +165,8 @@ adventure, upload it again.
 
 The repository includes working examples you can copy and modify:
 
-- `test/data/adventures/unpacked/` --- example adventure with two scenes, tokens, and placement
-- `test/data/groups/unpacked/` --- example group with two players and extra tokens
+- `test/data/adventures/unpacked/` --- an adventure with two scenes, tokens and
+  placement
+- `test/data/groups/unpacked/` --- a group with two players and extra tokens
+
+These are the project's test fixtures, so they are examples that load.

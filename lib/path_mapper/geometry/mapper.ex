@@ -11,6 +11,33 @@ defmodule PathMapper.Geometry.Mapper do
   def from_subpixels(value) when is_number(value), do: value / subpixel_factor()
 
   @doc """
+  A subpixel coordinate as a count of grid cells.
+
+  What a copied arrangement is written in. A pixel coordinate means a different
+  place once a map is re-exported at another resolution; a cell means the same
+  place, because the grid is what both versions of the image share.
+
+  Whole where the token sits within a hundredth of a cell, and to one decimal
+  otherwise, so an on-grid token - the ordinary case - writes `15` rather than
+  `15.0`.
+  """
+  def to_cells(subpixels, grid_size) when is_number(subpixels) and is_number(grid_size) do
+    cells = from_subpixels(subpixels) / grid_size
+    rounded = Float.round(cells, 1)
+
+    if abs(cells - Float.round(cells)) < 0.01 do
+      round(cells)
+    else
+      rounded
+    end
+  end
+
+  @doc "A count of grid cells as a subpixel coordinate."
+  def from_cells(cells, grid_size) when is_number(cells) and is_number(grid_size) do
+    to_subpixels(cells * grid_size)
+  end
+
+  @doc """
   Convert a coordinate value to internal subpixel units, accounting for the
   source precision declared by an optional `subpixel` field.
 

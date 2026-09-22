@@ -16,9 +16,9 @@ tokens = [
        { name = "NPC 1", size = 1, owner = "npc", image = "tokens/monster-2.png" }
 ]
 place_tokens = [
-      { name = "monster 1", x = "10", y = "20", state = "unconscious" },
-      { name = "monster 1", x = "20", y = "25" },
-      { name = "NPC 1", x = "50", y = "55" }
+      { game_id = "tk0001-0000000001-fallen", x = 1, y = 2, state = "unconscious" },
+      { game_id = "tk0001-0000000001-standing", x = 2, y = 2.5 },
+      { game_id = "tk0001-0000000002-lone", x = 5, y = 5.5 }
 ]
 
 [[scenes]]

@@ -10,7 +10,7 @@
             name="value"
             placeholder={gettext("Roll")}
             class="initiative-input"
-            value={my_initiative_value(@initiative, @my_player.character_name)}
+            value={my_initiative_value(@initiative, @my_player.id)}
           />
           <button type="submit" class="initiative-submit">
             {gettext("Set")}

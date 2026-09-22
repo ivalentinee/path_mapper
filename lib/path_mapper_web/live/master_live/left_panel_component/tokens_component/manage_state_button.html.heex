@@ -1,7 +1,7 @@
 <button
   class={"#{@state} #{if @token.state == @state, do: "active", else: ""}"}
   phx-click="set_token_state"
-  phx-value-index={@index}
+  phx-value-game-id={@token.game_id}
   phx-value-state={"#{@state}"}
   phx-target={@target}
 >

@@ -9,9 +9,13 @@
   right: 0;
 }
 
+/* The rail holds the tabs and the whole tool palette in one fixed-height column.
+   The palette grows - claiming a character adds the drawing tools - so it is the
+   palette that scrolls, and the tabs above it stay put, being navigation. */
 .right-panel-selector {
   border-right: none;
   border-left: 1px solid #2a2540;
+  width: 44px;
 }
 
 .right-panel-content {
@@ -22,7 +26,7 @@
 
 .right-panel-button {
   height: auto;
-  padding: 16px 4px;
+  padding: 10px 4px;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   background: transparent;

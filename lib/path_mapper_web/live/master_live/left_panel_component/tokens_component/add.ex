@@ -3,8 +3,9 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Add do
 
   require PathMapperWeb.MasterLive.LeftPanelState
 
-  alias PathMapper.Adventures.Adventure
   alias PathMapper.Game
+  alias PathMapper.Groups
+  alias PathMapper.Session.Resolve
 
   @impl true
   def update(assigns, socket) do
@@ -46,19 +47,24 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Add do
     {:noreply, assign(socket, :visible_tokens, visible_tokens(socket.assigns))}
   end
 
+  # Collapsed shows the scene's own roster; expanded shows everything the session
+  # holds. That is the store rather than the union of scene rosters, so a token
+  # uploaded on its own - which no scene names - can still be placed.
+  #
+  # Players' tokens are the exception: they are placed from the Players and Extras
+  # panels, which know that a character goes down once and a marking as often as
+  # asked. Offering them here would be a second route that knows neither rule.
   defp visible_tokens(assigns) do
     if assigns.expanded do
-      assigns[:adventure]
-      |> adventure_tokens()
-      |> Enum.sort_by(& &1.name)
+      players = Groups.player_token_ids()
+
+      Resolve.tokens()
+      |> Enum.reject(&MapSet.member?(players, &1.id))
       |> filter_by_name(assigns.search)
     else
       assigns.tokens
     end
   end
-
-  defp adventure_tokens(%Adventure{} = adventure), do: Adventure.all_tokens(adventure)
-  defp adventure_tokens(_), do: []
 
   defp filter_by_name(tokens, search) do
     case String.trim(search || "") do

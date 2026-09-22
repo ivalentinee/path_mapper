@@ -111,22 +111,33 @@ splitting it is the server's business.
 ## What a token says about itself
 
 A `.pmtoken` is a PNG, and a PNG can carry text about itself — not EXIF, which PNG
-does not really have, but `tEXt`, `zTXt` and `iTXt` chunks, which is where an image
-editor puts a title.
+does not really have, but `tEXt`, `zTXt` and `iTXt` chunks. PathMapper reads one
+keyword, `Comment`, holding a `|`-separated list of settings:
 
-| chunk keyword | becomes      |
-|---------------|--------------|
-| `Title`       | the token's name |
-| `Size`        | how many grid cells across it is |
+```
+name: Зомби-ходок | size: 1 | owner: enemy
+```
 
-Neither is required. Without a `Title` the name is the descriptive half of the
-filename — `tk0001-0000000042-goblin-chief.png` becomes "goblin chief" — and
-without a `Size` it is one cell. A size that is not a positive whole number is
-ignored rather than refused: the file is still a perfectly good token.
+| setting | becomes                                  | when absent                      |
+|---------|------------------------------------------|----------------------------------|
+| `name`  | what the token is called                 | the descriptive half of the name |
+| `size`  | how many grid cells across it is         | one cell                         |
+| `owner` | which side it belongs to                 | `npc`                            |
 
-Both are defaults. A scene that uses the token can override its name, size or owner
-for that scene alone, which is what lets one token be an NPC by default and a
-player's where a scene says so.
+One keyword rather than one per setting, because one is what an image editor
+offers on the way out: GIMP puts a comment field in its export dialog, where a
+keyword apiece meant a trip through the metadata editor — and ImageMagick refuses
+to write a `Size` keyword at all.
+
+Every setting is optional and order does not matter. Keys are matched ignoring
+case and surrounding space. A size that is not a positive whole number is ignored
+rather than refused, an unrecognised setting is left alone, and a comment that is
+ordinary prose yields no settings — the file is still a perfectly good token, and
+`tk0001-0000000042-goblin-chief.png` still becomes "goblin chief".
+
+These are defaults. A scene that uses the token can override its name, size or
+owner for that scene alone, which is what lets one token be an NPC by default and
+a player's where a scene says so.
 
 ## Failure
 

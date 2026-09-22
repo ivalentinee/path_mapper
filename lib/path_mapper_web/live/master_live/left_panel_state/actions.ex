@@ -73,13 +73,21 @@ defmodule PathMapperWeb.MasterLive.LeftPanelState.Actions do
   end
 
   def delete_token(state, index) when is_number(index) do
-    Game.run_action([:tokens, :delete], index - 1)
+    on_placement(index, &Game.run_action([:tokens, :delete], &1))
     state
   end
 
   def set_token_state(panel_state, index, token_state)
       when is_number(index) and is_binary(token_state) do
-    Game.run_action([:tokens, index - 1, :set_state], token_state)
+    on_placement(index, &Game.run_action([:tokens, &1, :set_state], token_state))
     panel_state
+  end
+
+  # The number a game master types is a position; commands take an id.
+  defp on_placement(position, command) do
+    case Game.placement_id_at(position) do
+      nil -> :ok
+      game_id -> command.(game_id)
+    end
   end
 end

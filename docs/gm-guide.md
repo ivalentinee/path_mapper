@@ -8,30 +8,31 @@ Open `http://your-server:4000/master` in your browser.
 
 ## Interface Overview
 
-- **Left panel** (GM-only): Adventures, Groups, Scenes, Map, Tokens
+- **Left panel** (GM-only): Game, Scenes, Map, Tokens, Initiative
 - **Right panel** (shared with players): Group overview, Snap-to-grid toggle
 - **Scene indicator** (top): shows current scene name, click to open scene selector
 - **Wallpaper**: displayed when no scene is active
 
 ## Session Workflow
 
-1. Open left panel > **Adventures** > select an adventure
-2. Open left panel > **Groups** > select a group
-3. Open left panel > **Scenes** > select a scene
-4. Add player tokens: Tokens panel > Players > "Add All" or individually
-5. Play the session
+1. Upload an adventure and a group with the
+   [client](../client/README.md) --- there is nothing to select here, since the
+   console issues no commands
+2. Open left panel > **Scenes** > select a scene
+3. Add player tokens: Tokens panel > Players > "Add All" or individually
+4. Play the session
+
+To change what the session holds mid-game --- a new map, a fixed token image, a
+different group --- upload it again. What is re-declared is replaced and the rest
+is left alone; nothing needs reloading.
 
 ## Left Panel Tabs
 
-### Adventures
+### Game
 
-Shows the adventure the session currently holds. There is nothing to select: an
-adventure arrives from the [PathMapper client](../client/README.md), and the
+Shows the adventure and the group the session currently holds. There is nothing
+to select: both arrive from the [PathMapper client](../client/README.md), and the
 console plays what it is given.
-
-### Groups
-
-Shows the group the session currently holds, which arrives the same way.
 
 ### Scenes
 
@@ -55,7 +56,7 @@ Map layer management:
 - **Add**: add adventure-defined tokens (enemies, NPCs)
 - **Players**: add player character tokens (from the loaded group)
 - **Extras**: add player extra tokens (markers, companions)
-- **Copy**: serializes current token positions as TOML `place_tokens` for the manifest (see [Adventures: Copy Button Workflow](adventures.md#the-copy-button-workflow))
+- **Copy**: serializes current token positions as TOML `place_tokens` for the manifest (see [Adventures: The Copy button](adventures.md#the-copy-button))
 - Below the buttons, the list of placed tokens is always visible with state controls and delete
 
 ## Right Panel

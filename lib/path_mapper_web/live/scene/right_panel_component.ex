@@ -41,9 +41,9 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
 
   @impl true
   def handle_event("remove_player_token", %{"id" => token_id}, socket) do
-    case find_token_index(token_id) do
+    case find_placement(token_id) do
       nil -> :ok
-      index -> Game.run_action([:tokens, :delete], index)
+      game_id -> Game.run_action([:tokens, :delete], game_id)
     end
 
     {:noreply, socket}
@@ -60,8 +60,15 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   end
 
   @impl true
+  def handle_event("toggle_tool_group", %{"group" => group}, socket)
+      when group in ~w(measure draw) do
+    send(self(), %{session_event: {:toggle_tool_group, String.to_existing_atom(group)}})
+    {:noreply, socket}
+  end
+
   def handle_event("select_tool", %{"tool" => tool}, socket) do
     send(self(), %{session_event: {:select_tool, String.to_existing_atom(tool)}})
+    send(self(), %{session_event: :close_tool_group})
     {:noreply, socket}
   end
 
@@ -144,10 +151,13 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   end
 
   @impl true
+  # The entry is labelled with the character's name and owned by the player's id.
+  # Owning it by name left it outside the palette, which is keyed by id, so a
+  # player's own line drew in the default colour rather than theirs.
   def handle_event("submit_initiative", %{"value" => value_str}, socket) do
     with {value, _} <- Integer.parse(value_str),
-         %{character_name: name} <- socket.assigns[:my_player] do
-      Game.run_action([:initiative, :add], %{name: name, value: value, owner: name})
+         %{character_name: name, id: player_id} <- socket.assigns[:my_player] do
+      Game.run_action([:initiative, :add], %{name: name, value: value, owner: player_id})
     end
 
     {:noreply, socket}
@@ -184,6 +194,36 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
       true -> "critical"
     end
   end
+
+  @measure_tools [ruler: "📏", pointer: "📍", burst: "💥", emanation: "⭕", cone: "🔺", line: "➖"]
+  @draw_tools [
+    fill: "■",
+    rect: "▬",
+    draw_line: "╱",
+    draw_circle: "○",
+    freeform: "~",
+    text: "A",
+    eraser: "✕"
+  ]
+
+  def measure_tools, do: @measure_tools
+  def draw_tools, do: @draw_tools
+
+  @doc """
+  What a collapsed group's toggle shows.
+
+  The group's own icon until one of its tools is selected, and that tool's icon
+  afterwards - so a game master can see which tool is in hand without expanding
+  the group to look.
+  """
+  def group_icon(tools, active_tool, fallback) do
+    case Keyword.get(tools, active_tool) do
+      nil -> fallback
+      icon -> icon
+    end
+  end
+
+  def group_holds?(tools, active_tool), do: Keyword.has_key?(tools, active_tool)
 
   defp tool_label(:ruler), do: gettext("Ruler")
   defp tool_label(:pointer), do: gettext("Pointer")
@@ -224,8 +264,8 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
     |> Kernel.<>("x")
   end
 
-  defp my_initiative_value(initiative, character_name) do
-    case Enum.find(initiative, &(&1.owner == character_name)) do
+  defp my_initiative_value(initiative, player_id) do
+    case Enum.find(initiative, &(&1.owner == player_id)) do
       %{value: value} -> value
       _ -> nil
     end
@@ -236,11 +276,10 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
 
   # By token id rather than by displayed name: two characters may share a name,
   # and the player's own token already carries the id the group declared for it.
-  defp find_token_index(token_id) do
-    tokens = scene_tokens()
-
-    Enum.find_value(Enum.with_index(tokens), fn {token, index} ->
-      if token.data.id == token_id, do: index
+  # Answers the placement's game id, which is what a command takes.
+  defp find_placement(token_id) do
+    Enum.find_value(scene_tokens(), fn token ->
+      if token.data.id == token_id, do: token.game_id
     end)
   end
 

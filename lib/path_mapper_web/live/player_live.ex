@@ -139,10 +139,11 @@ defmodule PathMapperWeb.PlayerLive do
   end
 
   @impl true
+  # A drawing is owned by the player's id, not their character name. A name is
+  # free text a player chooses, and the draw actions read "GM" as authority - so
+  # a character called GM could erase anyone's drawings and clear the board.
   def handle_info(%{session_event: :draw_undo}, socket) do
-    owner =
-      socket.assigns.character.my_player &&
-        socket.assigns.character.my_player.character_name
+    owner = socket.assigns.character.my_player && socket.assigns.character.my_player.id
 
     if owner, do: Game.run_action([:draw, :undo], %{owner: owner})
     {:noreply, socket}

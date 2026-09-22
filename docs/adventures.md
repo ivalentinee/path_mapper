@@ -1,138 +1,206 @@
 # Adventures
 
-An adventure is a ZIP file containing a `manifest.toml`, one or more ORA map files, and optional token images and wallpaper.
+An adventure is a ZIP file: a `manifest.toml`, one or more ORA map files, and
+optional token images and wallpaper. You build it outside PathMapper and hand it
+to the [client](../client/README.md), which uploads what it contains.
 
-## Directory Structure
+The server keeps none of it. It holds what a client has given it and forgets all
+of it when it restarts, so an adventure is something you load rather than
+something you install.
+
+## Identity: every id comes from a filename
+
+PathMapper reads the id of a map or a token from its **filename**, and the id of
+an adventure from the name of its ZIP. An asset without one cannot be placed.
 
 ```
-my-adventure/
+tk0001-0000000042-monster-1.png
+└──────┬────────┘ └────┬─────┘
+       id         what it is, for you
+```
+
+The id is two letters, four digits, a dash, and ten digits:
+`[a-z]{2}[0-9]{4}-[0-9]{10}`. The letters are yours to choose — `tk` for tokens
+and `mt` for maps read well — and nothing enforces their meaning.
+
+**Ids are global.** Not per adventure, not per campaign. If the same token
+appears in two adventures it has one id, and re-declaring it is a harmless
+replace rather than a collision. That is what lets a player's token from one
+campaign be an NPC in another: it is the same token.
+
+Scenes and players carry their ids in the manifest instead, since neither is a
+file.
+
+## Directory structure
+
+```
+tt0001-0000000001-my-adventure/
   manifest.toml
-  wallpaper.png           (optional)
-  map-1.ora
-  map-2.ora
+  wallpaper.png                         (optional)
+  mt0001-0000000001-cave.ora
+  mt0001-0000000002-tavern.ora
   tokens/
-    monster-1.png
-    npc-1.png
+    tk0001-0000000001-goblin.png
+    tk0001-0000000002-innkeeper.png
 ```
 
-## manifest.toml Reference
+Zip the *contents*, and name the ZIP with the adventure's id:
+`tt0001-0000000001-my-adventure.pmadventure`. The `.pmadventure` extension is
+what tells the client what it is — see [the client](../client/README.md).
 
-### Top-Level Fields
+Files the manifest does not name are never uploaded, so a `.xcf` beside the
+`.ora` it was exported from costs nothing.
+
+## manifest.toml reference
+
+### Top level
 
 | Field       | Type   | Required | Description                                                |
 |-------------|--------|----------|------------------------------------------------------------|
 | `title`     | string | yes      | Adventure display name                                     |
-| `wallpaper` | string | no       | Path to wallpaper image, displayed when no scene is active |
-| `urls`      | array  | no       | Reference links displayed in the interface                 |
+| `wallpaper` | string | no       | Path to wallpaper image, shown when no scene is active     |
+| `urls`      | array  | no       | Reference links shown in the interface                     |
 
-Each URL entry:
-
-| Field  | Type   | Required | Description       |
-|--------|--------|----------|-------------------|
-| `name` | string | yes      | Link display name |
-| `url`  | string | yes      | URL               |
+Each URL entry takes `name` and `url`, both strings.
 
 ### Scenes
 
-Scenes are defined with `[[scenes]]` sections. At least one scene is required.
+`[[scenes]]` sections. At least one is required.
 
 | Field      | Type   | Required | Description                         |
 |------------|--------|----------|-------------------------------------|
+| `id`       | string | yes      | The scene's id, in the id format    |
 | `name`     | string | yes      | Scene display name                  |
 | `type`     | string | yes      | Must be `"battle"`                  |
-| `map.file` | string | yes      | Path to ORA map file within the ZIP |
+| `map.file` | string | yes      | Path to the ORA map within the ZIP  |
 
-### Token Definitions
+### Tokens a scene may place
 
-Each scene can define available token types with a `tokens` array:
+The `tokens` array declares what the scene can put on the board. The id comes
+from the image's filename, so it is not written again here.
 
-| Field   | Type    | Required | Description                                                 |
-|---------|---------|----------|-------------------------------------------------------------|
-| `name`  | string  | yes      | Unique token name (used for placement references)           |
-| `size`  | integer | yes      | Token size in grid cells (1 = standard, 2 = large, etc.)    |
-| `owner` | string  | yes      | Owner category (case-insensitive), determines default color |
-| `image` | string  | yes      | Path to token image within the ZIP                          |
-| `color` | string  | no       | Hex color override for the token border                     |
+| Field   | Type    | Required | Description                                              |
+|---------|---------|----------|----------------------------------------------------------|
+| `image` | string  | yes      | Path to the token image within the ZIP                   |
+| `name`  | string  | yes      | What the token is called                                 |
+| `size`  | integer | yes      | Size in grid cells: 1 is standard, 2 is large            |
+| `owner` | string  | yes      | `enemy`, `npc`, `none`, or a player id from the group    |
 
-**Owner color defaults:**
+Owner decides the border colour: `enemy` red, `npc` grey, a player their own.
+Matching is case-insensitive.
 
-| Owner           | Default Color    |
-|-----------------|------------------|
-| `"enemy"`       | red (#db0909)    |
-| `"npc"`         | gray (#a1a1a1)   |
-| anything else   | black (#000000)  |
+Use TOML numbers, not strings: `size = 2`, never `size = "2"`.
 
-Owner matching is case-insensitive: `"npc"`, `"NPC"`, and `"Npc"` all map to gray.
+### Tokens the scene starts with
 
-Use TOML integer syntax for numeric fields (no quotes): `size = 2` not `size = "2"`.
+The `place_tokens` array puts tokens on the board when the scene loads. Each
+entry is one **placement** — a token on a map — and has an identity of its own.
 
-### Token Placement
+| Field     | Type   | Required | Description                                                   |
+|-----------|--------|----------|----------------------------------------------------------------|
+| `game_id` | string | yes      | Names this placement; see below                               |
+| `x`, `y`  | number | yes      | Position in **grid cells**                                     |
+| `state`   | string | no       | `alive` (default), `unconscious`, `dead`, `hidden`            |
+| `owner`   | string | no       | Defaults to the token's own owner                             |
+| `name`    | string | no       | Defaults to the token's own name                              |
 
-Each scene can pre-place token instances with a `place_tokens` array:
+**`game_id` is `<token-id>-<anything>`.** The prefix says which token is placed;
+the suffix is yours and names *this* placement:
 
-| Field   | Type    | Required | Description                                                               |
-|---------|---------|----------|---------------------------------------------------------------------------|
-| `name`  | string  | yes      | Must match a token name from the `tokens` array                           |
-| `x`     | integer | yes      | X coordinate in grid units                                                |
-| `y`     | integer | yes      | Y coordinate in grid units                                                |
-| `state` | string  | no       | Initial state: `"alive"` (default), `"unconscious"`, `"dead"`, `"hidden"` |
+```toml
+{ game_id = "tk0001-0000000001-left-guard",  x = 3, y = 7 },
+{ game_id = "tk0001-0000000001-right-guard", x = 5, y = 7 }
+```
 
-The same token name can appear multiple times to place multiple instances. Use TOML integer syntax for coordinates: `x = 10` not `x = "10"`.
+Two placements of one goblin, each nameable and each addressable on its own. Two
+entries may not share a `game_id` within a scene — the second is dismissed, the
+first stands, and the upload warns you which was dropped.
 
-**Relationship between `tokens` and `place_tokens`:** `tokens` defines the available token types for a scene. `place_tokens` places specific instances at specific coordinates when the scene loads.
+**Coordinates are grid cells, not pixels.** `x = 3` is the fourth column. A token
+off the grid takes a fraction: `x = 15.1` is cell 15 and a tenth. Cells mean the
+same place after a map is re-exported at another size, which pixels did not.
 
-## The "Copy" Button Workflow
+**`name` is per placement.** Four goblins from one token are four of the same
+name otherwise; a name here is how "the crooked-ear one" gets written down. The
+GM can also set it during play, from the Tokens panel.
 
-The Copy button in the GM's Tokens panel is the bridge between playing and authoring. It serializes the current token positions as a TOML `place_tokens` snippet that you can paste directly into your manifest.
+## Getting it into a session
 
-### Step-by-Step
+```sh
+path-mapper tt0001-0000000001-my-adventure.pmadventure
+```
 
-1. Load the adventure and scene in `/master`
-2. Add tokens to the scene (from the Tokens panel)
-3. Drag tokens to their desired positions on the map
-4. Open Tokens panel > Copy tab
-5. Click **Copy** --- the TOML snippet is copied to your clipboard
-6. Paste the snippet into your adventure's `manifest.toml`, replacing or adding to the scene's `place_tokens` array
-7. Rebuild the ZIP and reload
+Or double-click it, once the client's desktop entries are installed. The client
+unpacks the ZIP, uploads each asset the manifest names, and declares the
+adventure, its scenes, its maps and its tokens. Nothing is copied to the server's
+disk beforehand, and there is nothing to restart.
 
-The copied coordinates are in grid units and represent the exact positions as placed in the VTT.
+Uploading an adventure over a running session **replaces what it declares and
+leaves the rest** — so fixing a token image mid-session is re-uploading the
+adventure, not reloading the game.
 
-## Complete Example
+Removing one thing rather than replacing it is a server command the client does
+not yet wrap:
+
+```sh
+curl -X DELETE -H "Authorization: Bearer $API_TOKEN" \
+  https://your-server/api/entities/tk0001-0000000042
+```
+
+In practice you rarely need it: uploading a corrected adventure replaces what it
+declares, and `path-mapper reset` empties the board entirely.
+
+## The Copy button
+
+The Copy button in the GM's Tokens panel is the bridge from playing back to
+authoring. It writes the current arrangement as a `place_tokens` array you paste
+into the scene in your `manifest.toml`.
+
+1. Load the adventure and select the scene
+2. Arrange tokens on the map
+3. Tokens panel → **COPY**
+4. Paste over that scene's `place_tokens`
+5. Rebuild the ZIP and upload it again
+
+What it writes is what the loader reads, field for field — including any names
+and owners you changed during play.
+
+## Complete example
 
 ```toml
 title = "Adventure example"
-
 wallpaper = "wallpaper.png"
 
 urls = [
-    { name = "Sample URL 1", url = "https://example.net/" },
-    { name = "Sample URL 2", url = "https://example.net/" }
+    { name = "Sample URL 1", url = "https://example.net/" }
 ]
 
 [[scenes]]
+id = "st0001-0000000001"
 name = "Scene 1"
 type = "battle"
-map.file = "map.ora"
+map.file = "mt0001-0000000001-map.ora"
 tokens = [
-    { name = "monster 1", size = 2, owner = "enemy", image = "tokens/monster-1.png" },
-    { name = "NPC 1", size = 1, owner = "npc", image = "tokens/monster-2.png" }
+    { name = "monster 1", size = 2, owner = "enemy", image = "tokens/tk0001-0000000001-monster-1.png" },
+    { name = "NPC 1", size = 1, owner = "npc", image = "tokens/tk0001-0000000002-monster-2.png" }
 ]
 place_tokens = [
-    { name = "monster 1", x = 10, y = 20, state = "unconscious" },
-    { name = "monster 1", x = 20, y = 25 },
-    { name = "NPC 1", x = 50, y = 55 }
+    { game_id = "tk0001-0000000001-fallen", x = 1, y = 2, state = "unconscious" },
+    { game_id = "tk0001-0000000001-standing", x = 2, y = 2.5 },
+    { game_id = "tk0001-0000000002-lone", x = 5, y = 5.5 }
 ]
 
 [[scenes]]
+id = "st0001-0000000002"
 name = "Scene 2"
 type = "battle"
-map.file = "map-2.ora"
+map.file = "mt0001-0000000001-map.ora"
 ```
 
-## Multiple Scenes
+This is the test fixture, so it is an example that loads.
 
-An adventure can contain any number of scenes. Each scene has its own map, tokens, and placement. The GM switches between scenes during a session; scene state is preserved across switches.
+## Multiple scenes
 
-## Wallpaper
-
-The `wallpaper` field points to an image displayed when no scene is active. This is typically a title screen or campaign art.
+An adventure may hold any number. The GM switches between them during a session
+and each keeps its own state — where tokens stand, what has been drawn — across
+switches.

@@ -5,6 +5,7 @@
     draggable="true"
     phx-target={@myself}
     data-token-index={@index}
+    data-game-id={@token.game_id}
     style={
       token_container_style(
         @token_geometry,
@@ -15,9 +16,15 @@
   >
     <div style={token_shape_style()}>
       <%= if @token.data.image do %>
-        <img style={token_image_style()} title={@token.data.name} src={@token.data.image} />
+        <img
+          style={token_image_style()}
+          title={GameToken.displayed_name(@token)}
+          src={@token.data.image}
+        />
       <% else %>
-        <div style={adhoc_token_style(@token)} title={@token.data.name}>{@token.data.name}</div>
+        <div style={adhoc_token_style(@token)} title={GameToken.displayed_name(@token)}>
+          {GameToken.displayed_name(@token)}
+        </div>
       <% end %>
 
       <div style={token_border_style(@token, @token_geometry)}></div>
@@ -36,9 +43,15 @@
     >
       <div style={token_shape_style()}>
         <%= if @token.data.image do %>
-          <img style={token_image_style()} title={@token.data.name} src={@token.data.image} />
+          <img
+            style={token_image_style()}
+            title={GameToken.displayed_name(@token)}
+            src={@token.data.image}
+          />
         <% else %>
-          <div style={adhoc_token_style(@token)} title={@token.data.name}>{@token.data.name}</div>
+          <div style={adhoc_token_style(@token)} title={GameToken.displayed_name(@token)}>
+            {GameToken.displayed_name(@token)}
+          </div>
         <% end %>
         <div style={token_border_style(@token, @dragged_token_geometry)}></div>
       </div>

@@ -9,6 +9,15 @@ post:
     Refused when the id currently holds a different kind. That is not sharing, it
     is an authoring mistake, and the server has no other way to notice it.
 
+    A scene's `place_tokens` entries each name a placement by a game id, which
+    begins with the id of the token being placed. Where two entries name one game
+    id, the first is placed and the rest are dismissed: the declaration still
+    succeeds, and the response carries a `warnings` list saying which placements
+    were declined. Accepting the command and reporting the part not done is
+    deliberate here - unlike a state that names a missing entity, a repeated id
+    has one obvious reading, and refusing the whole scene over it would cost the
+    author every other token on it.
+
     This is how an adventure reaches the server. There is no route that takes one
     whole: an adventure is a sequence of these, and so is a group, and so is
     restoring a snapshot.
@@ -20,7 +29,9 @@ post:
         schema: { $ref: '../schemas/session/entity.yaml#/entity' }
   responses:
     '200':
-      description: The entity is in the store
+      description: >-
+        The entity is in the store. Carries `warnings` where part of it was
+        declined, such as a `place_tokens` entry repeating a game id.
       content:
         'application/json':
           schema: { $ref: '../schemas/common/ok.yaml#/acknowledgement' }

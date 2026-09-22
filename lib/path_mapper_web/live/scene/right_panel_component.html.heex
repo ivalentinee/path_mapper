@@ -50,63 +50,103 @@
       >
         ↖
       </button>
-      <%= for {tool, icon} <- [ruler: "📏", pointer: "📍", burst: "💥", emanation: "⭕", cone: "🔺", line: "➖", map: "🗺"] do %>
-        <button
-          class={"tool-button #{if @scene.active_tool == tool, do: "active"}"}
-          phx-click="select_tool"
-          phx-value-tool={tool}
-          phx-target={@myself}
-          title={tool_label(tool)}
-        >
-          {icon}
-        </button>
+      <button
+        class={"tool-button group-toggle #{if @right_panel.tool_group == :measure or group_holds?(measure_tools(), @scene.active_tool), do: "active"}"}
+        phx-click="toggle_tool_group"
+        phx-value-group="measure"
+        phx-target={@myself}
+        title={gettext("Measuring tools")}
+      >
+        {group_icon(measure_tools(), @scene.active_tool, "📏")}
+      </button>
+
+      <%= if @right_panel.tool_group == :measure do %>
+        <div class="tool-group">
+          <%= for {tool, icon} <- measure_tools() do %>
+            <button
+              class={"tool-button #{if @scene.active_tool == tool, do: "active"}"}
+              phx-click="select_tool"
+              phx-value-tool={tool}
+              phx-target={@myself}
+              title={tool_label(tool)}
+            >
+              {icon}
+            </button>
+          <% end %>
+        </div>
       <% end %>
+
+      <button
+        class={"tool-button #{if @scene.active_tool == :map, do: "active"}"}
+        phx-click="select_tool"
+        phx-value-tool="map"
+        phx-target={@myself}
+        title={tool_label(:map)}
+      >
+        🗺
+      </button>
 
       <div class="tool-separator"></div>
 
       <%= if assigns[:draw_owner] do %>
-        <%= if width_tool?(@scene.active_tool) do %>
-          <div class="width-picker">
-            <input
-              type="range"
-              min="1"
-              max="20"
-              value={@scene.draw_width}
-              phx-change="set_draw_width"
-              phx-target={@myself}
-              title={gettext("Stroke width")}
-              class="width-slider"
-            />
-            <span class="width-value">{@scene.draw_width}</span>
-          </div>
-        <% end %>
+        <button
+          class={"tool-button group-toggle #{if @right_panel.tool_group == :draw or group_holds?(draw_tools(), @scene.active_tool), do: "active"}"}
+          phx-click="toggle_tool_group"
+          phx-value-group="draw"
+          phx-target={@myself}
+          title={gettext("Drawing tools")}
+        >
+          {group_icon(draw_tools(), @scene.active_tool, "✎")}
+        </button>
+      <% end %>
 
-        <%= for {tool, icon} <- [fill: "■", rect: "▬", draw_line: "╱", draw_circle: "○", freeform: "~", text: "A", eraser: "✕"] do %>
-          <button
-            class={"tool-button #{if @scene.active_tool == tool, do: "active"}"}
-            phx-click="select_tool"
-            phx-value-tool={tool}
-            phx-target={@myself}
-            title={tool_label(tool)}
-          >
-            {icon}
-          </button>
-        <% end %>
-
-        <%= if drawing_tool?(@scene.active_tool) do %>
-          <div class="color-palette">
-            <%= for {color, _name} <- draw_colors() do %>
-              <button
-                class={"color-swatch #{if @scene.draw_color == color, do: "active"}"}
-                style={"background-color: #{color};"}
-                phx-click="set_draw_color"
-                phx-value-color={color}
+      <%= if assigns[:draw_owner] && @right_panel.tool_group == :draw do %>
+        <div class="tool-group">
+          <%= if width_tool?(@scene.active_tool) do %>
+            <div class="width-picker">
+              <input
+                type="range"
+                min="1"
+                max="20"
+                value={@scene.draw_width}
+                phx-change="set_draw_width"
                 phx-target={@myself}
-              ></button>
-            <% end %>
-          </div>
-        <% end %>
+                title={gettext("Stroke width")}
+                class="width-slider"
+              />
+              <span class="width-value">{@scene.draw_width}</span>
+            </div>
+          <% end %>
 
+          <%= for {tool, icon} <- draw_tools() do %>
+            <button
+              class={"tool-button #{if @scene.active_tool == tool, do: "active"}"}
+              phx-click="select_tool"
+              phx-value-tool={tool}
+              phx-target={@myself}
+              title={tool_label(tool)}
+            >
+              {icon}
+            </button>
+          <% end %>
+
+          <%= if drawing_tool?(@scene.active_tool) do %>
+            <div class="color-palette">
+              <%= for {color, _name} <- draw_colors() do %>
+                <button
+                  class={"color-swatch #{if @scene.draw_color == color, do: "active"}"}
+                  style={"background-color: #{color};"}
+                  phx-click="set_draw_color"
+                  phx-value-color={color}
+                  phx-target={@myself}
+                ></button>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <%= if assigns[:draw_owner] do %>
         <button
           class="tool-button undo-button"
           phx-click="draw_undo"

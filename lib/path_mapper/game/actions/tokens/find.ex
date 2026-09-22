@@ -1,14 +1,15 @@
 defmodule PathMapper.Game.Actions.Tokens.Find do
-  alias PathMapper.Adventures
-  alias PathMapper.Adventures.Adventure
   alias PathMapper.Adventures.Adventure.Scene.Token
+  alias PathMapper.Game.GameId
   alias PathMapper.Game.State
   alias PathMapper.Groups
   alias PathMapper.Groups.Group.Player
   alias PathMapper.Groups.Group.Player.ExtraToken
+  alias PathMapper.Session.Resolve
 
-  def token_exists(%State{} = state, id) when is_binary(id) do
-    Enum.find(State.scene(state).tokens, &(&1.data.id == id))
+  @doc "The placement holding this game id on the active scene, if any."
+  def placement_exists(%State{} = state, game_id) when is_binary(game_id) do
+    Enum.find(State.scene(state).tokens, &(&1.game_id == game_id))
   end
 
   def find_adventure_token(%State{} = state, index) when is_number(index) do
@@ -18,28 +19,40 @@ defmodule PathMapper.Game.Actions.Tokens.Find do
     end
   end
 
+  # The active scene first, because a scene may override a token's name, size or
+  # owner for itself. Failing that, the store, which holds every token the session
+  # was given - including one uploaded on its own, which no scene names.
   def find_adventure_token(%State{} = state, id) when is_binary(id) do
-    # Try current scene first, then fall back to cross-scene search
     scene_token =
       case State.scene(state).data do
         nil -> nil
         data -> Enum.find(data.tokens, fn token -> token.id == id end)
       end
 
-    scene_token || find_token_across_adventure(id)
+    scene_token || stored_token(id)
   end
 
-  defp find_token_across_adventure(id) do
-    case Adventures.get_loaded() do
-      {:ok, adventure} -> Adventure.find_token_by_id(adventure, id)
-      _ -> nil
-    end
-  end
+  defp stored_token(id), do: Resolve.declared_token(id)
 
   def find_player_token(id_or_index)
       when is_binary(id_or_index) or is_number(id_or_index) do
     case find_player(id_or_index) do
       %Player{} = player -> player_token(player)
+      _ -> nil
+    end
+  end
+
+  @doc """
+  A player's own token and the game id its placement always takes.
+
+  The id is derived from the player rather than minted, so a player holds one
+  placement of their own token on a scene without any rule saying so: asking
+  twice produces the same id, and the second is a duplicate.
+  """
+  def find_player_placement(id_or_index)
+      when is_binary(id_or_index) or is_number(id_or_index) do
+    case find_player(id_or_index) do
+      %Player{} = player -> {player_token(player), GameId.mint(player.token_id, player.id)}
       _ -> nil
     end
   end

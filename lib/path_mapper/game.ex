@@ -55,33 +55,43 @@ defmodule PathMapper.Game do
   def reconcile do
     declared = Resolve.scenes()
 
-    Agent.update(__MODULE__, fn held ->
-      state = held_state(held)
-      %__MODULE__{state: reconciled(state, declared)}
-    end)
+    dismissed =
+      Agent.get_and_update(__MODULE__, fn held ->
+        {state, dismissed} = reconciled(held_state(held), declared)
+        {dismissed, %__MODULE__{state: state}}
+      end)
 
     Groups.reconcile()
     Adventures.announce()
     broadcast_game_update(get_raw_state())
-    :ok
+
+    case dismissed do
+      [] -> :ok
+      ids -> {:ok, ids}
+    end
   end
 
   defp held_state(%__MODULE__{state: %State{} = state}), do: state
   defp held_state(_held), do: %State{scenes: %{}}
 
   defp reconciled(%State{} = state, declared) do
-    scenes =
+    {scenes, dismissed} =
       declared
       |> Enum.with_index()
-      |> Map.new(fn {adventure_scene, order} ->
-        {adventure_scene.id,
-         reconciled_scene(state.scenes[adventure_scene.id], adventure_scene, order)}
+      |> Enum.map_reduce([], fn {adventure_scene, order}, dismissed ->
+        {scene, declined} =
+          reconciled_scene(state.scenes[adventure_scene.id], adventure_scene, order)
+
+        {{adventure_scene.id, scene}, dismissed ++ declined}
       end)
+
+    scenes = Map.new(scenes)
 
     custom = for {id, scene} <- state.scenes, scene.custom, into: %{}, do: {id, scene}
     scenes = Map.merge(custom, scenes)
 
-    %{state | scenes: scenes, active_scene: surviving_active(state.active_scene, scenes)}
+    {%{state | scenes: scenes, active_scene: surviving_active(state.active_scene, scenes)},
+     dismissed}
   end
 
   defp reconciled_scene(nil, adventure_scene, order) do
@@ -89,7 +99,7 @@ defmodule PathMapper.Game do
   end
 
   defp reconciled_scene(%State.Scene{} = held, adventure_scene, order) do
-    %{held | data: adventure_scene, order: order, name: adventure_scene.name}
+    {%{held | data: adventure_scene, order: order, name: adventure_scene.name}, []}
   end
 
   defp surviving_active(nil, _scenes), do: nil
@@ -127,11 +137,27 @@ defmodule PathMapper.Game do
     {:ok, state}
   end
 
+  @doc """
+  Runs one command against game state.
+
+  Answers `:ok`, or `{:ok, warnings}` where the command was accepted but part of
+  it was declined - a placement whose id was already taken, say. A command is
+  never half-refused: what could be done was done, and the warnings say what was
+  not.
+  """
   def run_action(action, data) when is_list(action) do
     case run_action_in_agent_update(action, data) do
       {:ok, state} ->
         broadcast_game_update(state)
         :ok
+
+      {:ok, state, []} ->
+        broadcast_game_update(state)
+        :ok
+
+      {:ok, state, warnings} ->
+        broadcast_game_update(state)
+        {:ok, warnings}
 
       error ->
         error
@@ -142,8 +168,14 @@ defmodule PathMapper.Game do
     Agent.get_and_update(__MODULE__, fn
       %__MODULE__{state: %State{} = state} = game ->
         case Actions.action(state, action, data) do
-          {:ok, new_state} -> {{:ok, new_state}, %__MODULE__{state: new_state}}
-          error -> {error, game}
+          {:ok, new_state} ->
+            {{:ok, new_state}, %__MODULE__{state: new_state}}
+
+          {:ok, new_state, warnings} ->
+            {{:ok, new_state, warnings}, %__MODULE__{state: new_state}}
+
+          error ->
+            {error, game}
         end
 
       game ->
@@ -235,6 +267,28 @@ defmodule PathMapper.Game do
   end
 
   def scene_id_at(_position), do: nil
+
+  @doc """
+  The game id of the placement at a position on the active scene, counting from 1.
+
+  A keystroke names a placement by the number shown on it, which is its position
+  in the scene's list. Commands address placements by id, so the number a game
+  master types is resolved here rather than reaching the action layer.
+  """
+  def placement_id_at(position) when is_integer(position) and position > 0 do
+    case Agent.get(__MODULE__, & &1) do
+      %__MODULE__{state: %State{} = state} ->
+        case state |> State.scene() |> Elixir.Map.get(:tokens, []) |> Enum.at(position - 1) do
+          %State.Scene.Token{game_id: game_id} -> game_id
+          nil -> nil
+        end
+
+      _ ->
+        nil
+    end
+  end
+
+  def placement_id_at(_position), do: nil
 
   defp build_scene_list(%State{} = state) do
     state

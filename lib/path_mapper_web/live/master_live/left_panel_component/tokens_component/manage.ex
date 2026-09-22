@@ -9,18 +9,38 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage do
 
   alias PathMapper.Game
   alias PathMapper.Game.Palette
+  alias PathMapper.Game.State.Scene.Token, as: GameToken
 
   embed_templates "manage_state_button*"
 
-  def handle_event("delete_token", %{"index" => index_string}, socket) do
-    with_parsed_index(index_string, &Game.run_action([:tokens, :delete], &1))
+  def handle_event("delete_token", %{"game-id" => game_id}, socket) do
+    Game.run_action([:tokens, :delete], game_id)
     unset_selected_token(socket.assigns.left_panel)
     {:noreply, socket}
   end
 
-  def handle_event("set_token_state", %{"index" => index_string, "state" => state}, socket)
+  def handle_event("set_token_state", %{"game-id" => game_id, "state" => state}, socket)
       when state in states() do
-    with_parsed_index(index_string, &Game.run_action([:tokens, &1, :set_state], state))
+    Game.run_action([:tokens, game_id, :set_state], state)
+    {:noreply, socket}
+  end
+
+  def handle_event("toggle_naming", %{"game-id" => game_id}, socket) do
+    send(self(), %{session_event: {:toggle_naming, game_id}})
+    {:noreply, socket}
+  end
+
+  # The placeholder shows the declaration's name, so submitting an empty field
+  # means "call it what the token is called" rather than "call it nothing".
+  def handle_event("set_token_name", %{"game-id" => game_id, "name" => name}, socket) do
+    Game.run_action([:tokens, game_id, :set_name], name)
+    send(self(), %{session_event: :close_naming})
+    {:noreply, socket}
+  end
+
+  def handle_event("clear_token_name", %{"game-id" => game_id}, socket) do
+    Game.run_action([:tokens, game_id, :set_name], nil)
+    send(self(), %{session_event: :close_naming})
     {:noreply, socket}
   end
 
@@ -32,8 +52,8 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage do
     {:noreply, socket}
   end
 
-  def handle_event("set_token_owner", %{"index" => index_string, "owner" => owner}, socket) do
-    with_parsed_index(index_string, &Game.run_action([:tokens, &1, :set_owner], owner))
+  def handle_event("set_token_owner", %{"game-id" => game_id, "owner" => owner}, socket) do
+    Game.run_action([:tokens, game_id, :set_owner], owner)
     send(self(), %{session_event: :close_owner_selector})
     {:noreply, socket}
   end

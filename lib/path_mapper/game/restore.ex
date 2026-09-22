@@ -9,6 +9,7 @@ defmodule PathMapper.Game.Restore do
   alias PathMapper.Adventures.Adventure.Scene.Map.MapObject, as: AdventureMapObject
   alias PathMapper.Game.Actions.Tokens.Find
   alias PathMapper.Game.State
+  alias PathMapper.Session.Resolve
 
   def read(data) when is_map(data) do
     with :ok <- validate_version(data),
@@ -266,6 +267,8 @@ defmodule PathMapper.Game.Restore do
       }
 
       %State.Scene.Token{
+        game_id: data["game_id"],
+        name: data["name"],
         x: data["x"],
         y: data["y"],
         state: data["state"],
@@ -288,7 +291,8 @@ defmodule PathMapper.Game.Restore do
     adventure_token =
       adventure_token ||
         Find.find_group_token(data["data_id"]) ||
-        Adventure.find_token_by_id(adventure, data["data_id"])
+        Adventure.find_token_by_id(adventure, data["data_id"]) ||
+        Resolve.declared_token(data["data_id"])
 
     case adventure_token do
       nil ->
@@ -296,6 +300,8 @@ defmodule PathMapper.Game.Restore do
 
       token ->
         %State.Scene.Token{
+          game_id: data["game_id"],
+          name: data["name"],
           x: data["x"],
           y: data["y"],
           state: data["state"],
