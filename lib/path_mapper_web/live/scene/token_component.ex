@@ -3,7 +3,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
 
   alias PathMapper.Game
   alias PathMapper.Game.Palette
-  alias PathMapper.Game.State.Scene.Token, as: GameToken
+  alias PathMapper.Game.State.Surface.Token, as: GameToken
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
   alias PathMapper.Geometry.Object, as: GeometryObject
 
@@ -134,7 +134,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
   # A placed token's owner is the player's id, which is what the group declared
   # and what the palette is keyed by. Comparing a character name here matched
   # nothing, so a player could not manage their own token.
-  defp can_manage_token?(%{my_player_id: player_id, token: token}) when is_binary(player_id) do
+  defp can_manage_token?(%{my_character_id: player_id, token: token}) when is_binary(player_id) do
     token.owner == player_id
   end
 

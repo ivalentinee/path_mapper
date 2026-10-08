@@ -7,7 +7,7 @@
 # manager cannot provide: it runs the Exec line from an arbitrary directory, and
 # Bundler searches upwards from there. Naming the Gemfile makes the working
 # directory irrelevant, so the same executable serves a terminal, a double-click and
-# a GIMP plug-in.
+# a menu entry.
 ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../Gemfile', __dir__)
 
 # Only the default group. `require 'bundler/setup'` would activate the development

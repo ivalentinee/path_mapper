@@ -4,15 +4,15 @@
       id="toggle_grid"
       phx-click="toggle_grid"
       phx-target={@myself}
-      class={"pure-button sub-button grid-#{@game_state.scene.map.show_grid}"}
+      class={"pure-button sub-button grid-#{@game_state.surface.map.show_grid}"}
     >
       {gettext("Grid")}
     </button>
   </div>
-  <%= for layer <- @game_state.scene.map.layers do %>
+  <%= for layer <- @game_state.surface.map.layers do %>
     <div class="layer item" id={"layer-#{layer.index}"} data-layer-index={layer.index}>
       <div class="layer-name item-name">
-        <span class="index">{layer.index}</span>{adventure_layer(@adventure, @game_state, layer).name}
+        <span class="index">{layer.index}</span>{declared_layer(@game_state, layer).name}
       </div>
       <div class="layer-controls">
         <button
@@ -43,7 +43,7 @@
         </button>
       </div>
 
-      <% layer_objects = objects_for_layer(layer.index, @game_state, @adventure) %>
+      <% layer_objects = objects_for_layer(layer.index, @game_state) %>
       <%= if Enum.any?(layer_objects) do %>
         <div class="layer-objects">
           <button

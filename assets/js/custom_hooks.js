@@ -259,7 +259,60 @@ Hooks.Geometry = {
 
     // Pan: only outside any tool, and only on map background. Drawing and
     // panning are mutually exclusive.
+    //
+    // The drag is applied here and the server is told once, when it ends.
+    //
+    // It used to send a delta per frame and wait for the render to come
+    // back, which put a round trip between the cursor and the map - about
+    // 30ms on a local server, more anywhere else, so the map always trailed
+    // the hand holding it. Nothing was gained by the wait: pan is session
+    // state, held in this LiveView's own assigns and broadcast to nobody, so
+    // during the gesture there is no one to tell.
+    //
+    // What the server does still need is where the pan ended, because it
+    // clamps the offset to the map's edges and converts pointer positions
+    // into map coordinates. So the total goes up on release, and the local
+    // transform is dropped when the reply arrives - in the same task as the
+    // patch it came with, so the two land in one paint and nothing flickers.
+    //
+    // On the reply rather than on the patch, because there may not be one:
+    // a map that fits the viewport is centred and ignores pan entirely, so
+    // the style comes back unchanged and the transform would have stayed.
     this.pan = null;
+
+    this.panLayers = () => this.el.querySelectorAll(".pan-layer");
+
+    this.drawPan = () => {
+      this.panFrame = null;
+      if (!this.pan) return;
+      const shift = `translate(${this.pan.dx}px, ${this.pan.dy}px)`;
+      this.panLayers().forEach((layer) => { layer.style.transform = shift; });
+    };
+
+    this.clearPanShift = () => {
+      clearTimeout(this.panSettle);
+      this.panSettle = null;
+      this.panLayers().forEach((layer) => { layer.style.transform = ""; });
+    };
+
+    this.endPanAt = () => {
+      if (this.panFrame) cancelAnimationFrame(this.panFrame);
+      this.panFrame = null;
+      const moved = this.pan;
+      this.pan = null;
+      if (!moved) return;
+
+      if (!moved.dx && !moved.dy) return this.clearPanShift();
+
+      this.pushEventTo(this.el, "map_pan", { dx: moved.dx, dy: moved.dy }, () => {
+        this.clearPanShift();
+      });
+
+      // A reply that never comes - a dropped socket mid-gesture - would
+      // leave the map held at an offset it no longer believes in.
+      clearTimeout(this.panSettle);
+      this.panSettle = setTimeout(() => this.clearPanShift(), 2000);
+    };
 
     this.el.addEventListener("pointerdown", (e) => {
       if (e.button !== 0) return;
@@ -274,7 +327,7 @@ Hooks.Geometry = {
       e.preventDefault();
 
       this.el.setPointerCapture(e.pointerId);
-      this.pan = { x: e.clientX, y: e.clientY, pointerId: e.pointerId };
+      this.pan = { x: e.clientX, y: e.clientY, dx: 0, dy: 0, pointerId: e.pointerId };
       document.body.classList.add("panning-map");
     });
 
@@ -286,17 +339,20 @@ Hooks.Geometry = {
       // cursor with no button held.
       if (e.buttons === 0) return endPan(e);
 
-      const dx = e.clientX - this.pan.x;
-      const dy = e.clientY - this.pan.y;
+      this.pan.dx += e.clientX - this.pan.x;
+      this.pan.dy += e.clientY - this.pan.y;
       this.pan.x = e.clientX;
       this.pan.y = e.clientY;
-      this.pushEventTo(this.el, "map_pan", { dx: dx, dy: dy });
+
+      if (!this.panFrame) {
+        this.panFrame = requestAnimationFrame(this.drawPan);
+      }
     });
 
     const endPan = (e) => {
       if (!this.pan || e.pointerId !== this.pan.pointerId) return;
       this.el.releasePointerCapture(e.pointerId);
-      this.pan = null;
+      this.endPanAt();
       document.body.classList.remove("panning-map");
     };
 
@@ -310,6 +366,7 @@ Hooks.Geometry = {
     this.pan = null;
     document.body.classList.remove("panning-map");
     if (this.wheelFrame) cancelAnimationFrame(this.wheelFrame);
+    if (this.panFrame) cancelAnimationFrame(this.panFrame);
   },
 
   // A gesture belongs to the map background unless it starts on something

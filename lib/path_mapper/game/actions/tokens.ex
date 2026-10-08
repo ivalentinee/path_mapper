@@ -1,12 +1,12 @@
 defmodule PathMapper.Game.Actions.Tokens do
   alias Ecto.Changeset
-  alias PathMapper.Adventures.Adventure.Scene.Token
   alias PathMapper.Game.Actions.Tokens.FindFreeSpace
   alias PathMapper.Game.GameId
   alias PathMapper.Game.Palette
   alias PathMapper.Game.State
-  alias PathMapper.Game.State.Scene.Token, as: GameToken
+  alias PathMapper.Game.State.Surface.Token, as: GameToken
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
+  alias PathMapper.Session.Token
 
   require PathMapper.TokenStates
   import PathMapper.Errors
@@ -14,8 +14,8 @@ defmodule PathMapper.Game.Actions.Tokens do
   import PathMapper.Game.Actions.Tokens.Move
   import PathMapper.TokenStates, only: [states: 0]
 
-  def action(%State{} = state, [:tokens, :player | _rest] = action, data),
-    do: __MODULE__.Player.action(state, action, data)
+  def action(%State{} = state, [:tokens, :character | _rest] = action, data),
+    do: __MODULE__.Character.action(state, action, data)
 
   def action(%State{} = state, [:tokens, :add], index_or_name)
       when is_number(index_or_name) or is_binary(index_or_name) do
@@ -25,7 +25,7 @@ defmodule PathMapper.Game.Actions.Tokens do
 
   def action(%State{} = state, [:tokens, :add], {index_or_name, params})
       when (is_number(index_or_name) or is_binary(index_or_name)) and is_map(params) do
-    token = find_adventure_token(state, index_or_name)
+    token = find_token(index_or_name)
 
     if token do
       add_token(state, token, params)
@@ -37,7 +37,7 @@ defmodule PathMapper.Game.Actions.Tokens do
   def action(%State{} = state, [:tokens, :delete], game_id) when is_binary(game_id) do
     case position_of(state, game_id) do
       nil -> {:ok, state}
-      index -> update_tokens(state, List.delete_at(State.scene(state).tokens, index))
+      index -> update_tokens(state, List.delete_at(State.surface(state).tokens, index))
     end
   end
 
@@ -92,7 +92,7 @@ defmodule PathMapper.Game.Actions.Tokens do
   defp with_placement(%State{} = state, game_id, change) do
     case position_of(state, game_id) do
       nil -> {:ok, state}
-      index -> change.(index, Enum.at(State.scene(state).tokens, index))
+      index -> change.(index, Enum.at(State.surface(state).tokens, index))
     end
   end
 
@@ -106,7 +106,7 @@ defmodule PathMapper.Game.Actions.Tokens do
   defp blank_to_nil(nil), do: nil
 
   defp position_of(%State{} = state, game_id) do
-    Enum.find_index(State.scene(state).tokens, &(&1.game_id == game_id))
+    Enum.find_index(State.surface(state).tokens, &(&1.game_id == game_id))
   end
 
   @doc """
@@ -146,7 +146,7 @@ defmodule PathMapper.Game.Actions.Tokens do
   defp insert_placement(%State{} = state, params, token) do
     case GameToken.build(params, token) do
       {:ok, game_token} ->
-        update_tokens(state, State.scene(state).tokens ++ [game_token])
+        update_tokens(state, State.surface(state).tokens ++ [game_token])
 
       {:error, %Changeset{} = changeset} ->
         {:error, display_errors(changeset)}
@@ -157,17 +157,17 @@ defmodule PathMapper.Game.Actions.Tokens do
   end
 
   def initial_token_geometry(%State{} = state, %Token{size: size}) do
-    FindFreeSpace.initial_token_geometry(State.scene(state), size)
+    FindFreeSpace.initial_token_geometry(State.surface(state), size)
   end
 
   def update_tokens(%State{} = state, updated_tokens) when is_list(updated_tokens) do
-    updated_scene = Map.put(State.scene(state), :tokens, updated_tokens)
-    {:ok, State.put_scene(state, updated_scene)}
+    updated_scene = Map.put(State.surface(state), :tokens, updated_tokens)
+    {:ok, State.put_surface(state, updated_scene)}
   end
 
   defp update_token(%State{} = state, index, %GameToken{} = updated_token)
        when is_number(index) do
-    updated_tokens = List.replace_at(State.scene(state).tokens, index, updated_token)
+    updated_tokens = List.replace_at(State.surface(state).tokens, index, updated_token)
     update_tokens(state, updated_tokens)
   end
 end

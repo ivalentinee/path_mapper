@@ -1,6 +1,6 @@
 <div id="add-extra-token" class="add-extra-token">
   <div id="add-extra-token-players">
-    <%= for {player, player_index} <- Enum.with_index(@group.players) do %>
+    <%= for {player, player_index} <- Enum.with_index(@characters) do %>
       <div
         phx-click="select_player"
         phx-value-index={player_index}
@@ -8,10 +8,10 @@
         class="add-extra-token-player item"
         id={"add-extra-token-player-#{player_index}"}
       >
-        <span class="index">{player_index + 1}</span> {player.character_name}
+        <span class="index">{player_index + 1}</span> {player.character_name || player.id}
         <%= if show_tokens?(@left_panel, player_index) do %>
           <div class="add-extra-token-player-tokens">
-            <%= for {extra_token, index} <- Enum.with_index(player.extra_tokens) do %>
+            <%= for {extra_token, index} <- Enum.with_index(extras(player)) do %>
               <div class="item">
                 <button
                   phx-click="add_token"
@@ -19,7 +19,7 @@
                   phx-value-index={index}
                   phx-target={@myself}
                 >
-                  <span class="index">{index + 1}</span> {extra_token.name}
+                  <span class="index">{index + 1}</span> {extra_token.name || extra_token.id}
                 </button>
               </div>
             <% end %>

@@ -26,6 +26,12 @@ defmodule PathMapperWeb.Router do
 
     live "/", PlayerLive
     live "/master", MasterLive
+
+    # A surface at its own address, for looking at one that is not the table's.
+    # Last, so neither can shadow a path above it, and both refuse an id the
+    # store holds no surface for rather than drawing an empty board.
+    live "/:surface_id", PlayerLive
+    live "/master/:surface_id", MasterLive
   end
 
   scope "/api", PathMapperWeb do
@@ -37,7 +43,6 @@ defmodule PathMapperWeb.Router do
   scope "/api", PathMapperWeb do
     pipe_through :api
 
-    post "/scenes/map", MapUploadController, :upload
     post "/assets", AssetController, :create
     post "/reset", SessionController, :reset
     post "/entities", EntityController, :create

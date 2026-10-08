@@ -14,6 +14,7 @@ export const MapTool = {
     this._rafPending = false;
     this._pendingPathCoords = null;
     this.panStart = null;
+    this.panPending = null;
 
     this.el.addEventListener("pointerdown", (e) => this.onPointerDown(e));
     this.el.addEventListener("pointermove", (e) => this.onPointerMove(e));
@@ -44,6 +45,60 @@ export const MapTool = {
     if (this._keyHandler) {
       document.removeEventListener("keydown", this._keyHandler);
     }
+    if (this.panFrame) cancelAnimationFrame(this.panFrame);
+    this.panPending = null;
+  },
+
+  // The map tool's pan, applied here and sent once when it ends - the same
+  // as the ambient pan in Hooks.Geometry, and for the same reason: a round
+  // trip per frame puts the map two frames behind the hand moving it, and
+  // pan is session state that nobody else is waiting to hear about.
+  panLayers() {
+    return document.querySelectorAll(".pan-layer");
+  },
+
+  queuePan(dx, dy) {
+    this.panPending = this.panPending || { dx: 0, dy: 0 };
+    this.panPending.dx += dx;
+    this.panPending.dy += dy;
+
+    if (!this.panFrame) {
+      this.panFrame = requestAnimationFrame(() => this.drawPan());
+    }
+  },
+
+  drawPan() {
+    this.panFrame = null;
+    if (!this.panPending) return;
+    const shift = `translate(${this.panPending.dx}px, ${this.panPending.dy}px)`;
+    this.panLayers().forEach((layer) => {
+      layer.style.transform = shift;
+    });
+  },
+
+  flushPan() {
+    if (this.panFrame) cancelAnimationFrame(this.panFrame);
+    this.panFrame = null;
+    const pending = this.panPending;
+    this.panPending = null;
+    if (!pending) return;
+
+    if (!pending.dx && !pending.dy) return this.clearPanShift();
+
+    this.pushEventTo(this.el, "map_pan", { dx: pending.dx, dy: pending.dy }, () => {
+      this.clearPanShift();
+    });
+
+    clearTimeout(this.panSettle);
+    this.panSettle = setTimeout(() => this.clearPanShift(), 2000);
+  },
+
+  clearPanShift() {
+    clearTimeout(this.panSettle);
+    this.panSettle = null;
+    this.panLayers().forEach((layer) => {
+      layer.style.transform = "";
+    });
   },
 
   updated() {
@@ -231,7 +286,7 @@ export const MapTool = {
       const dy = e.clientY - this.panStart.y;
       this.panStart.x = e.clientX;
       this.panStart.y = e.clientY;
-      this.pushEventTo(this.el, "map_pan", { dx: dx, dy: dy });
+      this.queuePan(dx, dy);
       return;
     }
 
@@ -291,6 +346,7 @@ export const MapTool = {
   onPointerUp(e) {
     // Pan mode: end
     if (this.panStart && e.pointerId === this.panStart.pointerId) {
+      this.flushPan();
       this.panStart = null;
       this.el.classList.remove("panning");
       return;
@@ -343,6 +399,7 @@ export const MapTool = {
   },
 
   clearPan() {
+    this.flushPan();
     this.panStart = null;
     this.el.classList.remove("panning");
   },

@@ -2,7 +2,7 @@
   id="tools-overlay"
   phx-hook="MapTool"
   phx-target={@myself}
-  class={"tools-overlay #{if @active_tool, do: "active"}"}
+  class={"tools-overlay pan-layer #{if @active_tool, do: "active"}"}
   style={@overlay_style}
   data-grid-size={@grid_size}
   data-scale={@map_geometry.scale}

@@ -19,8 +19,11 @@ defmodule PathMapperWeb.Plugs.SchemaGateTest do
       conn =
         conn
         |> authorized()
-        |> put_req_header("content-type", "multipart/form-data; boundary=x")
-        |> post("/api/scenes/map", %{})
+        |> put_req_header("content-type", "application/json")
+        |> post(
+          "/api/entities",
+          Jason.encode!(%{"kind" => "nonsense", "id" => "xx0001-0000000001"})
+        )
 
       assert %{"error" => _} = json_response(conn, 400)
     end
@@ -29,10 +32,11 @@ defmodule PathMapperWeb.Plugs.SchemaGateTest do
       conn =
         conn
         |> authorized()
-        |> put_req_header("content-type", "application/json")
-        |> post("/api/scenes/map", Jason.encode!(%{"file" => "x"}))
+        |> put_req_header("content-type", "multipart/form-data; boundary=x")
+        |> post("/api/entities", %{})
 
-      assert %{"error" => "Unsupported content type: application/json"} = json_response(conn, 415)
+      assert %{"error" => "Unsupported content type: multipart/form-data"} =
+               json_response(conn, 415)
     end
   end
 

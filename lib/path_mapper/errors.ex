@@ -44,7 +44,7 @@ defmodule PathMapper.Errors do
     |> flatten_error_map([])
   end
 
-  defp collection_label(:scenes), do: gettext("Scene")
+  defp collection_label(:maps), do: gettext("Map")
   defp collection_label(:tokens), do: gettext("Token")
   defp collection_label(:place_tokens), do: gettext("Placed token")
   defp collection_label(:players), do: gettext("Player")

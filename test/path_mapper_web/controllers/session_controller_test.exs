@@ -1,10 +1,9 @@
 defmodule PathMapperWeb.SessionControllerTest do
   use PathMapperWeb.ConnCase
 
-  alias PathMapper.Adventures
   alias PathMapper.FileStorage
   alias PathMapper.Game
-  alias PathMapper.Groups
+  alias PathMapper.Session.Store
   alias PathMapper.UploadStorage
 
   @test_token "test-upload-token"
@@ -22,17 +21,16 @@ defmodule PathMapperWeb.SessionControllerTest do
     |> post("/api/reset")
   end
 
-  test "unloads the adventure, the group, the session and the store", %{conn: conn} do
-    load_adventure("tt0001-0000000001-adventure-1.zip")
-    {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
+  test "unloads the session and the store", %{conn: conn} do
+    load_session()
+    load_party()
     :ok = UploadStorage.initialize()
     {:ok, stored} = UploadStorage.store("some bytes", "png")
 
     assert json_response(reset(conn), 200) == %{"status" => "ok"}
 
     assert Game.get_state() == nil
-    assert {:error, _} = Adventures.get_loaded()
-    assert {:error, _} = Groups.get_loaded()
+    assert Store.all() == []
     assert {:error, :enoent} = FileStorage.read_stored(stored)
   end
 

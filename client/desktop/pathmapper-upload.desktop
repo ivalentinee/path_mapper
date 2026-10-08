@@ -1,8 +1,9 @@
 [Desktop Entry]
 Type=Application
 Name=Upload to PathMapper
-Comment=Send an adventure, group, token, map or snapshot to the running server
+Comment=Send a map, a token, a wallpaper, a character or a snapshot to the running server
 Exec=path-mapper %F
+Icon=pathmapper
 Terminal=false
 NoDisplay=true
-MimeType=application/x-pathmapper-adventure;application/x-pathmapper-group;application/x-pathmapper-token;application/x-pathmapper-map;application/x-pathmapper-snapshot;
+MimeType=application/x-pathmapper-token;application/x-pathmapper-character;application/x-pathmapper-map;application/x-pathmapper-wallpaper;application/x-pathmapper-load;application/x-pathmapper-snapshot;image/x-xcf;

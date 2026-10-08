@@ -41,6 +41,23 @@
   color: #e0e0ff;
 }
 
+/* Green because it commits for everyone, which is what green means here and
+   what the identical glyph in an object's menu already says. The same gesture
+   wearing two colours would be the worse mistake. */
+.scene-indicator .push-to-table {
+  margin-left: 8px;
+  padding: 1px 7px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #53c670;
+  vertical-align: middle;
+}
+
+.scene-indicator .push-to-table:hover {
+  background: #1a3a28;
+  border-color: #53c670;
+}
+
 .keyboard-indicator {
   position: fixed;
   bottom: 8px;

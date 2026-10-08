@@ -3,6 +3,7 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
 
   alias PathMapper.Game
   alias PathMapper.Game.Palette
+  alias PathMapper.Session.Resolve
 
   embed_templates "right_panel/*"
 
@@ -19,12 +20,6 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   end
 
   @impl true
-  def handle_event("toggle_links_panel", _, socket) do
-    send(self(), %{session_event: :toggle_links_panel})
-    {:noreply, socket}
-  end
-
-  @impl true
   def handle_event("claim_character", %{"id" => id}, socket) do
     if socket.assigns[:is_player] do
       send(self(), %{session_event: {:claim_character, id}})
@@ -35,7 +30,7 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
 
   @impl true
   def handle_event("add_player_token", %{"id" => id}, socket) do
-    Game.run_action([:tokens, :player, :add], id)
+    Game.run_action([:tokens, :character, :add], id)
     {:noreply, socket}
   end
 
@@ -52,7 +47,7 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   @impl true
   def handle_event("add_extra_token", %{"id" => id, "index" => index_str}, socket) do
     case Integer.parse(index_str) do
-      {index, _} -> Game.run_action([:tokens, :player, :add_extra], {id, index})
+      {index, _} -> Game.run_action([:tokens, :character, :add_extra], {id, index})
       _ -> :ok
     end
 
@@ -156,7 +151,7 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   # player's own line drew in the default colour rather than theirs.
   def handle_event("submit_initiative", %{"value" => value_str}, socket) do
     with {value, _} <- Integer.parse(value_str),
-         %{character_name: name, id: player_id} <- socket.assigns[:my_player] do
+         %{character_name: name, id: player_id} <- socket.assigns[:my_character] do
       Game.run_action([:initiative, :add], %{name: name, value: value, owner: player_id})
     end
 
@@ -170,6 +165,30 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
   defp charkeeper_status_title(:partial), do: gettext("Charkeeper: partial")
   defp charkeeper_status_title(:error), do: gettext("Charkeeper: error")
   defp charkeeper_status_title(_), do: nil
+
+  # A character names its token by id; the image is the token's, not the
+  # character's, because a character carries no asset of its own.
+  defp portrait(%{token_id: id}) when is_binary(id) do
+    case Resolve.declared_token(id) do
+      %{image: image} -> image
+      _ -> nil
+    end
+  end
+
+  defp portrait(_character), do: nil
+
+  # A character's markings, resolved from the ids it names. One that has not been
+  # uploaded yet is simply not listed.
+  defp extras(%{extra_token_ids: ids}) when is_list(ids) do
+    Enum.flat_map(ids, fn id ->
+      case Resolve.declared_token(id) do
+        nil -> []
+        token -> [token]
+      end
+    end)
+  end
+
+  defp extras(_character), do: []
 
   defp charkeeper_for(charkeeper_data, player) do
     Map.get(charkeeper_data || %{}, player.id)
@@ -285,7 +304,7 @@ defmodule PathMapperWeb.Scene.RightPanelComponent do
 
   defp scene_tokens do
     case Game.get_state() do
-      %{scene: %{tokens: tokens}} when is_list(tokens) -> tokens
+      %{surface: %{tokens: tokens}} when is_list(tokens) -> tokens
       _ -> []
     end
   end

@@ -7,10 +7,14 @@ AllCops:
 Metrics/MethodLength:
   Max: 20
 
-# Commands is a translation table from one format to another. Splitting it by size
-# alone would put halves of one mapping in two files.
+# Commands is a translation table from one format to another, and Upload is one
+# arm per kind of file. Splitting either by size alone would put halves of one
+# mapping in two files. A test class is a list of cases and its length says
+# nothing, so the rule does not apply to them at all.
 Metrics/ClassLength:
   Max: 130
+  Exclude:
+    - 'test/**/*_test.rb'
 
 Style/Documentation:
   Enabled: true

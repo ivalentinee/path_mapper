@@ -1,11 +1,16 @@
 get:
   summary: Hand over game state
   description: >-
-    Returns what has happened in the session, as distinct from what it is made of:
-    which scene is active, and for every declared scene, where things stand on it.
+    Returns what has happened in the session, as distinct from what it is made
+    of: which surface the table is shown, and for every map the store holds,
+    where things stand on it.
 
-    It carries no assets and names entities by id, so it is small. Fetching it on
+    It carries no assets and names pieces by id, so it is small. Fetching it on
     its own is how a checkpoint is taken - repeatedly, if a replay is wanted.
+
+    The snapshot asserts nothing about where it came from. It used to name the
+    adventure and the group it was taken against; neither exists, and matching a
+    snapshot to a session is the client's concern, as assembling one already was.
   tags: ['Session']
   responses:
     '200':
@@ -27,13 +32,18 @@ get:
 post:
   summary: Apply game state
   description: >-
-    Puts a session back where a state says it was. All or nothing: a state naming an
-    entity the store does not hold is refused outright, and nothing is written.
+    Puts a session back where a state says it was.
 
-    Repairing or skipping the missing parts would cost the code that decides what a
-    half-applied state means, for a case a real session is unlikely to reach. A
-    state is only meaningful against the entities it names, and refusing is what
-    makes that visible rather than producing a session with holes in it.
+    What the state names and the store does not hold is not restored, and nothing
+    is reported: a snapshot carries what stood on a surface, never which surfaces
+    exist, so an id it names that nothing answers to is simply a surface that is
+    not there. The same holds for a placement whose token has gone.
+
+    This is the dangling-reference rule applied to a snapshot, and it is what lets
+    a client send pieces in any order - including after the state that names them.
+    What arrived is applied; what did not is absent rather than refused.
+
+    The version is checked, and only the current one is accepted.
   tags: ['Session']
   requestBody:
     required: true
@@ -43,12 +53,13 @@ post:
           type: object
   responses:
     '200':
-      description: The session is where the state said
+      description: >-
+        The session is where the state said, as far as the store could answer for
       content:
         'application/json':
           schema: { $ref: '../schemas/common/ok.yaml#/acknowledgement' }
     '400':
-      description: The state names something the store does not hold
+      description: The state is not a version this server reads
       content:
         'application/json':
           schema: { $ref: '../schemas/common/error.yaml#/error' }

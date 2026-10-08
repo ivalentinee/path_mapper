@@ -80,11 +80,6 @@ defmodule PathMapper.Api.DocumentTest do
       refute Document.resolve!() |> has_reference?()
     end
 
-    test "describes the map upload route" do
-      document = Document.resolve!()
-      assert Map.has_key?(document["paths"], "/api/scenes/map")
-    end
-
     test "describes itself" do
       document = Document.resolve!()
       assert Map.has_key?(document["paths"], "/api/openapi.json")
@@ -108,16 +103,8 @@ defmodule PathMapper.Api.DocumentTest do
   end
 
   describe "operation/2" do
-    test "finds a documented route" do
-      assert %{method: "POST"} = Document.operation("POST", "/api/scenes/map")
-    end
-
     test "does not find an undocumented path" do
       assert Document.operation("POST", "/api/scenes/nope") == nil
-    end
-
-    test "does not find a documented path under another method" do
-      assert Document.operation("DELETE", "/api/scenes/map") == nil
     end
   end
 

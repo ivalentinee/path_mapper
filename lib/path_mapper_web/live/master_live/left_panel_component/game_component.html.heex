@@ -1,21 +1,9 @@
 <div id="game-panel" class="game-panel">
-  <div class="panel-section-label">{gettext("Adventure")}</div>
-  <%= if @adventure do %>
-    <div class="item loaded-item">
-      <span class="item-name">{@adventure.title}</span>
-      <span class="item-id">{@adventure.id}</span>
+  <div class="panel-section-label">{gettext("Held")}</div>
+  <%= for {kind, count} <- held() do %>
+    <div class={"item #{if count == 0, do: "empty-item", else: "loaded-item"}"}>
+      <span class="item-name">{kind}</span>
+      <span class="item-id">{count}</span>
     </div>
-  <% else %>
-    <div class="item empty-item">{gettext("Nothing loaded")}</div>
-  <% end %>
-
-  <div class="panel-section-label">{gettext("Group")}</div>
-  <%= if @group do %>
-    <div class="item loaded-item">
-      <span class="item-name">{@group.title}</span>
-      <span class="item-id">{@group.id}</span>
-    </div>
-  <% else %>
-    <div class="item empty-item">{gettext("Nothing loaded")}</div>
   <% end %>
 </div>

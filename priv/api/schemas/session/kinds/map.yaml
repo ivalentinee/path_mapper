@@ -1,0 +1,30 @@
+map:
+  title: Map
+  description: >-
+    A playable surface. The map is the surface: there is no separate thing
+    standing between it and what happens on it, and its id is the only id
+    involved.
+
+    Everything else about a map - its layers, its objects, its grid, its size -
+    is read out of the file it names, which is why only the file is required.
+  type: object
+  required: ['kind', 'id', 'file']
+  additionalProperties: false
+  properties:
+    kind: { type: string, const: 'map' }
+    id:
+      type: string
+      pattern: '^[a-z]{2}[0-9]{4}-[0-9]{10}$'
+    file:
+      type: string
+      description: An OpenRaster file the server already holds, by its asset address.
+    name:
+      type: string
+      description: >-
+        What a person calls this map. Optional, as every name is: a map without
+        one is known by its id. The client derives it from the file it uploaded,
+        and the map's own file overrules it where that file carries an [M]
+        metadata layer naming itself. The server never composes one.
+
+        A map's url is not declared here at all - like its layers, its objects
+        and its size, it is read out of the file.

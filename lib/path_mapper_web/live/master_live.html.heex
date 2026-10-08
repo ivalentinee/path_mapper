@@ -3,18 +3,23 @@
   <.live_component
     module={PathMapperWeb.WallpaperComponent}
     id="wallpaper"
-    adventure={@adventure}
     game_state={@game_state}
   />
 
-  <%= if @game_state && @game_state.scene do %>
+  <%= if @game_state && @game_state.surface do %>
     <.live_component
       module={PathMapperWeb.Scene.SceneComponent}
       id="scene"
       scene={@scene}
-      adventure={@adventure}
       game_state={@game_state}
-      opts={%{show_hidden: true, manage_tokens: true, manage_objects: true}}
+      opts={
+        %{
+          show_hidden: true,
+          manage_tokens: true,
+          manage_objects: true,
+          table_view: @viewed_surface_id == nil
+        }
+      }
       selected_layer_index={selected_layer_index(@left_panel)}
       selected_token_index={selected_token_index(@left_panel)}
       session_id={@session_id}
@@ -23,9 +28,18 @@
     />
   <% end %>
 
-  <%= if @game_state && @game_state.scene do %>
-    <div class="scene-indicator" phx-click="open_scene_selector">
-      {@game_state.scene.name}
+  <%= if @game_state && @game_state.surface do %>
+    <div class="scene-indicator" phx-click="open_surface_selector">
+      {@game_state.surface.name}
+      <%= if @pushable do %>
+        <button
+          class="push-to-table"
+          phx-click="push_to_table"
+          title={gettext("Show this to the table")}
+        >
+          ▶︎
+        </button>
+      <% end %>
     </div>
   <% end %>
 
@@ -36,12 +50,11 @@
   <.live_component
     module={PathMapperWeb.Scene.RightPanelComponent}
     id="right-panel"
-    group={@group}
-    adventure={@adventure}
+    characters={@characters}
     scene={@scene}
     right_panel={@right_panel}
     is_player={false}
-    my_player={nil}
+    my_character={nil}
     game_state={@game_state}
     language={@language}
     charkeeper_data={@charkeeper_data}
@@ -52,10 +65,8 @@
   <.live_component
     module={PathMapperWeb.MasterLive.LeftPanelComponent}
     id="left-panel"
-    adventure={@adventure}
-    group={@group}
+    characters={@characters}
     game_state={@game_state}
     left_panel={@left_panel}
-    scene={@scene}
   />
 </div>

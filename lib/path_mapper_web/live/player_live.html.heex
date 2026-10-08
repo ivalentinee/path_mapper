@@ -3,41 +3,43 @@
   <.live_component
     module={PathMapperWeb.WallpaperComponent}
     id="wallpaper"
-    adventure={@adventure}
     game_state={@game_state}
   />
 
-  <%= if @adventure && @game_state && @game_state.scene do %>
+  <%= if @game_state && @game_state.surface do %>
     <.live_component
       module={PathMapperWeb.Scene.SceneComponent}
       id="scene"
       scene={@scene}
-      adventure={@adventure}
       game_state={@game_state}
-      opts={%{my_player_id: @character.my_player && @character.my_player.id}}
+      opts={
+        %{
+          my_character_id: @character.mine && @character.mine.id,
+          table_view: @viewed_surface_id == nil
+        }
+      }
       selected_layer_index={nil}
       selected_token_index={nil}
       session_id={@session_id}
       tool_draws={@tool_draws}
-      draw_owner={@character.my_player && @character.my_player.id}
+      draw_owner={@character.mine && @character.mine.id}
     />
   <% end %>
 
   <.live_component
     module={PathMapperWeb.Scene.RightPanelComponent}
     id="right-panel"
-    group={@group}
-    adventure={@adventure}
+    characters={@characters}
     scene={@scene}
     right_panel={@right_panel}
     is_player={true}
-    my_player={@character.my_player}
+    my_character={@character.mine}
     my_token_on_map={@character.my_token_on_map}
-    has_scene={@game_state != nil && @game_state[:scene] != nil}
+    has_surface={@game_state != nil && @game_state[:surface] != nil}
     game_state={@game_state}
     language={@language}
     charkeeper_data={@charkeeper_data}
     charkeeper_status={@charkeeper_status}
-    draw_owner={@character.my_player && @character.my_player.id}
+    draw_owner={@character.mine && @character.mine.id}
   />
 </div>

@@ -3,10 +3,10 @@
 module PathMapper
   # What the client is doing, while it is still doing it.
   #
-  # An upload is mostly waiting on one asset after another, and the callers - a
-  # file manager entry, a GIMP plug-in - offer no spinner and no console. Without a
-  # line per asset there is nothing between "started" and "finished" but silence,
-  # and silence is indistinguishable from a hang.
+  # An upload is mostly waiting on one asset after another - and, for a .xcf, on
+  # GIMP - while the callers offer no spinner and no console. Without a line per
+  # step there is nothing between "started" and "finished" but silence, and silence
+  # is indistinguishable from a hang.
   #
   # Each line is written before the work it names, so an upload that dies mid-asset
   # has already said which one. That is the whole point: a timeout is only
@@ -55,7 +55,7 @@ module PathMapper
       flush
     end
 
-    # A file manager reads this as a stream and a plug-in reads it after the fact.
+    # A terminal reads this as a stream; anything else reads it after the fact.
     # Neither sees a half-written line, so every line is pushed as it is made.
     def flush
       @out.flush

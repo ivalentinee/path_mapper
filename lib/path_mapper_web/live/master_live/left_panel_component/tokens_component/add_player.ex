@@ -6,12 +6,12 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.AddPlayer 
   alias PathMapper.Game
 
   def handle_event("add_token", %{"id" => id}, socket) do
-    Game.run_action([:tokens, :player, :add], id)
+    Game.run_action([:tokens, :character, :add], id)
     {:noreply, socket}
   end
 
   def handle_event("add_all", _, socket) do
-    Game.run_action([:tokens, :player, :add_all], nil)
+    Game.run_action([:tokens, :character, :add_all], nil)
     {:noreply, socket}
   end
 end

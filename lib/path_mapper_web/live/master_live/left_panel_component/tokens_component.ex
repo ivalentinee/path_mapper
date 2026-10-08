@@ -3,8 +3,8 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent do
 
   require PathMapperWeb.MasterLive.LeftPanelState
 
-  alias PathMapper.Game.State.Scene
-  alias PathMapper.Game.State.Scene.Token
+  alias PathMapper.Game.State.Surface
+  alias PathMapper.Game.State.Surface.Token
 
   def handle_event("go_to_add_tokens", _, socket) do
     send(self(), %{session_event: %{left_panel_select: ["left-panel", "tokens", "add-token"]}})
@@ -36,7 +36,9 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent do
   end
 
   # Positions are written in grid cells, against the same grid the loader reads.
-  def serialize_tokens(%{scene: %{tokens: tokens} = scene}) when is_list(tokens) do
-    Token.to_place_records(tokens, Scene.grid_size(scene))
+  def serialize_tokens(%{surface: %{tokens: tokens} = surface}) when is_list(tokens) do
+    Token.to_place_records(tokens, Surface.grid_size(surface))
   end
+
+  def serialize_tokens(_game_state), do: ""
 end

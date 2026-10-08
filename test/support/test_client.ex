@@ -2,173 +2,142 @@ defmodule PathMapper.TestClient do
   @moduledoc """
   What the PathMapper client does, written in Elixir so tests can do it.
 
-  Unpacks a blob, stores each asset under the name its bytes hash to, and turns the
-  manifest into the sequence of commands the server now takes. There is no
-  description any more: an adventure is a declaration of the adventure, one of each
-  scene, and one of every map and token those scenes name.
+  A session is a directory of pieces. Each file is stored under the name its
+  bytes hash to and declared as the entity its extension says it is, with the id
+  its filename carries. The order is the directory's, because nothing depends on
+  one: a reference resolves when it is read, so a token may arrive before or
+  after whatever names it.
 
-  It is a specification as much as a helper. Anything this does, the real client has
-  to do too.
+  It is a specification as much as a helper. Anything this does, the real client
+  has to do too — which is why it reads the same `.pm*` extensions a game master
+  would hand over, and why there is no archive and no manifest anywhere in it.
+
+  A character is the one piece that is not a file: four fields and no bytes. The
+  suite declares those itself, in `PathMapperWeb.TestHelpers`.
   """
 
   alias PathMapper.Id
   alias PathMapper.UploadStorage
 
-  @manifest "manifest.toml"
+  @sessions "test/data/sessions"
 
-  @doc "The commands an adventure blob becomes, in the order they must be sent."
-  def adventure_commands(path) do
-    {manifest, stored} = unpack(path)
+  @doc "The commands a directory of pieces becomes."
+  def session_commands(name) do
+    directory = Path.join(@sessions, name)
 
-    scenes = Elixir.Map.get(manifest, "scenes", [])
-
-    [adventure(manifest, path)] ++
-      Enum.flat_map(Enum.with_index(scenes), fn {scene, order} ->
-        scene_commands(scene, order, stored)
-      end)
+    directory
+    |> File.ls!()
+    |> Enum.sort()
+    |> Enum.map(&piece(directory, &1))
   end
 
-  @doc "The commands a group blob becomes."
-  def group_commands(path) do
-    {manifest, stored} = unpack(path)
+  defp piece(directory, filename) do
+    bytes = File.read!(Path.join(directory, filename))
 
-    players = manifest |> Elixir.Map.get("players", []) |> Enum.map(&player(&1, stored))
-
-    token_commands =
-      manifest
-      |> Elixir.Map.get("players", [])
-      |> Enum.flat_map(&player_tokens(&1, stored))
-
-    token_commands ++
-      [
-        %{
-          "kind" => "group",
-          "id" => Id.of(path),
-          "title" => manifest["title"],
-          "file" => Path.basename(path),
-          "players" => players
-        }
-      ]
+    filename |> Path.extname() |> declare(filename, bytes)
   end
 
-  defp adventure(manifest, path) do
+  defp declare(".pmmap", filename, bytes) do
     %{
-      "kind" => "adventure",
-      "id" => Id.of(path),
-      "title" => manifest["title"],
-      "file" => Path.basename(path),
-      "wallpaper" => stored_or_nil(manifest["wallpaper"], path),
-      "urls" => manifest["urls"] || []
+      "kind" => "map",
+      "id" => Id.of(filename),
+      "file" => store(bytes, "ora"),
+      "name" => derived_name(filename)
     }
   end
 
-  # A map and every token a scene names are entities in their own right, declared
-  # before the scene that refers to them.
-  defp scene_commands(scene, order, stored) do
-    map = scene["map"]
-    map_name = map && map["file"]
-    map_id = map_name && Id.of(map_name)
+  # A token says what it is in its own PNG, which is why a token needs no
+  # manifest entry and never did.
+  defp declare(".pmtoken", filename, bytes) do
+    described = comment(bytes)
 
-    tokens = Elixir.Map.get(scene, "tokens", [])
-
-    map_commands(map_id, map_name, stored) ++
-      Enum.map(tokens, &token(&1, stored)) ++
-      [
-        %{
-          "kind" => "scene",
-          "id" => scene["id"],
-          "ref" => scene["ref"],
-          "name" => scene["name"],
-          "type" => scene["type"],
-          "order" => order,
-          "map_id" => map_id,
-          "tokens" => Enum.map(tokens, fn t -> %{"id" => Id.of(t["image"])} end),
-          "place_tokens" => Elixir.Map.get(scene, "place_tokens", [])
-        }
-      ]
-  end
-
-  defp map_commands(nil, _name, _stored), do: []
-
-  defp map_commands(id, name, stored) do
-    [%{"kind" => "map", "id" => id, "file" => Elixir.Map.fetch!(stored, name)}]
-  end
-
-  defp token(token, stored) do
     %{
       "kind" => "token",
-      "id" => Id.of(token["image"]),
-      "name" => token["name"],
-      "owner" => token["owner"] || "npc",
-      "size" => token["size"],
-      "image" => Elixir.Map.fetch!(stored, token["image"])
+      "id" => Id.of(filename),
+      "name" => described["name"] || derived_name(filename),
+      "owner" => described["owner"] || "npc",
+      "size" => described["size"] || 1,
+      "image" => store(bytes, "png")
     }
   end
 
-  defp player_tokens(player, stored) do
-    extras = Elixir.Map.get(player, "extra_tokens", [])
-
-    [
-      %{
-        "kind" => "token",
-        "id" => Id.of(player["token"]),
-        "name" => player["character_name"],
-        "owner" => "npc",
-        "size" => 1,
-        "image" => Elixir.Map.fetch!(stored, player["token"])
-      }
-      | Enum.map(extras, fn extra ->
-          %{
-            "kind" => "token",
-            "id" => Id.of(extra["image"]),
-            "name" => extra["name"],
-            "owner" => "npc",
-            "size" => 1,
-            "image" => Elixir.Map.fetch!(stored, extra["image"])
-          }
-        end)
-    ]
+  # An archive holding one image, which is what the client unpacks.
+  defp declare(".pmwallpaper", filename, bytes) do
+    %{"kind" => "wallpaper", "id" => Id.of(filename), "file" => store(single_image(bytes), "png")}
   end
 
-  defp player(player, stored) do
-    player
-    |> Elixir.Map.put("token_id", Id.of(player["token"]))
-    |> Elixir.Map.put("token", Elixir.Map.fetch!(stored, player["token"]))
-    |> Elixir.Map.update("extra_tokens", [], fn extras ->
-      Enum.map(extras, fn extra ->
-        extra
-        |> Elixir.Map.put("id", Id.of(extra["image"]))
-        |> Elixir.Map.put("image", Elixir.Map.fetch!(stored, extra["image"]))
-      end)
+  defp single_image(bytes) do
+    {:ok, entries} = :zip.unzip(bytes, [:memory])
+
+    {_name, image} =
+      Enum.find(entries, fn {name, _bytes} -> Path.extname(to_string(name)) == ".png" end)
+
+    image
+  end
+
+  # A token says what it is in one PNG `Comment` chunk, a pipe-separated list of
+  # `key: value` settings - one property rather than one per setting, because
+  # one is what an image editor offers on the way out. The client's own
+  # PathMapper::Token is the specification; this has to agree with it, or the
+  # two sides of the pipeline are held to two oracles instead of one.
+  #
+  # A PNG is a signature then a run of length-type-data-crc chunks; a tEXt
+  # chunk's data is a keyword, a zero byte, and the text.
+  defp comment(<<_signature::binary-size(8), chunks::binary>>) do
+    chunks |> chunks(%{}) |> Elixir.Map.get("Comment", "") |> settings()
+  end
+
+  defp comment(_other), do: %{}
+
+  defp settings(text) do
+    text
+    |> String.split("|")
+    |> Enum.flat_map(fn part ->
+      case String.split(part, ":", parts: 2) do
+        [key, value] -> [{key |> String.trim() |> String.downcase(), String.trim(value)}]
+        _ -> []
+      end
     end)
+    |> Elixir.Map.new()
+    |> then(&Elixir.Map.update(&1, "size", nil, fn size -> cast("size", size) end))
   end
 
-  defp stored_or_nil(nil, _path), do: nil
-
-  defp stored_or_nil(name, path) do
-    {_manifest, stored} = unpack(path)
-    Elixir.Map.get(stored, name)
+  defp chunks(<<length::32, "tEXt", data::binary-size(length), _crc::32, rest::binary>>, found) do
+    case :binary.split(data, <<0>>) do
+      [keyword, text] -> chunks(rest, Elixir.Map.put(found, keyword, text))
+      _ -> chunks(rest, found)
+    end
   end
 
-  # The client unzips; the server never sees an archive.
-  defp unpack(path) do
-    {:ok, entries} = :zip.unzip(String.to_charlist(path), [:memory])
-    files = Elixir.Map.new(entries, fn {name, bytes} -> {to_string(name), bytes} end)
+  defp chunks(
+         <<length::32, _type::binary-size(4), _data::binary-size(length), _crc::32,
+           rest::binary>>,
+         found
+       ),
+       do: chunks(rest, found)
 
-    {:ok, manifest} = :tomerl.parse(Elixir.Map.fetch!(files, @manifest))
+  defp chunks(_remainder, found), do: found
 
-    :ok = UploadStorage.initialize()
-
-    stored =
-      files
-      |> Elixir.Map.delete(@manifest)
-      |> Elixir.Map.new(fn {name, bytes} ->
-        {:ok, stored} = UploadStorage.store(bytes, extension(name))
-        {name, stored}
-      end)
-
-    {manifest, stored}
+  defp cast("size", text) do
+    case Integer.parse(text) do
+      {size, _rest} -> size
+      :error -> nil
+    end
   end
 
-  defp extension(name), do: name |> Path.extname() |> String.trim_leading(".")
+  defp cast(_keyword, text), do: text
+
+  defp store(bytes, extension) do
+    {:ok, stored} = UploadStorage.store(bytes, extension)
+    stored
+  end
+
+  # What is left of a filename once the id is taken off it, which is the only
+  # name a piece gets unless it carries one of its own.
+  defp derived_name(file) do
+    case file |> Path.basename() |> Id.parse() do
+      {:ok, _id, rest} -> rest |> String.replace("-", " ") |> String.trim()
+      _ -> nil
+    end
+  end
 end

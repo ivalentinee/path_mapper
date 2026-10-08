@@ -1,7 +1,11 @@
 # Tokens
 
-A token is a PNG. It reaches a session in one of three ways: declared by an
-adventure, declared by a group as a player's, or uploaded on its own.
+A token is a PNG. It reaches a session in one of two ways: uploaded on its own
+as a `.pmtoken`, or brought along by a [character](characters.md) that names
+it.
+
+A token is declared once and placed as often as you like. Declaring it puts it
+on the shelf; it stands on nothing until someone places it.
 
 ## The image
 
@@ -17,12 +21,16 @@ tk0001-0000000042-goblin.png
        id         description
 ```
 
-The id is `[a-z]{2}[0-9]{4}-[0-9]{10}` and is global — see
-[Adventures](adventures.md#identity-every-id-comes-from-a-filename). A file
-without one cannot be placed.
+The id is `[a-z]{2}[0-9]{4}-[0-9]{10}` and is global. Every piece takes its id
+from its filename, and a file with no id in its name is refused.
 
 The descriptive half is the fallback name: `tk0001-0000000042-crooked-ear.png`
 becomes "crooked ear" if the PNG says nothing about itself.
+
+That fallback applies to a `.pmtoken` uploaded on its own. A token a
+[character](characters.md) names is called whatever the character calls it:
+the character names and owns what it points at, because the token's own bytes
+cannot know which character is using them.
 
 ## What a PNG may say about itself
 
@@ -38,7 +46,7 @@ name: Зомби-ходок | size: 1 | owner: enemy
 |---------|------------------------------------------------------|--------------------------------------|
 | `name`  | What the token is called                             | the descriptive half of the filename |
 | `size`  | Size in grid cells: 1 standard, 2 large              | 1                                    |
-| `owner` | `enemy`, `npc`, `none`, or a player id from the group | `npc`                                |
+| `owner` | `enemy`, `npc`, `none`, or a character's id          | `npc`                                |
 
 All three are optional, in any order. Keys are matched ignoring case and
 surrounding space; a value keeps its own spacing, so a name may contain any.
@@ -80,18 +88,23 @@ path-mapper tk0001-0000000042-goblin.pmtoken
 ```
 
 Or double-click it. The token joins the session and can be placed from the GM's
-Tokens panel. Uploading again under the same id replaces the image everywhere it
-is used — which is how you fix artwork mid-session.
+Tokens panel, which lists every token the session holds and has a search.
+Uploading again under the same id replaces the image everywhere it is used —
+which is how you fix artwork mid-session.
 
 ## A token versus a placement
 
 A **token** is a thing that may be placed: an image, a name, a size, an owner.
 
-A **placement** is that token on a map. One token may be placed many times, and
-each placement has its own identity, position, state, owner and name. Four
+A **placement** is that token on a surface. One token may be placed many times,
+and each placement has its own identity, position, state, owner and name. Four
 goblins from one token are four placements.
 
-Placements are written in a scene's `place_tokens`
-([Adventures](adventures.md#tokens-the-scene-starts-with)) and made during play
-from the Tokens panel. Naming one — "the crooked-ear one" — is done from that
-panel and changes nothing about the token itself or any other placement of it.
+Placements are made during play, from the GM's Tokens panel, and by players
+adding their own character token and markings. Nothing declares a placement in
+advance --- a token exists, and where it stands is something that happened. A
+[load list or a snapshot](sessions.md) does carry where everything stood, so a
+session can be put back as it was.
+
+Naming a placement — "the crooked-ear one" — is done from the Tokens panel and
+changes nothing about the token itself or any other placement of it.

@@ -79,6 +79,71 @@
   border-color: #db5164;
 }
 
+/* The object menu stacks: ways out, the target's name, the object's own
+   buttons. Each part is drawn only when it has something to show, so the
+   separators sit between whatever is left rather than at fixed heights. */
+.object-menu {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+.object-menu .menu-row {
+  display: flex;
+  gap: 3px;
+}
+
+.object-menu .menu-row + .menu-row,
+.object-menu .menu-name + .menu-row,
+.object-menu .menu-row + .menu-name {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #2a2540;
+}
+
+.object-menu .menu-name {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 2px;
+  font-size: 0.85rem;
+  color: #c8c8e0;
+}
+
+.object-menu .go {
+  color: #53c670;
+}
+
+.object-menu .go:hover {
+  background: #1a3a28;
+  border-color: #53c670;
+}
+
+.object-menu .preview {
+  width: 36px;
+  height: 32px;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  text-decoration: none;
+  color: #c8c8e0;
+}
+
+.object-menu .url {
+  width: 36px;
+  height: 32px;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  text-decoration: none;
+  color: #8a8aaa;
+}
+
 .token .token-index {
   position: absolute;
   left: 0;
@@ -99,4 +164,14 @@
     0 0 6px rgba(0, 0, 0, 0.8);
   z-index: 300;
   pointer-events: none;
+}
+
+/* An object that leads somewhere says so: the author's artwork is unchanged, and
+   the only addition is that it answers to a pointer the way a link does. */
+.objects-container .map-object.link {
+  cursor: pointer;
+}
+
+.objects-container .map-object.link:hover {
+  filter: brightness(140%);
 }

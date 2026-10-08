@@ -1,13 +1,13 @@
-<% ck = charkeeper_for(assigns[:charkeeper_data], @my_player) %>
+<% ck = charkeeper_for(assigns[:charkeeper_data], @my_character) %>
 <div class="character-menu">
   <div class="character-menu-header">
     <img
       class="character-menu-portrait"
-      src={@my_player.token}
-      style={"border: 2px solid #{@my_player.color};"}
+      src={portrait(@my_character)}
+      style={"border: 2px solid #{@my_character.color};"}
     />
     <div class="character-menu-info">
-      <div class="character-menu-name">{@my_player.character_name}</div>
+      <div class="character-menu-name">{@my_character.character_name || @my_character.id}</div>
       <%= if ck do %>
         <div class="charkeeper-stats-line">
           <span>{ck.class} {ck.level}</span>
@@ -15,8 +15,8 @@
           <span>{ck.ancestry}</span>
         </div>
       <% else %>
-        <%= if @my_player.class do %>
-          <div class="character-menu-class">{@my_player.class}</div>
+        <%= if @my_character.class do %>
+          <div class="character-menu-class">{@my_character.class}</div>
         <% end %>
       <% end %>
     </div>
@@ -52,9 +52,9 @@
       <button
         class="pure-button character-menu-button on-map"
         phx-click="remove_player_token"
-        phx-value-id={@my_player.token_id}
+        phx-value-id={@my_character.token_id}
         phx-target={assigns[:myself]}
-        disabled={!@has_scene}
+        disabled={!@has_surface}
       >
         {gettext("Remove from map")}
       </button>
@@ -62,28 +62,28 @@
       <button
         class="pure-button character-menu-button"
         phx-click="add_player_token"
-        phx-value-id={@my_player.id}
+        phx-value-id={@my_character.id}
         phx-target={assigns[:myself]}
-        disabled={!@has_scene}
+        disabled={!@has_surface}
       >
         {gettext("Add to map")}
       </button>
     <% end %>
   </div>
 
-  <%= if @my_player.extra_tokens && @my_player.extra_tokens != [] do %>
+  <%= if extras(@my_character) != [] do %>
     <div class="character-menu-section">
       <div class="character-menu-section-title">{gettext("Extra tokens")}</div>
-      <%= for {extra, index} <- Enum.with_index(@my_player.extra_tokens) do %>
+      <%= for {extra, index} <- Enum.with_index(extras(@my_character)) do %>
         <div class="character-menu-extra">
-          <span class="character-menu-extra-name">{extra.name}</span>
+          <span class="character-menu-extra-name">{extra.name || extra.id}</span>
           <button
             class="pure-button character-menu-extra-add"
             phx-click="add_extra_token"
-            phx-value-id={@my_player.id}
+            phx-value-id={@my_character.id}
             phx-value-index={index}
             phx-target={assigns[:myself]}
-            disabled={!@has_scene}
+            disabled={!@has_surface}
           >
             {gettext("Add")}
           </button>

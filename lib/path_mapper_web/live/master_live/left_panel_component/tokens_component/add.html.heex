@@ -4,9 +4,9 @@
       class={"pure-button sub-button #{if @expanded, do: "active"}"}
       phx-click="toggle_expanded"
       phx-target={@myself}
-      title={if @expanded, do: gettext("Scene tokens"), else: gettext("All tokens")}
+      title={if @expanded, do: gettext("Hide the search"), else: gettext("Search the tokens")}
     >
-      {if @expanded, do: gettext("All"), else: gettext("Scene")}
+      {if @expanded, do: gettext("×"), else: gettext("Search")}
     </button>
     <%= if @expanded do %>
       <form

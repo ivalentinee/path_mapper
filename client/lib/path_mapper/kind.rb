@@ -10,6 +10,11 @@ module PathMapper
   # apart. The cost is that a renamed file lies, and the answer to that is to
   # validate after dispatching rather than to sniff content instead - sniffing
   # would reintroduce the second dispatch mechanism this avoids.
+  #
+  # One kind has two content formats: a map is an OpenRaster or the GIMP working
+  # file it was drawn in. The bytes are read to tell those apart, which is not a
+  # second dispatch - the extension has already said "map", and all that is left
+  # is which reader to use.
   module Kind
     class Unknown < StandardError
     end
@@ -18,10 +23,12 @@ module PathMapper
     end
 
     BY_EXTENSION = {
-      '.pmadventure' => :adventure,
-      '.pmgroup' => :group,
       '.pmtoken' => :token,
+      '.pmcharacter' => :character,
+      '.pmload' => :load,
       '.pmmap' => :map,
+      '.xcf' => :map,
+      '.pmwallpaper' => :wallpaper,
       '.pmsnapshot' => :snapshot
     }.freeze
 
@@ -37,16 +44,34 @@ module PathMapper
 
     def validate!(path, kind)
       case kind
-      when :adventure, :group then require_archive_entry!(path, Blob::MANIFEST, kind)
-      when :map then require_archive_entry!(path, 'mimetype', kind)
+      when :map then require_map!(path)
+      when :character, :load then nil
       when :token then require_png!(path)
-      when :snapshot then require_archive!(path, kind)
+      when :wallpaper, :snapshot then require_archive!(path, kind)
       end
       kind
     end
 
     def shown(extension)
       extension.empty? ? 'a name with no extension' : extension
+    end
+
+    # Either spelling of a map: the OpenRaster the server reads, or the GIMP
+    # working file the client converts into one. The extension still decides
+    # that this is a map - the bytes only say which of the two it is.
+    def require_map!(path)
+      return if Xcf.xcf?(path)
+
+      require_archive_entry!(path, 'mimetype', :map)
+    end
+
+    # What the file calls itself, for a message about the file. Saying ".pmmap"
+    # to someone holding a .xcf asserts something false about the name they can
+    # see, which is the one thing an error must not do.
+    def named(path)
+      extension = File.extname(path)
+
+      extension.empty? ? 'a PathMapper file' : extension
     end
 
     def require_png!(path)
@@ -56,17 +81,17 @@ module PathMapper
       raise Mismatch, "#{File.basename(path)} is named .pmtoken but is not a PNG"
     end
 
-    def require_archive!(path, kind)
+    def require_archive!(path, _kind)
       Zip::File.open(path, &:size)
     rescue Zip::Error
-      raise Mismatch, "#{File.basename(path)} is named .pm#{kind} but is not an archive"
+      raise Mismatch, "#{File.basename(path)} is named #{named(path)} but is not an archive"
     end
 
     def require_archive_entry!(path, entry, kind)
       require_archive!(path, kind)
       return if Zip::File.open(path) { |zip| zip.find_entry(entry) }
 
-      raise Mismatch, "#{File.basename(path)} is named .pm#{kind} but has no #{entry}"
+      raise Mismatch, "#{File.basename(path)} is named #{named(path)} but has no #{entry}"
     end
   end
 end

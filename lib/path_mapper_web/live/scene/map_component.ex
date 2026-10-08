@@ -1,8 +1,8 @@
 defmodule PathMapperWeb.Scene.MapComponent do
   use PathMapperWeb, :live_component
 
-  alias PathMapper.Game.State.Scene
-  alias PathMapper.Game.State.Scene.Map.Layer
+  alias PathMapper.Game.State.Surface
+  alias PathMapper.Game.State.Surface.Map.Layer
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
 
   def layer_image_class(%Layer{highlight: true}, _opts), do: "highlight"
@@ -17,27 +17,27 @@ defmodule PathMapperWeb.Scene.MapComponent do
 
   def selected_layer_class(_selected_layer_index, _layer_index), do: ""
 
-  def additional_map_layer(adventure, game_state, name, override \\ false)
+  def additional_map_layer(game_state, name, override \\ false)
 
-  def additional_map_layer(_adventure, %{scene: %{map: %{show_grid: false}}}, :grid, false),
+  def additional_map_layer(%{surface: %{map: %{show_grid: false}}}, :grid, false),
     do: nil
 
-  def additional_map_layer(adventure, game_state, name, _override) when is_atom(name) do
-    case Scene.displayed_map(game_state.scene, adventure) do
+  def additional_map_layer(game_state, name, _override) when is_atom(name) do
+    case Surface.displayed_map(game_state.surface) do
       nil -> nil
       map -> Map.get(map, name)
     end
   end
 
-  def map_adventure_layers_to_state(adventure, game_state) do
-    adventure_map = Scene.displayed_map(game_state.scene, adventure)
+  def map_layers_to_state(game_state) do
+    adventure_map = Surface.displayed_map(game_state.surface)
 
     case adventure_map do
       nil ->
         []
 
       adventure_map ->
-        state_layers = game_state.scene.map.layers
+        state_layers = game_state.surface.map.layers
 
         adventure_map
         |> Map.get(:layers)

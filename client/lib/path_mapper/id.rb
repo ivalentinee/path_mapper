@@ -7,7 +7,11 @@ module PathMapper
   # the server stores an asset under its content name the original name is gone, so
   # the client reads the id while it still can and sends it alongside.
   module Id
-    PATTERN = /\A([a-z]{2}\d{4}-\d{10})-(.+?)(\.[A-Za-z0-9]+)?\z/
+    # The descriptive half is optional, as docs/ has always said and as the
+    # server's own Id.valid?/1 has always allowed. The client required it until
+    # the client started issuing names itself, and a map nobody named is
+    # pm0001-0000000001.xcf.
+    PATTERN = /\A([a-z]{2}\d{4}-\d{10})(?:-(.+?))?(\.[A-Za-z0-9]+)?\z/
 
     module_function
 
@@ -18,7 +22,8 @@ module PathMapper
     # The descriptive half of a name, which is what a token is called when nothing
     # else says otherwise.
     def name_of(filename)
-      parse(filename)&.last&.tr('-_', '  ')
+      descriptive = parse(filename)&.last
+      descriptive&.tr('-_', '  ')
     end
 
     def parse(filename)

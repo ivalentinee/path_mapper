@@ -10,7 +10,10 @@ defmodule PathMapper.Game.Actions.Tokens.FindFreeSpace do
   Returns `{x, y, size}` in subpixel coordinates. `token_unit_size` is the
   token's size in grid cells (from the adventure definition).
   """
-  def initial_token_geometry(%State.Scene{map: %{grid_size: grid_size}} = scene, token_unit_size)
+  def initial_token_geometry(
+        %State.Surface{map: %{grid_size: grid_size}} = scene,
+        token_unit_size
+      )
       when is_number(token_unit_size) do
     token_size = GeometryMapper.to_subpixels(grid_size * token_unit_size)
     {x, y} = find_free_space(scene, token_size)
@@ -23,7 +26,7 @@ defmodule PathMapper.Game.Actions.Tokens.FindFreeSpace do
   Scans grid-aligned positions row by row. Returns `{x, y}` in subpixels.
   Falls back to `{0, 0}` if no free space is found.
   """
-  def find_free_space(%State.Scene{} = scene, token_size) when is_number(token_size) do
+  def find_free_space(%State.Surface{} = scene, token_size) when is_number(token_size) do
     occupied_spaces = get_occupied_spaces(scene)
     grid_size = GeometryMapper.to_subpixels(scene.map.grid_size)
     map_size = get_map_size(scene, token_size)
@@ -31,10 +34,10 @@ defmodule PathMapper.Game.Actions.Tokens.FindFreeSpace do
   end
 
   def find_free_space(%State{} = state, token_size) when is_number(token_size) do
-    find_free_space(State.scene(state), token_size)
+    find_free_space(State.surface(state), token_size)
   end
 
-  defp get_occupied_spaces(%State.Scene{tokens: tokens}) do
+  defp get_occupied_spaces(%State.Surface{tokens: tokens}) do
     Enum.map(tokens, fn token ->
       %OccupiedSpace{
         from: %Point{x: token.x, y: token.y},
@@ -77,19 +80,9 @@ defmodule PathMapper.Game.Actions.Tokens.FindFreeSpace do
     end
   end
 
-  # A scene whose declaration names no map yet - one made at the table, before a
-  # map is bound to it - falls back to the blank map state gave it.
-  defp get_map_size(%State.Scene{data: %{map: nil}, map: map}, token_size) do
-    {GeometryMapper.to_subpixels(map.width) - token_size,
-     GeometryMapper.to_subpixels(map.height) - token_size}
-  end
-
-  defp get_map_size(%State.Scene{custom: true, map: map}, token_size) do
-    {GeometryMapper.to_subpixels(map.width) - token_size,
-     GeometryMapper.to_subpixels(map.height) - token_size}
-  end
-
-  defp get_map_size(%State.Scene{data: %{map: map}}, token_size) do
+  # The live map, not the declaration: a surface is always built on a map, and the
+  # live one is what the board actually draws.
+  defp get_map_size(%State.Surface{map: map}, token_size) do
     {GeometryMapper.to_subpixels(map.width) - token_size,
      GeometryMapper.to_subpixels(map.height) - token_size}
   end

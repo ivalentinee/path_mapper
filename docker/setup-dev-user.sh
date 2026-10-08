@@ -1,7 +1,11 @@
 #!/bin/bash
 set -e
 
-useradd -m -u 1000 elixir
+if id "1000" >/dev/null 2>&1; then
+    echo "User 1000 exists"
+else
+    useradd -m -u 1000 elixir
+fi
 
 # Set locale for uid 1000 user
 USER_HOME=$(getent passwd 1000 | cut -d: -f6)

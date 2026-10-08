@@ -7,16 +7,16 @@
       left_panel_state: @left_panel
     })}
 
-    <%= if @group && @game_state do %>
+    <%= if @game_state do %>
       {panel_select_button(%{
-        text: gettext("Scenes"),
-        panel_name: "scene-selector",
+        text: gettext("Maps"),
+        panel_name: "surface-selector",
         myself: @myself,
         left_panel_state: @left_panel
       })}
     <% end %>
 
-    <%= if has_adventure_scene?(assigns) do %>
+    <%= if has_surface?(assigns) do %>
       {panel_select_button(%{
         text: gettext("Map"),
         panel_name: "map-manager",
@@ -25,7 +25,7 @@
       })}
     <% end %>
 
-    <%= if @game_state && @game_state.scene do %>
+    <%= if @game_state && @game_state.surface do %>
       {panel_select_button(%{
         text: gettext("Tokens"),
         panel_name: "tokens",
@@ -49,30 +49,28 @@
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.GameComponent}
         id="game-panel"
-        adventure={@adventure}
-        group={@group}
+        characters={@characters}
       />
     </div>
   <% end %>
 
-  <%= if @game_state && selected_panel(@left_panel) == "scene-selector" do %>
+  <%= if @game_state && selected_panel(@left_panel) == "surface-selector" do %>
     <div class="panel-content">
       <.live_component
-        module={PathMapperWeb.MasterLive.LeftPanelComponent.SceneSelectorComponent}
-        id="scene-selector"
+        module={PathMapperWeb.MasterLive.LeftPanelComponent.SurfaceSelectorComponent}
+        id="surface-selector"
         left_panel={@left_panel}
         game_state={@game_state}
       />
     </div>
   <% end %>
 
-  <%= if has_adventure_scene?(assigns) && selected_panel(@left_panel) == "map-manager" do %>
+  <%= if has_surface?(assigns) && selected_panel(@left_panel) == "map-manager" do %>
     <div class="panel-content">
       <.live_component
         module={PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent}
         id="map-manager"
         left_panel={@left_panel}
-        adventure={@adventure}
         game_state={@game_state}
       />
     </div>
@@ -84,9 +82,8 @@
         module={PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent}
         id="tokens"
         left_panel={@left_panel}
-        adventure={@adventure}
         game_state={@game_state}
-        group={@group}
+        characters={@characters}
       />
     </div>
   <% end %>

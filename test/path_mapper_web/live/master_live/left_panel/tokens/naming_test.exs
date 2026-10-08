@@ -4,15 +4,20 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.NamingTest do
   import Phoenix.LiveViewTest
 
   alias PathMapper.Game
-  alias PathMapper.Game.State.Scene.Token, as: GameToken
+  alias PathMapper.Game.State.Surface.Token, as: GameToken
 
   @fallen "tk0001-0000000001-fallen"
   @standing "tk0001-0000000001-standing"
 
   setup %{conn: conn} do
-    {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
-    load_adventure("tt0001-0000000001-adventure-1.zip")
-    :ok = select_scene(1)
+    load_party()
+    load_session()
+    :ok = select_surface(1)
+
+    # Two placements of one token, which is what makes a placement's own name
+    # worth having.
+    :ok = Game.run_action([:tokens, :add], {"tk0001-0000000001", %{game_id: @fallen}})
+    :ok = Game.run_action([:tokens, :add], {"tk0001-0000000001", %{game_id: @standing}})
 
     conn = get(conn, "/master")
     {:ok, view, _html} = live(conn)
@@ -23,7 +28,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.NamingTest do
   end
 
   defp shown(game_id) do
-    Game.get_state().scene.tokens
+    Game.get_state().surface.tokens
     |> Enum.find(&(&1.game_id == game_id))
     |> GameToken.displayed_name()
   end

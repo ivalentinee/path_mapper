@@ -1,23 +1,23 @@
 <div class="right-panel" phx-click="noop" phx-target={@myself}>
   <div class="panel-selector right-panel-selector">
-    <%= if @group do %>
+    <%= if @characters != [] do %>
       <button
         class={"right-panel-button #{if @right_panel.group_panel_open, do: "active"}"}
         phx-click="toggle_group_panel"
         phx-target={@myself}
       >
-        {gettext("Group")}
+        {gettext("Characters")}
       </button>
     <% end %>
 
-    <%= if assigns[:my_player] do %>
+    <%= if assigns[:my_character] do %>
       <button
         class={"right-panel-button #{if @right_panel.character_panel_open, do: "active"}"}
-        style={"background: linear-gradient(to left, #{@my_player.color}22, transparent)"}
+        style={"background: linear-gradient(to left, #{@my_character.color}22, transparent)"}
         phx-click="toggle_character_panel"
         phx-target={@myself}
       >
-        {gettext("Character")}
+        {gettext("Mine")}
       </button>
     <% end %>
 
@@ -28,16 +28,6 @@
         phx-target={@myself}
       >
         {gettext("Initiative")}
-      </button>
-    <% end %>
-
-    <%= if @adventure do %>
-      <button
-        class={"right-panel-button #{if @right_panel.links_panel_open, do: "active"}"}
-        phx-click="toggle_links_panel"
-        phx-target={@myself}
-      >
-        {gettext("Links")}
       </button>
     <% end %>
 
@@ -254,8 +244,8 @@
   <%= if @right_panel.group_panel_open do %>
     <div class="panel-content right-panel-content">
       <.group_overview
-        group={@group}
-        my_player={assigns[:my_player]}
+        characters={@characters}
+        my_character={assigns[:my_character]}
         is_player={assigns[:is_player]}
         myself={@myself}
         charkeeper_data={assigns[:charkeeper_data]}
@@ -263,21 +253,15 @@
     </div>
   <% end %>
 
-  <%= if @right_panel.character_panel_open && assigns[:my_player] do %>
+  <%= if @right_panel.character_panel_open && assigns[:my_character] do %>
     <div class="panel-content right-panel-content">
       <.character_menu
-        my_player={@my_player}
+        my_character={@my_character}
         my_token_on_map={assigns[:my_token_on_map]}
-        has_scene={assigns[:has_scene]}
+        has_surface={assigns[:has_surface]}
         myself={@myself}
         charkeeper_data={assigns[:charkeeper_data]}
       />
-    </div>
-  <% end %>
-
-  <%= if @right_panel.links_panel_open do %>
-    <div class="panel-content right-panel-content">
-      <.links_panel adventure={@adventure} />
     </div>
   <% end %>
 
@@ -285,7 +269,7 @@
     <div class="panel-content right-panel-content">
       <.initiative_panel
         initiative={@game_state[:initiative] || []}
-        my_player={assigns[:my_player]}
+        my_character={assigns[:my_character]}
         myself={@myself}
       />
     </div>
@@ -318,7 +302,7 @@
       <%= unless assigns[:is_player] do %>
         <div class="cheatsheet-section">
           <div class="cheatsheet-title">{gettext("Panels")}</div>
-          <div class="cheatsheet-key"><kbd>s</kbd> {gettext("Scenes")}</div>
+          <div class="cheatsheet-key"><kbd>s</kbd> {gettext("Maps")}</div>
           <div class="cheatsheet-key"><kbd>l</kbd> {gettext("Map/Layers")}</div>
           <div class="cheatsheet-key"><kbd>t</kbd> {gettext("Tokens")}</div>
           <div class="cheatsheet-key"><kbd>i</kbd> {gettext("Initiative")}</div>

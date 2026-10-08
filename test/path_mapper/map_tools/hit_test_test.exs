@@ -1,7 +1,7 @@
 defmodule PathMapper.MapTools.HitTestTest do
   use ExUnit.Case, async: true
 
-  alias PathMapper.Game.State.Scene.DrawnElement
+  alias PathMapper.Game.State.Surface.DrawnElement
   alias PathMapper.MapTools.HitTest
 
   # grid_size = 50 (map pixels), subpixel_factor = 10

@@ -1,29 +1,28 @@
 defmodule PathMapperWeb.PlayerLive do
   use PathMapperWeb, :live_view
 
-  alias PathMapper.Adventures
   alias PathMapper.Game
-  alias PathMapper.Groups
+  alias PathMapper.Session.Resolve
   alias PathMapperWeb.Scene.ContextMenuHelper
   alias PathMapperWeb.SessionState
   alias PathMapperWeb.SessionState.Character
   alias PathMapperWeb.SessionState.Language
   alias PathMapperWeb.SessionState.RightPanel
   alias PathMapperWeb.SessionState.Scene
+  alias PathMapperWeb.ViewedSurface
 
   @plugins [RightPanel, Scene, Character, Language]
 
   @impl true
-  def mount(_params, session, socket) do
+  def mount(params, session, socket) do
     connect_locale = get_connect_params(socket)["locale"]
     locale = session["locale"] || connect_locale || "en"
     Gettext.put_locale(PathMapperWeb.Gettext, locale)
 
-    adventure = get_selected_adventure()
-    group = get_selected_group()
-    game_state = Game.get_state()
-    Adventures.subscribe()
-    Groups.subscribe()
+    viewed = params["surface_id"]
+    :ok = ViewedSurface.check!(viewed)
+    game_state = Game.get_state(viewed)
+
     Game.subscribe()
     PathMapper.MapTools.subscribe()
     PathMapper.Charkeeper.subscribe()
@@ -40,8 +39,8 @@ defmodule PathMapperWeb.PlayerLive do
     socket =
       socket
       |> assign(:page_title, gettext("Player"))
-      |> assign(:adventure, adventure)
-      |> assign(:group, group)
+      |> assign(:characters, Resolve.characters())
+      |> assign(:viewed_surface_id, viewed)
       |> assign(:game_state, game_state)
       |> assign(:session_state, session_state)
       |> assign(:session_id, session_id)
@@ -82,7 +81,7 @@ defmodule PathMapperWeb.PlayerLive do
 
   defp handle_arrow_pan(socket, direction) do
     grid_size =
-      socket.assigns.game_state[:scene] && socket.assigns.game_state.scene.map.grid_size
+      socket.assigns.game_state[:scene] && socket.assigns.game_state.surface.map.grid_size
 
     if grid_size do
       {dx, dy} =
@@ -99,36 +98,26 @@ defmodule PathMapperWeb.PlayerLive do
     {:noreply, socket}
   end
 
-  # Domain state broadcasts
-  @impl true
-  def handle_info(%{adventure_loaded: adventure}, socket) do
-    {:noreply, assign(socket, :adventure, adventure)}
-  end
-
-  @impl true
-  def handle_info(%{group_loaded: group}, socket) do
-    {:noreply,
-     socket
-     |> assign(:group, group)
-     |> recompute_identity(socket.assigns.game_state, group)}
-  end
-
+  # One channel. A command, or the store gaining or losing a piece, arrives the
+  # same way and carries the same payload.
   @impl true
   def handle_info(%{game_update: game_state}, socket) do
     {:noreply,
      socket
-     |> assign(:game_state, game_state)
-     |> recompute_identity(game_state, socket.assigns.group)}
+     |> assign(:game_state, ViewedSurface.rendered(game_state, socket.assigns.viewed_surface_id))
+     |> assign(:characters, Resolve.characters())
+     |> recompute_identity(game_state)}
   end
 
   # Session events (unified dispatch)
   @impl true
   def handle_info(%{session_event: {:claim_character, id}}, socket) do
-    group = socket.assigns.group
-    my_player = find_player(group, id)
-
     identity =
-      Character.set_player(socket.assigns.character, my_player, socket.assigns.game_state)
+      Character.set_character(
+        socket.assigns.character,
+        Resolve.character(id),
+        socket.assigns.game_state
+      )
 
     session_state = Map.put(socket.assigns.session_state, :character, identity)
 
@@ -143,7 +132,7 @@ defmodule PathMapperWeb.PlayerLive do
   # free text a player chooses, and the draw actions read "GM" as authority - so
   # a character called GM could erase anyone's drawings and clear the board.
   def handle_info(%{session_event: :draw_undo}, socket) do
-    owner = socket.assigns.character.my_player && socket.assigns.character.my_player.id
+    owner = socket.assigns.character.mine && socket.assigns.character.mine.id
 
     if owner, do: Game.run_action([:draw, :undo], %{owner: owner})
     {:noreply, socket}
@@ -200,36 +189,12 @@ defmodule PathMapperWeb.PlayerLive do
     :ok
   end
 
-  defp recompute_identity(socket, game_state, group) do
-    identity = Character.recompute(socket.assigns.character, game_state, group)
+  defp recompute_identity(socket, game_state) do
+    identity = Character.recompute(socket.assigns.character, game_state)
     session_state = Map.put(socket.assigns.session_state, :character, identity)
 
     socket
     |> assign(:session_state, session_state)
     |> assign(:character, identity)
-  end
-
-  defp find_player(nil, _id), do: nil
-
-  # A player is claimed by id, not by character name. Two characters may share a
-  # name, a name may be edited between sessions, and everything downstream of the
-  # claim - token ownership, refreshing the player when the group is replaced -
-  # already keys on the id.
-  defp find_player(group, id) do
-    Enum.find(group.players, &(&1.id == id))
-  end
-
-  defp get_selected_adventure do
-    case Adventures.get_loaded() do
-      {:ok, adventure} -> adventure
-      _ -> nil
-    end
-  end
-
-  defp get_selected_group do
-    case Groups.get_loaded() do
-      {:ok, group} -> group
-      _ -> nil
-    end
   end
 end

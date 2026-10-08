@@ -1,16 +1,24 @@
 defmodule PathMapper.Game do
+  @moduledoc """
+  What has happened in the session, and the one channel that says it changed.
+
+  Game state is held in one Agent and every change — a command, or the store
+  gaining or losing a piece — ends in a single `game_update` broadcast. There
+  used to be three topics, one here and one each for adventures and groups;
+  those existed because an adventure and a group were declarations no surface
+  carried a copy of. With both gone, and the wallpaper held in state beside the
+  surfaces, one topic carries everything.
+  """
+
   defstruct [:state]
 
   use Agent
 
   alias __MODULE__.Actions
   alias __MODULE__.Dump
-  alias __MODULE__.Initialize
   alias __MODULE__.Palette
   alias __MODULE__.Restore
   alias __MODULE__.State
-  alias PathMapper.Adventures
-  alias PathMapper.Groups
   alias PathMapper.Session.Resolve
   alias PathMapper.Session.Store
   alias Phoenix.PubSub
@@ -29,87 +37,68 @@ defmodule PathMapper.Game do
     Agent.start_link(fn -> nil end, name: __MODULE__)
   end
 
-  def get_state do
+  def get_state(viewed_surface_id \\ nil) do
     Agent.get(__MODULE__, fn
-      %__MODULE__{state: %State{} = state} ->
-        %{
-          scene: State.scene(state),
-          initiative: state.initiative,
-          scene_list: build_scene_list(state)
-        }
-
-      _ ->
-        nil
+      %__MODULE__{state: %State{} = state} -> rendered(state, viewed_surface_id)
+      _ -> nil
     end)
   end
 
   @doc """
   Brings game state into line with the entity store.
 
-  Called whenever a command changes what the session is made of. A scene the store
-  gained appears; one it lost goes; one whose declaration changed has its copy in
-  state refreshed. The copy exists so that every reader of a scene did not have to
-  move to the store at once, and this is the rule that keeps it honest: nothing
-  writes it except here.
+  Called whenever a command changes what the session is made of. A map the store
+  gained becomes a surface; one it lost goes; one re-declared under the same id
+  keeps what was placed and drawn on it while taking the new declaration's
+  geometry. The wallpaper and the palette are read across at the same time, so a
+  change to either reaches a view by the same broadcast.
+
+  Game state's copy of a declaration is written here and nowhere else, which is
+  the rule that keeps the copy honest.
   """
   def reconcile do
-    declared = Resolve.scenes()
+    declared = Resolve.surfaces()
+    wallpaper = Resolve.wallpaper()
 
-    dismissed =
-      Agent.get_and_update(__MODULE__, fn held ->
-        {state, dismissed} = reconciled(held_state(held), declared)
-        {dismissed, %__MODULE__{state: state}}
-      end)
+    Resolve.characters() |> Palette.build() |> Palette.store()
 
-    Groups.reconcile()
-    Adventures.announce()
+    Agent.update(__MODULE__, fn held ->
+      %__MODULE__{state: reconciled(held_state(held), declared, wallpaper)}
+    end)
+
     broadcast_game_update(get_raw_state())
-
-    case dismissed do
-      [] -> :ok
-      ids -> {:ok, ids}
-    end
+    :ok
   end
 
   defp held_state(%__MODULE__{state: %State{} = state}), do: state
-  defp held_state(_held), do: %State{scenes: %{}}
+  defp held_state(_held), do: %State{surfaces: %{}}
 
-  defp reconciled(%State{} = state, declared) do
-    {scenes, dismissed} =
-      declared
-      |> Enum.with_index()
-      |> Enum.map_reduce([], fn {adventure_scene, order}, dismissed ->
-        {scene, declined} =
-          reconciled_scene(state.scenes[adventure_scene.id], adventure_scene, order)
+  defp reconciled(%State{} = state, declared, wallpaper) do
+    surfaces =
+      Map.new(declared, fn map -> {map.id, reconciled_surface(state.surfaces[map.id], map)} end)
 
-        {{adventure_scene.id, scene}, dismissed ++ declined}
-      end)
-
-    scenes = Map.new(scenes)
-
-    custom = for {id, scene} <- state.scenes, scene.custom, into: %{}, do: {id, scene}
-    scenes = Map.merge(custom, scenes)
-
-    {%{state | scenes: scenes, active_scene: surviving_active(state.active_scene, scenes)},
-     dismissed}
+    %{
+      state
+      | surfaces: surfaces,
+        wallpaper: wallpaper,
+        active_surface: surviving_active(state.active_surface, surfaces)
+    }
   end
 
-  defp reconciled_scene(nil, adventure_scene, order) do
-    Initialize.build_scene(adventure_scene, order)
-  end
+  defp reconciled_surface(nil, map), do: State.Surface.initialize(map)
+  defp reconciled_surface(%State.Surface{} = held, map), do: State.Surface.rebuild(held, map)
 
-  defp reconciled_scene(%State.Scene{} = held, adventure_scene, order) do
-    {%{held | data: adventure_scene, order: order, name: adventure_scene.name}, []}
-  end
+  defp surviving_active(nil, _surfaces), do: nil
 
-  defp surviving_active(nil, _scenes), do: nil
+  defp surviving_active(id, surfaces), do: if(Map.has_key?(surfaces, id), do: id, else: nil)
 
-  defp surviving_active(id, scenes), do: if(Map.has_key?(scenes, id), do: id, else: nil)
+  @doc false
+  def get_raw_state_for_test, do: get_raw_state()
 
   defp get_raw_state do
     Agent.get(__MODULE__, fn
       %__MODULE__{state: %State{} = state} -> state
-      _ -> %State{scenes: %{}}
+      _ -> %State{surfaces: %{}}
     end)
   end
 
@@ -121,29 +110,15 @@ defmodule PathMapper.Game do
     Palette.build(nil) |> Palette.store()
     PathMapper.UploadStorage.clear()
     broadcast(%{game_update: nil})
-    broadcast(%{adventure_loaded: nil})
     :ok
-  end
-
-  def reset(%PathMapper.Adventures.Adventure{} = adventure) do
-    state =
-      Agent.get_and_update(__MODULE__, fn _ ->
-        scenes = Initialize.build_all(adventure)
-        state = %State{scenes: scenes}
-        {state, %__MODULE__{state: state}}
-      end)
-
-    broadcast_game_update(state)
-    {:ok, state}
   end
 
   @doc """
   Runs one command against game state.
 
   Answers `:ok`, or `{:ok, warnings}` where the command was accepted but part of
-  it was declined - a placement whose id was already taken, say. A command is
-  never half-refused: what could be done was done, and the warnings say what was
-  not.
+  it was declined. A command is never half-refused: what could be done was done,
+  and the warnings say what was not.
   """
   def run_action(action, data) when is_list(action) do
     case run_action_in_agent_update(action, data) do
@@ -179,85 +154,71 @@ defmodule PathMapper.Game do
         end
 
       game ->
-        {{:error, "No adventure loaded"}, game}
+        {{:error, "The session holds nothing yet"}, game}
     end)
   end
 
   def dump_state do
     Agent.get(__MODULE__, fn
-      %__MODULE__{state: %State{} = state} -> serialize(state)
+      %__MODULE__{state: %State{} = state} -> {:ok, Dump.serialize(state)}
       _ -> {:error, "No game state to dump"}
     end)
   end
 
-  defp serialize(state) do
-    with {:ok, adventure} <- Adventures.get_loaded() do
-      {:ok, Dump.serialize(state, adventure, loaded_group_id())}
-    end
-  end
+  @doc """
+  Applies a snapshot, then reconciles against the store.
 
-  defp loaded_group_id do
-    case Groups.get_loaded() do
-      {:ok, group} -> group.id
-      _ -> nil
-    end
-  end
-
+  A snapshot asserts nothing about where it came from: it names surfaces and
+  tokens by id, and what it names that the store does not hold is simply not
+  restored. Reconciling afterwards is what keeps every declared map in the game
+  master's list, which applying alone would not — the snapshot knows only what
+  was on a surface, never which surfaces exist.
+  """
   def restore_state(manifest) when is_map(manifest) do
     with {:ok, snapshot} <- Restore.read(manifest),
-         {:ok, adventure} <- match_loaded_adventure(snapshot.adventure_id),
-         :ok <- match_loaded_group(snapshot.group_id),
-         {:ok, new_state} <- Restore.build(snapshot.data, adventure) do
+         {:ok, new_state} <- Restore.build(snapshot.data) do
       Agent.update(__MODULE__, fn _ -> %__MODULE__{state: new_state} end)
-      Groups.reconcile()
-      broadcast_game_update(new_state)
+      reconcile()
       :ok
     end
   end
 
-  # A snapshot names the blobs it wants; it does not carry them, and the server has
-  # no library to fetch them from. So restoring matches against what is loaded and
-  # refuses a mismatch, rather than loading on the snapshot's behalf.
-  defp match_loaded_adventure(id) do
-    case Adventures.get_loaded() do
-      {:ok, %{id: ^id} = adventure} -> {:ok, adventure}
-      {:ok, %{id: other}} -> {:error, "Snapshot wants adventure #{id}, but #{other} is loaded"}
-      _ -> {:error, "Snapshot wants adventure #{id}, but none is loaded"}
-    end
-  end
-
-  defp match_loaded_group(nil), do: :ok
-
-  defp match_loaded_group(id) when is_binary(id) do
-    case Groups.get_loaded() do
-      {:ok, %{id: ^id}} -> :ok
-      {:ok, %{id: other}} -> {:error, "Snapshot wants group #{id}, but #{other} is loaded"}
-      _ -> {:error, "Snapshot wants group #{id}, but none is loaded"}
-    end
-  end
-
   defp broadcast_game_update(%State{} = state) do
-    broadcast(%{
-      game_update: %{
-        scene: State.scene(state),
-        initiative: state.initiative,
-        scene_list: build_scene_list(state)
-      }
-    })
+    broadcast(%{game_update: rendered(state, nil)})
   end
+
+  # A page at a surface's own address renders the surface it names in place of
+  # the table's, and nothing else differs - so the substitution happens here,
+  # once, and no component learns that a page can be looking elsewhere.
+  #
+  # `active_surface_id` survives the substitution because the page needs it:
+  # the button that pushes a surface to the table is absent where there is
+  # nothing to push, which is a comparison against what the table is shown.
+  defp rendered(%State{} = state, viewed_surface_id) do
+    %{
+      surface: viewed_surface(state, viewed_surface_id),
+      active_surface_id: state.active_surface,
+      wallpaper: state.wallpaper,
+      initiative: state.initiative,
+      surface_list: build_surface_list(state)
+    }
+  end
+
+  defp viewed_surface(%State{} = state, nil), do: State.surface(state)
+  defp viewed_surface(%State{surfaces: surfaces}, id), do: Map.get(surfaces, id)
 
   @doc """
-  The scene a keyboard access index names, or nil.
+  The surface a keyboard access index names, or nil.
 
-  The access index is a position in what is currently on screen. It is derived here
-  rather than stored, because it changes whenever the ordering does and an id does
-  not.
+  The access index is a position in what is currently on screen. It is derived
+  here rather than stored, because it changes whenever the ordering does and an
+  id does not.
   """
-  def scene_id_at(position) when is_integer(position) and position > 0 do
+  def surface_id_at(position) when is_integer(position) and position > 0 do
     case Agent.get(__MODULE__, & &1) do
       %__MODULE__{state: %State{} = state} ->
         case state |> State.ordered() |> Enum.at(position - 1) do
-          %State.Scene{id: id} -> id
+          %State.Surface{id: id} -> id
           nil -> nil
         end
 
@@ -266,20 +227,21 @@ defmodule PathMapper.Game do
     end
   end
 
-  def scene_id_at(_position), do: nil
+  def surface_id_at(_position), do: nil
 
   @doc """
-  The game id of the placement at a position on the active scene, counting from 1.
+  The game id of the placement at a position on the active surface, counting
+  from 1.
 
   A keystroke names a placement by the number shown on it, which is its position
-  in the scene's list. Commands address placements by id, so the number a game
+  in the surface's list. Commands address placements by id, so the number a game
   master types is resolved here rather than reaching the action layer.
   """
   def placement_id_at(position) when is_integer(position) and position > 0 do
     case Agent.get(__MODULE__, & &1) do
       %__MODULE__{state: %State{} = state} ->
-        case state |> State.scene() |> Elixir.Map.get(:tokens, []) |> Enum.at(position - 1) do
-          %State.Scene.Token{game_id: game_id} -> game_id
+        case state |> State.surface() |> Elixir.Map.get(:tokens, []) |> Enum.at(position - 1) do
+          %State.Surface.Token{game_id: game_id} -> game_id
           nil -> nil
         end
 
@@ -290,14 +252,17 @@ defmodule PathMapper.Game do
 
   def placement_id_at(_position), do: nil
 
-  defp build_scene_list(%State{} = state) do
-    state
-    |> State.ordered()
-    |> Enum.map(fn scene ->
-      %{id: scene.id, ref: scene_ref(scene), name: scene.name, custom: scene.custom}
+  @doc "Whether the store holds a surface under this id."
+  def surface?(id) when is_binary(id) do
+    Agent.get(__MODULE__, fn
+      %__MODULE__{state: %State{surfaces: surfaces}} -> Map.has_key?(surfaces, id)
+      _ -> false
     end)
   end
 
-  defp scene_ref(%State.Scene{data: %{ref: ref}}) when is_binary(ref), do: ref
-  defp scene_ref(_scene), do: nil
+  defp build_surface_list(%State{} = state) do
+    state
+    |> State.ordered()
+    |> Enum.map(&%{id: &1.id, name: &1.name})
+  end
 end

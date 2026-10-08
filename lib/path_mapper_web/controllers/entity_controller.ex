@@ -28,7 +28,7 @@ defmodule PathMapperWeb.EntityController do
 
   # In dependency order, so replaying the list as it stands works: what a scene
   # names exists before the scene does.
-  @order %{"token" => 0, "map" => 1, "scene" => 2, "adventure" => 3, "group" => 4}
+  @order %{"token" => 0, "map" => 1, "wallpaper" => 2, "character" => 3}
 
   def index(conn, _params) do
     entities =
@@ -40,9 +40,6 @@ defmodule PathMapperWeb.EntityController do
   end
 
   defp acknowledge(:ok), do: %{status: "ok"}
-
-  defp acknowledge({:ok, dismissed}),
-    do: %{status: "ok", warnings: Enum.map(dismissed, &"#{&1} is already placed; dismissed")}
 
   defp refuse(conn, {:error, reason}) when is_binary(reason),
     do: conn |> put_status(400) |> json(%{error: reason})

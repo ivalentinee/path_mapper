@@ -1,0 +1,41 @@
+<div id="surface-selector" class="scene-selector">
+  <div class="sub-buttons">
+    <button
+      id="unset_surface"
+      phx-click="unset_surface"
+      phx-target={@myself}
+      class="pure-button sub-button"
+      disabled={@game_state.surface == nil}
+    >
+      {gettext("Unset")}
+    </button>
+    <button
+      id="reset_surface"
+      phx-click="reset_surface"
+      phx-target={@myself}
+      class={"pure-button sub-button #{if assigns[:confirm_reset], do: "confirm", else: ""}"}
+      disabled={@game_state.surface == nil}
+    >
+      {if assigns[:confirm_reset], do: gettext("Confirm?"), else: gettext("Reset")}
+    </button>
+  </div>
+
+  <% surfaces = @game_state.surface_list || [] %>
+
+  <%!-- The access index is the position on screen, derived here and stored nowhere. --%>
+  <%= for {item, access_index} <- Enum.with_index(surfaces, 1) do %>
+    <button
+      phx-click="select_surface"
+      phx-target={@myself}
+      phx-value-id={item.id}
+      class={"pure-button item #{select_button_extra_classes(item.id, @game_state.surface)}"}
+    >
+      <span class="index">{access_index}</span>
+      <%= if item.name do %>
+        <span class="item-name">{item.name}</span>
+      <% else %>
+        <span class="item-id">{item.id}</span>
+      <% end %>
+    </button>
+  <% end %>
+</div>

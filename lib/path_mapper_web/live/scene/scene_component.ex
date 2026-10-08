@@ -3,18 +3,19 @@ defmodule PathMapperWeb.Scene.SceneComponent do
 
   alias PathMapper.Game
   alias PathMapper.Game.Palette
-  alias PathMapper.Game.State.Scene
+  alias PathMapper.Game.State.Surface
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
   alias PathMapper.Geometry.Object, as: GeometryObject
+  alias PathMapper.Session.Resolve
   alias PathMapperWeb.Scene.GridComponent
   alias PathMapperWeb.Scene.MapComponent
   alias PathMapperWeb.Scene.SceneState
 
   @impl true
   def update(assigns, socket) do
-    scene_changed = scene_was_updated?(socket, assigns)
+    scene_changed = surface_was_updated?(socket, assigns)
     zoom_changed = zoom_or_pan_changed?(socket, assigns)
-    socket = assign(socket, assigns)
+    socket = socket |> assign(assigns) |> close_stale_menu(scene_changed)
 
     socket =
       cond do
@@ -31,6 +32,13 @@ defmodule PathMapperWeb.Scene.SceneComponent do
 
     {:ok, socket}
   end
+
+  # An open menu holds the index of the object it was opened on, and an index is
+  # all a map object has - re-uploading a map or switching surface can put a
+  # different object there. The menu would then name the wrong map, open the
+  # wrong url, and act on the wrong thing. It cannot be re-aimed, so it closes.
+  defp close_stale_menu(socket, false), do: socket
+  defp close_stale_menu(socket, true), do: assign(socket, :object_context_menu, nil)
 
   defp has_viewport_geometry?(socket) do
     Map.has_key?(socket.assigns, :viewport_geometry)
@@ -107,7 +115,13 @@ defmodule PathMapperWeb.Scene.SceneComponent do
 
   @impl true
   def handle_event("object_context_menu", %{"index" => index, "x" => x, "y" => y}, socket) do
-    {:noreply, assign(socket, object_context_menu: %{index: index, x: x, y: y})}
+    target =
+      socket.assigns.game_state
+      |> declared_objects()
+      |> Enum.at(index)
+      |> link_target(socket.assigns.opts)
+
+    {:noreply, assign(socket, object_context_menu: %{index: index, x: x, y: y, target: target})}
   end
 
   @impl true
@@ -124,6 +138,18 @@ defmodule PathMapperWeb.Scene.SceneComponent do
   @impl true
   def handle_event("object_toggle_show", %{"index" => index_str}, socket) do
     with_parsed_index(index_str, &Game.run_action([:map_objects, &1, :toggle_show], nil))
+    {:noreply, assign(socket, object_context_menu: nil)}
+  end
+
+  @impl true
+  def handle_event("object_follow_link", %{"index" => index_str}, socket) do
+    with_parsed_index(index_str, fn index ->
+      case Enum.at(declared_objects(socket.assigns.game_state), index) do
+        %{link: %{target: target}} -> Game.run_action([:surface, :select], target)
+        _ -> :ok
+      end
+    end)
+
     {:noreply, assign(socket, object_context_menu: nil)}
   end
 
@@ -150,8 +176,8 @@ defmodule PathMapperWeb.Scene.SceneComponent do
       assigns[:opts][:manage_tokens] ->
         "#db0909"
 
-      assigns[:opts][:my_player_id] ->
-        Palette.resolve(assigns[:opts][:my_player_id]) || "#808080"
+      assigns[:opts][:my_character_id] ->
+        Palette.resolve(assigns[:opts][:my_character_id]) || "#808080"
 
       true ->
         "#808080"
@@ -181,32 +207,34 @@ defmodule PathMapperWeb.Scene.SceneComponent do
   #
   # A scene declared with no map yet falls back to the blank map state gave it.
   defp get_map(assigns) do
-    scene = assigns.game_state.scene
+    scene = assigns.game_state.surface
 
-    Scene.displayed_map(scene, assigns.adventure) || scene.map
+    Surface.displayed_map(scene) || scene.map
   end
 
   # Geometry is derived from the map's dimensions, so it is stale exactly when
-  # those change - whether because another scene was selected, or because a map was
-  # uploaded onto this one. Comparing the dimensions catches both; comparing the
-  # scene's identity catches only the first.
+  # those change - whether because another surface was selected, or because its
+  # map was re-declared. Comparing the dimensions catches both; comparing the
+  # surface's identity catches only the first.
   #
-  # This matched on scene.index until that field was removed. A map pattern against
-  # a key that no longer exists simply fails, so the clause stopped matching, every
-  # comparison fell through to false, and a scene switch quietly kept the previous
-  # scene's scaling.
-  defp scene_was_updated?(%{assigns: %{game_state: %{scene: _}} = old}, %{game_state: _} = new) do
-    shape_of(old) != shape_of(new)
+  # This has now silently stopped matching twice: first on `scene.index` when
+  # that field was removed, then on `game_state.scene` when the key became
+  # `surface`. A map pattern against a key that no longer exists simply fails,
+  # the clause stops matching, and every switch quietly keeps the previous
+  # scaling. So the shape is read through a function that answers nil for
+  # anything it does not recognise, and the pattern that could rot lives in one
+  # place instead of two.
+  defp surface_was_updated?(%{assigns: old}, new_assigns) do
+    shape_of(old) != shape_of(new_assigns)
   end
 
-  defp scene_was_updated?(_socket, _new_assigns), do: false
+  defp shape_of(%{game_state: %{surface: %{} = surface}}) do
+    map = Surface.displayed_map(surface) || surface.map
 
-  defp shape_of(assigns) do
-    scene = assigns.game_state.scene
-    map = Scene.displayed_map(scene, assigns[:adventure]) || scene.map
-
-    {scene.id, map && map.width, map && map.height}
+    {surface.id, map && map.width, map && map.height}
   end
+
+  defp shape_of(_assigns), do: nil
 
   defp zoom_or_pan_changed?(
          %{assigns: %{scene: %{zoom: old_z, pan: old_p}}},
@@ -250,15 +278,15 @@ defmodule PathMapperWeb.Scene.SceneComponent do
   end
 
   defp visible_tokens(game_state, opts) do
-    tokens_with_index = Enum.with_index(game_state.scene.tokens)
+    tokens_with_index = Enum.with_index(game_state.surface.tokens)
 
     cond do
       opts[:show_hidden] ->
         tokens_with_index
 
-      opts[:my_player_id] ->
+      opts[:my_character_id] ->
         Enum.filter(tokens_with_index, fn {token, _index} ->
-          token.state !== "hidden" or token.owner == opts[:my_player_id]
+          token.state !== "hidden" or token.owner == opts[:my_character_id]
         end)
 
       true ->
@@ -266,14 +294,68 @@ defmodule PathMapperWeb.Scene.SceneComponent do
     end
   end
 
-  defp visible_objects(adventure, game_state, opts) do
-    adventure_map = Scene.displayed_map(game_state.scene, adventure)
+  @doc """
+  Which grid to draw, if any.
+
+  A map may paint its own grid on a `[G]` layer, and where it has, that image
+  *is* the grid - it is what the author drew and what `docs/maps.md` promises.
+  The generated one is for a map that supplied none.
+
+  Visibility is a separate question from source: `grid-hide` on the map turns
+  the grid off, and the game master's override turns it back on for their own
+  view, whichever of the two sources would be drawn.
+  """
+  def grid_source(game_state, scene) do
+    cond do
+      not grid_visible?(game_state, scene) ->
+        :none
+
+      layer = MapComponent.additional_map_layer(game_state, :grid, scene.grid_override) ->
+        {:painted, layer}
+
+      true ->
+        :generated
+    end
+  end
+
+  defp grid_visible?(game_state, scene) do
+    game_state.surface.map.show_grid or scene.grid_override
+  end
+
+  @doc false
+  # The map's own objects, which is where a link lives. State carries where an
+  # object has been dragged to; the declaration carries what it is.
+  def declared_objects(game_state) do
+    case Surface.displayed_map(game_state.surface) do
+      %{map_objects: objects} when is_list(objects) -> objects
+      _ -> []
+    end
+  end
+
+  # The map a link names, read from the store as the menu opens. A link naming
+  # nothing resolves to nothing, which is the whole of the dead-link behaviour:
+  # the menu offers no way through and says nothing about why.
+  defp link_target(object, opts) do
+    case drawn_link(object, opts) do
+      %{target: target} -> Resolve.surface(target)
+      _ -> nil
+    end
+  end
+
+  # A link the rendering is willing to draw. A `gm` link is drawn for whoever
+  # manages objects and for nobody else, so a player sees the object as scenery.
+  def drawn_link(%{link: %{gm: true} = link}, opts), do: opts[:manage_objects] && link
+  def drawn_link(%{link: %{} = link}, _opts), do: link
+  def drawn_link(_object, _opts), do: nil
+
+  defp visible_objects(game_state, opts) do
+    adventure_map = Surface.displayed_map(game_state.surface)
 
     adventure_objects = if adventure_map, do: adventure_map.map_objects || [], else: []
 
-    state_layers = game_state.scene.map.layers
+    state_layers = game_state.surface.map.layers
 
-    game_state.scene.map.map_objects
+    game_state.surface.map.map_objects
     |> Enum.map(fn obj_state ->
       adv_obj = Enum.at(adventure_objects, obj_state.index)
       layer_state = Enum.find(state_layers, &(&1.index == obj_state.layer_index))
