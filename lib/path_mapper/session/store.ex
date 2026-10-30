@@ -78,6 +78,16 @@ defmodule PathMapper.Session.Store do
 
   def of_kind(kind), do: Enum.filter(all(), &(&1.kind == kind))
 
+  @doc """
+  Runs a match spec against the table.
+
+  For a caller that wants a few rows out of many and can say which in a spec,
+  rather than taking every entity and sifting it. The spec belongs to whoever
+  asks the question - it matches the schema inside an entity, and this module
+  knows nothing about those.
+  """
+  def select(spec) when is_list(spec), do: :ets.select(@table, spec)
+
   def clear do
     :ets.delete_all_objects(@table)
     :ok

@@ -13,15 +13,15 @@ defmodule PathMapperWeb.MasterLive.LeftPanelState.Actions do
     end
   end
 
-  def select_scene_selector_item(state, position)
+  def select_surface_selector_item(state, position)
       when is_number(position) do
-    case Game.scene_id_at(trunc(position)) do
+    case Game.surface_id_at(trunc(position)) do
       nil -> state
       id -> tap(state, fn _ -> Game.run_action([:scene, :select], id) end)
     end
   end
 
-  def select_scene_selector_item(state, _index_string), do: state
+  def select_surface_selector_item(state, _index_string), do: state
 
   def unset_scene(state) do
     Game.run_action([:scene, :unset], nil)
@@ -58,17 +58,17 @@ defmodule PathMapperWeb.MasterLive.LeftPanelState.Actions do
 
   def add_player_token(state, index)
       when is_number(index) do
-    Game.run_action([:tokens, :player, :add], index - 1)
+    Game.run_action([:tokens, :character, :add], index - 1)
     state
   end
 
   def add_all_players(state) do
-    Game.run_action([:tokens, :player, :add_all], nil)
+    Game.run_action([:tokens, :character, :add_all], nil)
     state
   end
 
   def add_player_extra_token(state, player_index, token_index) do
-    Game.run_action([:tokens, :player, :add_extra], {player_index - 1, token_index - 1})
+    Game.run_action([:tokens, :character, :add_extra], {player_index - 1, token_index - 1})
     state
   end
 

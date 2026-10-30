@@ -3,16 +3,50 @@
 require 'test_helper'
 
 class ConfigTest < Minitest::Test
-  def test_reads_server_token_and_snapshots
+  def test_reads_server_token_and_library
     config = PathMapper::Config.new(
       'server' => 'http://example.test:4000',
       'token' => 'secret',
-      'snapshots' => '/tmp/snaps'
+      'library' => '/tmp/campaigns'
     )
 
     assert_equal 'http://example.test:4000', config.server
     assert_equal 'secret', config.token
-    assert_equal '/tmp/snaps', config.snapshots
+    assert_equal '/tmp/campaigns/snapshots', config.library.snapshots
+  end
+
+  # One path is configured and the rest hang off it, so there is one answer to
+  # "where did it put that" and one directory to move.
+  def test_every_other_path_is_under_the_library
+    library = PathMapper::Config.new(
+      'server' => 'http://x', 'token' => 't', 'library' => '/tmp/campaigns'
+    ).library
+
+    assert_equal '/tmp/campaigns/maps/template.xcf', library.template
+    assert_equal '/tmp/campaigns/maps/pm', library.scratch
+    assert_equal '/tmp/campaigns/snapshots', library.snapshots
+  end
+
+  def test_the_library_defaults_under_xdg_data_home
+    config = PathMapper::Config.new('server' => 'http://x', 'token' => 't')
+
+    assert_equal File.join(PathMapper::Config.default_library, 'snapshots'), config.library.snapshots
+  end
+
+  # Quietly writing a game master's snapshots somewhere new is the outcome worth
+  # code to avoid.
+  def test_a_retired_setting_is_reported_with_where_that_thing_went
+    config = PathMapper::Config.new(
+      { 'server' => 'http://x', 'token' => 't', 'snapshots' => '~/snaps' }, '/x/config.toml'
+    )
+
+    assert_includes config.retired_notice, 'snapshots'
+    assert_includes config.retired_notice, '<library>/snapshots'
+    assert_includes config.retired_notice, '/x/config.toml'
+  end
+
+  def test_a_configuration_with_nothing_retired_says_nothing
+    assert_nil PathMapper::Config.new('server' => 'http://x', 'token' => 't').retired_notice
   end
 
   def test_strips_a_trailing_slash_from_the_server
@@ -21,10 +55,10 @@ class ConfigTest < Minitest::Test
     assert_equal 'http://example.test', config.server
   end
 
-  def test_expands_a_tilde_in_the_snapshot_directory
-    config = PathMapper::Config.new('server' => 'http://x', 'token' => 't', 'snapshots' => '~/snaps')
+  def test_expands_a_tilde_in_the_library
+    config = PathMapper::Config.new('server' => 'http://x', 'token' => 't', 'library' => '~/snaps')
 
-    assert_equal File.join(Dir.home, 'snaps'), config.snapshots
+    assert_equal File.join(Dir.home, 'snaps'), config.library.maps.sub('/maps', '')
   end
 
   def test_defaults_the_timeouts
@@ -86,5 +120,30 @@ class ConfigTest < Minitest::Test
     assert_equal '/xdg/pathmapper/config.toml', PathMapper::Config.path
   ensure
     ENV['XDG_CONFIG_HOME'] = original
+  end
+
+  # The claim the moduledoc makes: an empty environment is still a working one.
+  def test_falls_back_to_the_home_directory_with_no_xdg_variable
+    with_environment('XDG_CONFIG_HOME' => nil) do
+      assert_equal File.join(Dir.home, '.config', 'pathmapper', 'config.toml'), PathMapper::Config.path
+    end
+  end
+
+  # The XDG specification says an empty variable is an unset one, and an empty
+  # variable is exactly what a desktop entry can hand over.
+  def test_treats_an_empty_xdg_variable_as_unset
+    with_environment('XDG_CONFIG_HOME' => '') do
+      assert_equal File.join(Dir.home, '.config', 'pathmapper', 'config.toml'), PathMapper::Config.path
+    end
+  end
+
+  private
+
+  def with_environment(values)
+    original = values.keys.to_h { |key| [key, ENV.fetch(key, nil)] }
+    values.each { |key, value| ENV[key] = value }
+    yield
+  ensure
+    original.each { |key, value| ENV[key] = value }
   end
 end

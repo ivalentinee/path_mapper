@@ -2,6 +2,11 @@ defmodule PathMapper.FakeCharkeeper do
   @moduledoc """
   A simple Plug-based fake Charkeeper endpoint for testing.
   Returns canned character data for known UUIDs.
+
+  The documents are shaped like the service's own, down to the empty `info`:
+  `race` and `main_class` at the top. They used to carry an older shape, with
+  both of those under `info`, which is how the client came to read them from
+  there and keep passing while the real service answered nil for each.
   """
 
   import Plug.Conn
@@ -9,14 +14,19 @@ defmodule PathMapper.FakeCharkeeper do
   @characters %{
     "test-uuid-1" => %{
       "name" => "Test Hero",
-      "info" => %{"race" => "Human", "class" => "Fighter"},
+      "info" => %{},
+      "race" => "human",
+      "subrace" => "versatile_human",
+      "main_class" => "fighter",
       "health" => %{"current" => 10, "temp" => 2, "max" => 15},
       "armor_class" => 18,
       "level" => 3
     },
     "test-uuid-2" => %{
       "name" => "Test Mage",
-      "info" => %{"race" => "Elf", "class" => "Wizard"},
+      "info" => %{},
+      "race" => "elf",
+      "main_class" => "wizard",
       "health" => %{"current" => 6, "temp" => 0, "max" => 8},
       "armor_class" => 12,
       "level" => 2

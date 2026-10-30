@@ -1,0 +1,30 @@
+token:
+  title: Token
+  description: >-
+    Something that stands on a surface. A token is declared once and placed as
+    often as wanted - each placement is its own thing, addressed by a game id
+    beginning with this token's.
+  type: object
+  required: ['kind', 'id', 'owner', 'size']
+  additionalProperties: false
+  properties:
+    kind: { type: string, const: 'token' }
+    id:
+      type: string
+      pattern: '^[a-z]{2}[0-9]{4}-[0-9]{10}$'
+    owner:
+      type: string
+      description: >-
+        Who the token answers to - a character's id, or one of `npc`, `enemy`,
+        `none`. Lower-cased on arrival.
+    size:
+      type: integer
+      description: How many grid cells across the token is.
+    image:
+      type: string
+      description: >-
+        An image the server already holds, by its asset address. A token without
+        one is drawn from its name alone.
+    name:
+      type: string
+      description: What a person calls this token. Optional, as every name is.

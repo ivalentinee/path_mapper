@@ -3,4 +3,5 @@ Type=Application
 Name=Reset PathMapper
 Comment=Unload everything the server holds
 Exec=path-mapper reset
+Icon=pathmapper
 Terminal=false

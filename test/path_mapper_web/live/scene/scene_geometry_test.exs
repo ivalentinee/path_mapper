@@ -8,11 +8,11 @@ defmodule PathMapperWeb.Scene.SceneGeometryTest do
   # the clause silently stopped matching, and every scene after the first kept the
   # previous one's scaling. Nothing caught it because no fixture had two scenes
   # whose maps were shaped differently.
-  @adventure "tt0001-0000000004-two-shapes.zip"
+  @session "two-shapes"
 
   setup %{conn: conn} do
-    load_adventure(@adventure)
-    {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
+    load_session(@session)
+    load_party()
 
     conn = get(conn, "/master")
     {:ok, view, _html} = live(conn)
@@ -31,8 +31,8 @@ defmodule PathMapperWeb.Scene.SceneGeometryTest do
   end
 
   defp select(view, position) do
-    id = PathMapper.Game.scene_id_at(position)
-    PathMapper.Game.run_action([:scene, :select], id)
+    id = PathMapper.Game.surface_id_at(position)
+    PathMapper.Game.run_action([:surface, :select], id)
     render(view)
     id
   end

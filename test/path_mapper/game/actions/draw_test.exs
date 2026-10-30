@@ -4,11 +4,23 @@ defmodule PathMapper.Game.Actions.DrawTest do
   alias PathMapper.Game.Actions
   alias PathMapper.Game.Actions.Draw
   alias PathMapper.Game.State
-  alias PathMapper.Game.State.Scene
+  alias PathMapper.Game.State.Surface
 
-  defp state_with_scene do
-    scene = Scene.initialize_custom("Test", 0)
-    %State{active_scene: scene.id, scenes: %{scene.id => scene}}
+  defp state_with_surface do
+    map = %PathMapper.Session.Map{
+      id: "mt0001-0000000001",
+      name: "Test",
+      width: 1000,
+      height: 800,
+      grid_size: 50,
+      grid_line_width: 1,
+      show_grid: true,
+      layers: [],
+      map_objects: []
+    }
+
+    surface = Surface.initialize(map)
+    %State{active_surface: surface.id, surfaces: %{surface.id => surface}}
   end
 
   defp add_element(state, opts \\ []) do
@@ -22,8 +34,8 @@ defmodule PathMapper.Game.Actions.DrawTest do
 
   describe "[:draw, :add]" do
     test "adds an element with all fields" do
-      {:ok, state} = add_element(state_with_scene())
-      [element] = State.scene(state).drawn_elements
+      {:ok, state} = add_element(state_with_surface())
+      [element] = State.surface(state).drawn_elements
 
       assert element.id != nil
       assert element.type == :fill
@@ -34,55 +46,55 @@ defmodule PathMapper.Game.Actions.DrawTest do
 
     test "supports all element types" do
       for type <- [:fill, :rect, :line, :circle, :text, :path] do
-        {:ok, _state} = add_element(state_with_scene(), type: type)
+        {:ok, _state} = add_element(state_with_surface(), type: type)
       end
     end
 
     test "preserves insertion order" do
-      {:ok, state} = add_element(state_with_scene(), color: "#111111")
+      {:ok, state} = add_element(state_with_surface(), color: "#111111")
       {:ok, state} = add_element(state, color: "#222222")
 
-      colors = Enum.map(State.scene(state).drawn_elements, & &1.color)
+      colors = Enum.map(State.surface(state).drawn_elements, & &1.color)
       assert colors == ["#111111", "#222222"]
     end
   end
 
   describe "[:draw, :remove]" do
     test "removes element by id" do
-      {:ok, state} = add_element(state_with_scene())
-      [element] = State.scene(state).drawn_elements
+      {:ok, state} = add_element(state_with_surface())
+      [element] = State.surface(state).drawn_elements
 
       {:ok, state} = Draw.action(state, [:draw, :remove], %{id: element.id, owner: "GM"})
-      assert State.scene(state).drawn_elements == []
+      assert State.surface(state).drawn_elements == []
     end
 
     test "GM can erase player's element" do
-      {:ok, state} = add_element(state_with_scene(), owner: "Alice")
-      [element] = State.scene(state).drawn_elements
+      {:ok, state} = add_element(state_with_surface(), owner: "Alice")
+      [element] = State.surface(state).drawn_elements
 
       {:ok, state} = Draw.action(state, [:draw, :remove], %{id: element.id, owner: "GM"})
-      assert State.scene(state).drawn_elements == []
+      assert State.surface(state).drawn_elements == []
     end
 
     test "player can erase own element" do
-      {:ok, state} = add_element(state_with_scene(), owner: "Alice")
-      [element] = State.scene(state).drawn_elements
+      {:ok, state} = add_element(state_with_surface(), owner: "Alice")
+      [element] = State.surface(state).drawn_elements
 
       {:ok, state} = Draw.action(state, [:draw, :remove], %{id: element.id, owner: "Alice"})
-      assert State.scene(state).drawn_elements == []
+      assert State.surface(state).drawn_elements == []
     end
 
     test "player cannot erase another player's element" do
-      {:ok, state} = add_element(state_with_scene(), owner: "Alice")
-      [element] = State.scene(state).drawn_elements
+      {:ok, state} = add_element(state_with_surface(), owner: "Alice")
+      [element] = State.surface(state).drawn_elements
 
       assert {:error, "Not authorized" <> _} =
                Draw.action(state, [:draw, :remove], %{id: element.id, owner: "Bob"})
     end
 
     test "player cannot erase GM's element" do
-      {:ok, state} = add_element(state_with_scene(), owner: "GM")
-      [element] = State.scene(state).drawn_elements
+      {:ok, state} = add_element(state_with_surface(), owner: "GM")
+      [element] = State.surface(state).drawn_elements
 
       assert {:error, "Not authorized" <> _} =
                Draw.action(state, [:draw, :remove], %{id: element.id, owner: "Alice"})
@@ -90,7 +102,7 @@ defmodule PathMapper.Game.Actions.DrawTest do
 
     test "returns error for nonexistent id" do
       assert {:error, "Element not found"} =
-               Draw.action(state_with_scene(), [:draw, :remove], %{
+               Draw.action(state_with_surface(), [:draw, :remove], %{
                  id: "nonexistent",
                  owner: "GM"
                })
@@ -99,74 +111,74 @@ defmodule PathMapper.Game.Actions.DrawTest do
 
   describe "[:draw, :clear]" do
     test "GM clears all elements" do
-      {:ok, state} = add_element(state_with_scene(), owner: "Alice")
+      {:ok, state} = add_element(state_with_surface(), owner: "Alice")
       {:ok, state} = add_element(state, owner: "Bob")
 
       {:ok, state} = Draw.action(state, [:draw, :clear], %{owner: "GM"})
-      assert State.scene(state).drawn_elements == []
+      assert State.surface(state).drawn_elements == []
     end
 
     test "non-GM is rejected" do
       assert {:error, "Only GM" <> _} =
-               Draw.action(state_with_scene(), [:draw, :clear], %{owner: "Alice"})
+               Draw.action(state_with_surface(), [:draw, :clear], %{owner: "Alice"})
     end
   end
 
   describe "[:draw, :undo]" do
     test "GM undoes the last element regardless of owner" do
-      {:ok, state} = add_element(state_with_scene(), owner: "Alice", color: "#111111")
+      {:ok, state} = add_element(state_with_surface(), owner: "Alice", color: "#111111")
       {:ok, state} = add_element(state, owner: "Bob", color: "#222222")
 
       {:ok, state} = Draw.action(state, [:draw, :undo], %{owner: "GM"})
-      elements = State.scene(state).drawn_elements
+      elements = State.surface(state).drawn_elements
       assert length(elements) == 1
       assert hd(elements).color == "#111111"
     end
 
     test "player undoes their own last element" do
-      {:ok, state} = add_element(state_with_scene(), owner: "Alice", color: "#111111")
+      {:ok, state} = add_element(state_with_surface(), owner: "Alice", color: "#111111")
       {:ok, state} = add_element(state, owner: "Bob", color: "#222222")
       {:ok, state} = add_element(state, owner: "Alice", color: "#333333")
 
       {:ok, state} = Draw.action(state, [:draw, :undo], %{owner: "Alice"})
-      elements = State.scene(state).drawn_elements
+      elements = State.surface(state).drawn_elements
       assert length(elements) == 2
       colors = Enum.map(elements, & &1.color)
       assert colors == ["#111111", "#222222"]
     end
 
     test "player cannot undo another player's element" do
-      {:ok, state} = add_element(state_with_scene(), owner: "Alice")
+      {:ok, state} = add_element(state_with_surface(), owner: "Alice")
 
       {:ok, state} = Draw.action(state, [:draw, :undo], %{owner: "Bob"})
-      assert length(State.scene(state).drawn_elements) == 1
+      assert length(State.surface(state).drawn_elements) == 1
     end
 
     test "undo with no elements is a no-op" do
-      state = state_with_scene()
+      state = state_with_surface()
       {:ok, result} = Draw.action(state, [:draw, :undo], %{owner: "GM"})
-      assert State.scene(result).drawn_elements == []
+      assert State.surface(result).drawn_elements == []
     end
 
     test "repeated undo removes elements one by one" do
-      {:ok, state} = add_element(state_with_scene(), color: "#111111")
+      {:ok, state} = add_element(state_with_surface(), color: "#111111")
       {:ok, state} = add_element(state, color: "#222222")
       {:ok, state} = add_element(state, color: "#333333")
 
       {:ok, state} = Draw.action(state, [:draw, :undo], %{owner: "GM"})
-      assert length(State.scene(state).drawn_elements) == 2
+      assert length(State.surface(state).drawn_elements) == 2
       {:ok, state} = Draw.action(state, [:draw, :undo], %{owner: "GM"})
-      assert length(State.scene(state).drawn_elements) == 1
+      assert length(State.surface(state).drawn_elements) == 1
       {:ok, state} = Draw.action(state, [:draw, :undo], %{owner: "GM"})
-      assert State.scene(state).drawn_elements == []
+      assert State.surface(state).drawn_elements == []
     end
   end
 
   describe "dispatch" do
     test "no active scene returns error" do
-      state = %State{active_scene: nil, scenes: %{}}
+      state = %State{active_surface: nil, surfaces: %{}}
 
-      assert {:error, "No active scene"} =
+      assert {:error, "No active surface"} =
                Actions.action(state, [:draw, :add], %{
                  type: :fill,
                  color: "#ff0000",

@@ -31,11 +31,19 @@ defmodule PathMapperWeb.Scene.SceneStateTest do
       assert SceneState.rendered_origin(0, 400, 1000) == 300
     end
 
-    test "clamps pan so the map cannot be dragged past its edges" do
-      # map 1500 wide in a 1000 viewport: pan may range [-500, 0]
+    # A corner of a map can only reach the middle of the screen if the two
+    # edges meeting at it leave the screen, so pan past an edge is the point
+    # rather than something to guard against.
+    test "lets an overflowing map be panned past its own edges" do
       assert SceneState.rendered_origin(-200, 1500, 1000) == -200
-      assert SceneState.rendered_origin(-900, 1500, 1000) == -500
-      assert SceneState.rendered_origin(300, 1500, 1000) == 0
+      assert SceneState.rendered_origin(-900, 1500, 1000) == -900
+      assert SceneState.rendered_origin(300, 1500, 1000) == 300
+    end
+
+    # Which is what makes panning the map off-screen recoverable: zoom out
+    # until the axis fits and it is centered again, whatever the pan was.
+    test "centers an axis that fits again, however far it had been panned" do
+      assert SceneState.rendered_origin(-99_999, 400, 1000) == 300
     end
 
     test "an exactly-fitting map is centered at the origin" do
@@ -141,20 +149,20 @@ defmodule PathMapperWeb.Scene.SceneStateTest do
       assert_in_delta anchored_y(state, zoomed, cy, bh, vh), cy, 0.001
     end
 
-    # Anchoring is subordinate to the pan clamp: holding the cursor point
-    # can require pushing the map past its own edge, which is not allowed.
-    # Zooming far out from a corner is the common case.
-    test "the pan clamp wins when holding the anchor would expose an edge" do
+    # Anchoring used to lose to the pan clamp here: holding the cursor point
+    # requires pushing the map past its own edge, which was not allowed, so
+    # zooming out from a corner slid the map out from under the cursor. The
+    # anchor holds now, and the gutter it opens is the map being where it was
+    # asked to be.
+    test "holds the anchor even where that leaves a gutter" do
       state = %SceneState{zoom: 2.0, pan: {-500, -400}}
-      {_cx, _cy, bw, _bh, vw, _vh} = @overflow
+      {cx, _cy, bw, _bh, vw, _vh} = @overflow
 
       zoomed = SceneState.zoom_at(state, -1.0, @overflow)
 
       assert zoomed.zoom == 1.0
-      # The requested pan is positive (map pushed right of the viewport);
-      # rendered_origin clamps it back to 0 so no empty gutter appears.
-      assert elem(zoomed.pan, 0) > 0
-      assert origin_x(zoomed, bw, vw) == 0
+      assert_in_delta anchored_x(state, zoomed, cx, bw, vw), cx, 0.001
+      assert origin_x(zoomed, bw, vw) > 0
     end
 
     test "zooming out immediately after zooming in restores the original pan" do

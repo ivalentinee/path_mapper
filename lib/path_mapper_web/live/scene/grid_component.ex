@@ -17,7 +17,7 @@ defmodule PathMapperWeb.Scene.GridComponent do
       |> assign(:rows, div(assigns.height, assigns.grid_size))
 
     ~H"""
-    <div class="grid-container" style={@style}>
+    <div class="grid-container pan-layer" style={@style}>
       <svg style="width: 100%; height: 100%;">
         <%= if @cols > 1 do %>
           <%= for col <- 1..(@cols - 1) do %>

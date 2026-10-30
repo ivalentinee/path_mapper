@@ -103,6 +103,10 @@
 
 .panel-selector {
   background-color: #1a1528;
+  /* height: 100% plus padding is taller than the panel without this, which
+     the scrolling tool list used to absorb. It no longer does: what sits
+     below it was being pushed past the bottom edge. */
+  box-sizing: border-box;
   width: 44px;
   height: 100%;
   display: flex;

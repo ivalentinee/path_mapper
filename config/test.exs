@@ -10,6 +10,12 @@ config :path_mapper, PathMapperWeb.Endpoint,
 # Print only warnings and errors during test
 config :logger, level: :warning
 
+# The Charkeeper poller runs for the life of the application. Held off here so
+# that it never ticks of its own accord during a test run - one that did would
+# reach the real service, since the fake is started per test on its own port.
+# Tests drive it a tick at a time instead.
+config :path_mapper, :charkeeper_poll_interval, 3_600_000
+
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 

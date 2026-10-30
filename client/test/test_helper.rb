@@ -20,11 +20,13 @@ end
 
 # Records what it was asked to store and hands back the paths the server would.
 class FakeServer
-  attr_reader :assets, :loaded
+  attr_reader :assets, :loaded, :declared, :state
 
   def initialize
     @assets = {}
     @loaded = nil
+    @declared = []
+    @state = nil
   end
 
   def store_asset(name, bytes)
@@ -33,10 +35,15 @@ class FakeServer
   end
 
   def declare(command)
+    @declared << command
     @loaded = command
   end
 
   def declare_all(commands)
     commands.each { |command| declare(command) }
+  end
+
+  def apply_state(state)
+    @state = state
   end
 end

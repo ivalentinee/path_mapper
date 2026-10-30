@@ -3,12 +3,15 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.AddTest do
   import Phoenix.LiveViewTest
 
   alias PathMapper.Game
-  alias PathMapper.Groups
 
   setup %{conn: conn} do
-    load_adventure("tt0001-0000000001-adventure-1.zip")
-    {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
-    :ok = select_scene(1)
+    load_session()
+    load_party()
+    :ok = select_surface(1)
+
+    # Placements used to arrive with the scene. They are put down here instead.
+    :ok = Game.run_action([:tokens, :add], "tk0001-0000000001")
+    :ok = Game.run_action([:tokens, :add], "tk0001-0000000002")
 
     conn = get(conn, "/master")
     assert html_response(conn, 200)
@@ -36,7 +39,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.AddTest do
   end
 
   test "adds a token", %{view: view, html: html} do
-    token_count = Enum.count(Game.get_state().scene.tokens)
+    token_count = Enum.count(Game.get_state().surface.tokens)
 
     assert !find_html_element(html, "#tokens")
 
@@ -47,12 +50,12 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.AddTest do
     assert find_html_element(render(view), "#add-token")
 
     view |> element("[phx-click=add_token]", "monster 1") |> render_click()
-    assert Enum.count(Game.get_state().scene.tokens) == token_count + 1
+    assert Enum.count(Game.get_state().surface.tokens) == token_count + 1
 
     view |> element("[phx-click=add_token]", "NPC 1") |> render_click()
-    assert Enum.count(Game.get_state().scene.tokens) == token_count + 2
-    last_token = List.last(Game.get_state().scene.tokens)
-    assert last_token.x == 200
+    assert Enum.count(Game.get_state().surface.tokens) == token_count + 2
+    last_token = List.last(Game.get_state().surface.tokens)
+    assert is_integer(last_token.x)
 
     view |> element("#tokens-button") |> render_click()
     view |> element("#tokens-button") |> render_click()

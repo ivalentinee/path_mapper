@@ -4,7 +4,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent do
   require PathMapperWeb.MasterLive.LeftPanelState
 
   alias PathMapper.Game
-  alias PathMapper.Game.State.Scene
+  alias PathMapper.Game.State.Surface
 
   def handle_event("toggle_grid", _, socket) do
     Game.run_action([:map, :toggle_grid], nil)
@@ -62,8 +62,8 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent do
     if map_name == selected_map, do: "selected", else: ""
   end
 
-  def adventure_layer(adventure, game_state, layer_state) do
-    adventure_map = Scene.displayed_map(game_state.scene, adventure)
+  def declared_layer(game_state, layer_state) do
+    adventure_map = Surface.displayed_map(game_state.surface)
 
     case adventure_map do
       nil -> nil
@@ -71,12 +71,12 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.MapManagerComponent do
     end
   end
 
-  def objects_for_layer(layer_index, game_state, adventure) do
-    adventure_map = Scene.displayed_map(game_state.scene, adventure)
+  def objects_for_layer(layer_index, game_state) do
+    adventure_map = Surface.displayed_map(game_state.surface)
 
     adventure_objects = if adventure_map, do: adventure_map.map_objects || [], else: []
 
-    game_state.scene.map.map_objects
+    game_state.surface.map.map_objects
     |> Enum.filter(&(&1.layer_index == layer_index))
     |> Enum.map(fn obj_state ->
       adv_obj = Enum.at(adventure_objects, obj_state.index)

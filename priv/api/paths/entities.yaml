@@ -1,26 +1,26 @@
 post:
   summary: Add or replace an entity
   description: >-
-    Declares one thing the session is made of: an adventure, a group, a scene, a
-    map or a token. An id the server already holds is replaced, which is ordinary
-    rather than exceptional - ids are unique everywhere, so a shared token declared
-    by a second adventure is the same token declared again.
+    Declares one piece a session is made of: a map, a token, a wallpaper or a
+    character. An id the server already holds is replaced, which is ordinary
+    rather than exceptional - ids are unique everywhere, so a token sent again by
+    a second package is the same token declared again.
+
+    Replacing a map re-declares the surface built on it: what was placed and drawn
+    there stays, and the new declaration's geometry takes effect. That is how a
+    map re-exported from an editor reaches the table.
 
     Refused when the id currently holds a different kind. That is not sharing, it
     is an authoring mistake, and the server has no other way to notice it.
 
-    A scene's `place_tokens` entries each name a placement by a game id, which
-    begins with the id of the token being placed. Where two entries name one game
-    id, the first is placed and the rest are dismissed: the declaration still
-    succeeds, and the response carries a `warnings` list saying which placements
-    were declined. Accepting the command and reporting the part not done is
-    deliberate here - unlike a state that names a missing entity, a repeated id
-    has one obvious reading, and refusing the whole scene over it would cost the
-    author every other token on it.
+    A piece naming a piece the server does not hold is accepted. The reference
+    resolves when it is read, so pieces may be sent in any order, and one that
+    names something absent renders as naming something absent rather than
+    failing.
 
-    This is how an adventure reaches the server. There is no route that takes one
-    whole: an adventure is a sequence of these, and so is a group, and so is
-    restoring a snapshot.
+    This is how everything reaches the server. There is no route that takes a
+    package whole: an adventure is a sequence of these, and so is a group, and so
+    is restoring a snapshot.
   tags: ['Session']
   requestBody:
     required: true
@@ -30,8 +30,7 @@ post:
   responses:
     '200':
       description: >-
-        The entity is in the store. Carries `warnings` where part of it was
-        declined, such as a `place_tokens` entry repeating a game id.
+        The piece is in the store.
       content:
         'application/json':
           schema: { $ref: '../schemas/common/ok.yaml#/acknowledgement' }

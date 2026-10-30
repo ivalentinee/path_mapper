@@ -5,15 +5,26 @@ Lightweight, playback-only VTT (Virtual Tabletop) for Pathfinder 2e and other sq
 - `/master` --- Game Master interface
 - `/` --- Player view
 
-PathMapper is a player rather than a composer. Adventures, maps and tokens are made
+PathMapper is a player rather than a composer. Maps, tokens and characters are made
 in the tools you already use --- GIMP, Emacs, a text editor --- and PathMapper only
 plays them. That is why there is no built-in editor and nothing stored on the
-server: the [PathMapper client](client/README.md) sends a session over when you
+server: the [PathMapper client](docs/client.md) sends a session over when you
 want one, and the server forgets it on restart.
+
+A session is a flat set of pieces --- maps, tokens, characters and a wallpaper. A
+map is the playable surface. Nothing gathers them: you hand the client a
+directory, and write the result down afterwards as a load list or a snapshot.
 
 ## Documentation
 
-See the [docs/](docs/) folder for content authoring guides (adventures, groups, maps), the [Installation Guide](docs/installation.md) for server deployment, and the [client README](client/README.md) for the program that feeds it.
+Everything is in [docs/](docs/README.md):
+
+- [Quick Start](docs/quick-start.md) --- make a map and run a session
+- [The Client](docs/client.md) --- the program that feeds the server
+- [Preparing a Session](docs/sessions.md) --- load lists, snapshots, campaign indexes
+- [Maps](docs/maps.md), [Tokens](docs/tokens.md), [Characters](docs/characters.md) --- authoring content
+- [GM Guide](docs/gm-guide.md) --- running the table
+- [Installation](docs/installation.md) --- deploying the server
 
 ## Development
 

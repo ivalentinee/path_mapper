@@ -9,36 +9,45 @@ Open `http://your-server:4000/master` in your browser.
 ## Interface Overview
 
 - **Left panel** (GM-only): Game, Scenes, Map, Tokens, Initiative
-- **Right panel** (shared with players): Group overview, Snap-to-grid toggle
-- **Scene indicator** (top): shows current scene name, click to open scene selector
-- **Wallpaper**: displayed when no scene is active
+- **Right panel** (shared with players): Group, Initiative, and the tool strip
+- **Surface indicator** (top): the name of the surface the table is on; click it to open the surface list
+- **Wallpaper**: shown whenever no surface is active
 
 ## Session Workflow
 
-1. Upload an adventure and a group with the
-   [client](../client/README.md) --- there is nothing to select here, since the
-   console issues no commands
-2. Open left panel > **Scenes** > select a scene
-3. Add player tokens: Tokens panel > Players > "Add All" or individually
+1. Upload your pieces with the [client](client.md) --- a directory, a
+   single map or token, or a [`.pmload`](sessions.md) naming a session you
+   prepared earlier. There is nothing to select here, since the console issues
+   no commands
+2. Open left panel > **Scenes** > select a surface
+3. Add character tokens: Tokens panel > Players > "All" or individually
 4. Play the session
 
 To change what the session holds mid-game --- a new map, a fixed token image, a
-different group --- upload it again. What is re-declared is replaced and the rest
+different party --- upload it again. What is re-declared is replaced and the rest
 is left alone; nothing needs reloading.
+
+Uploading never changes what the table is looking at. A new map joins the list,
+and you switch to it when you are ready.
 
 ## Left Panel Tabs
 
 ### Game
 
-Shows the adventure and the group the session currently holds. There is nothing
-to select: both arrive from the [PathMapper client](../client/README.md), and the
-console plays what it is given.
+What the session currently holds, counted by kind: maps, tokens, characters and
+whether there is a wallpaper. There is nothing to select --- every piece arrives
+from the [PathMapper client](client.md), and the console plays what it
+is given.
 
 ### Scenes
 
-- **Select**: switch to a scene (state is preserved across switches)
-- **Unset**: deactivate the current scene (shows wallpaper)
-- **Reset**: re-initialize the scene to its starting state (requires a confirmation click)
+The surfaces the session holds, which are simply its maps, listed by id order. A
+map reaches this list by existing; nothing enumerates them, and a map with no
+name is listed by its id.
+
+- **Select**: switch to a surface (state is preserved across switches)
+- **Unset**: deactivate the current surface (shows the wallpaper)
+- **Reset**: re-initialize the surface to its starting state (requires a confirmation click)
 
 ### Map
 
@@ -53,16 +62,28 @@ Map layer management:
 
 ### Tokens
 
-- **Add**: add adventure-defined tokens (enemies, NPCs)
-- **Players**: add player character tokens (from the loaded group)
-- **Extras**: add player extra tokens (markers, companions)
-- **Copy**: serializes current token positions as TOML `place_tokens` for the manifest (see [Adventures: The Copy button](adventures.md#the-copy-button))
+- **Add**: every token the session holds, with a search. There is no per-surface
+  shortlist --- a map carries no token roster
+- **Players**: add character tokens, one at a time or all at once
+- **Extras**: add a character's markings (markers, companions)
+- **Copy**: puts the current arrangement of tokens on the clipboard as TOML.
+  Nothing reads it back --- the format it was written for is gone --- so treat
+  it as a scratch note. To keep an arrangement, write it down ---
+  `path-mapper save <name>` or `path-mapper snapshot`, see
+  [Preparing a Session](sessions.md)
 - Below the buttons, the list of placed tokens is always visible with state controls and delete
+
+### Initiative
+
+The initiative order, which is game state like anything else on a surface.
 
 ## Right Panel
 
-- **Group overview**: shows all characters with portraits, names, and classes
-- **Snap-to-grid toggle**: controls whether token movement snaps to grid cells
+- **Group**: every character the session holds, with portraits, names, classes
+  and Charkeeper stats where they are configured
+- **Initiative**: the current order
+- **Tool strip**: measuring tools, the map tool, drawing tools with width and
+  colour, undo, the snap-to-grid toggle, and zoom
 
 ## Token Interactions (On the Map)
 
@@ -77,20 +98,23 @@ Map layer management:
 
 ## Keyboard Shortcuts
 
-- **Escape**: close the left panel
+- **Escape**: unwind one level --- clear a pending digit, close the open panel, or deselect the active tool
 
 Click outside panels to close them.
 
 ## Content Upload
 
-1. Edit the adventure or group on your own machine
-2. Upload it again with the client --- `path-mapper my-adventure.pmadventure`, or a
+1. Edit the piece on your own machine
+2. Upload it again with the client --- `path-mapper <file>`, or a
    double-click
 3. No server restart needed
 
 Uploading again replaces what the ids name and leaves everything else alone, so an
-edit reaches a running session without restarting it. Where a scene has gone, its
-placements go with it.
+edit reaches a running session without restarting it. Re-uploading a map rebuilds
+the surface on it and carries the tokens, drawings and moved objects across.
+
+Removing a single piece is a server command the client does not wrap yet ---
+`DELETE /api/entities/:id`. `path-mapper reset` empties the board entirely.
 
 ## What Your Players See
 
@@ -100,20 +124,32 @@ Open `http://your-server:4000/` in a browser.
 
 ### What Players See
 
-- The active scene map (if one is selected by the GM)
+- The active surface (if you have selected one)
 - Visible tokens (hidden tokens are invisible to players)
 - Visible map objects (hidden objects are invisible to players)
-- Adventure wallpaper (when no scene is active)
+- The wallpaper, when no surface is active
+
+### Claiming a Character
+
+A player is a browser session that has claimed a character --- nothing stores the
+claim, and you do not assign it. In the player view, Group panel, each character
+offers a **"That's me!"** button; after claiming, that player gets a **Character**
+panel with their portrait, their stats, a button to put their token on the map or
+take it off, and their extra tokens.
+
+Closing the tab releases the claim.
 
 ### Right Panel
 
-- Group overview (same as GM view)
-- Snap-to-grid toggle (local to each viewer)
+- Group (same as the GM view, plus the claim buttons)
+- Character (once they have claimed one)
+- Initiative
+- Tool strip: measuring and drawing tools, a grid toggle, snap-to-grid and zoom
 
 ### What Players Cannot Do
 
-- No left panel (no adventure/group/scene selection)
-- Cannot manage tokens, layers, or objects
+- No left panel (no surface selection, no map or token management)
+- Cannot manage tokens other than their own character's and its extras
 - Cannot see hidden tokens or hidden map objects
 
 ### Real-Time Updates

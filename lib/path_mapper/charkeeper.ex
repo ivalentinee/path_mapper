@@ -1,5 +1,11 @@
 defmodule PathMapper.Charkeeper do
-  @moduledoc false
+  @moduledoc """
+  Live character numbers from Charkeeper, for the characters that name one.
+
+  Nothing here decides who is polled or when. `Poller` reads the session store
+  on a timer and keeps the last reading in a table; this is where the rest of
+  the application asks for it and hears that it changed.
+  """
 
   alias __MODULE__.Poller
   alias Phoenix.PubSub
@@ -14,43 +20,17 @@ defmodule PathMapper.Charkeeper do
     PubSub.broadcast(PathMapper.PubSub, @topic, %{charkeeper_update: payload})
   end
 
-  def get_data do
-    case Poller.whereis() do
-      nil -> %{data: %{}, status: nil}
-      pid -> GenServer.call(pid, :get_data)
-    end
-  end
+  @doc "The last reading: `%{data: %{character_id => CharacterData}, status: status}`."
+  def get_data, do: Poller.read()
 
-  def start_or_restart(players) do
-    ids = extract_charkeeper_ids(players)
+  @doc """
+  Forgets the readings, for a session being put away.
 
-    case ids do
-      [] -> stop()
-      ids -> do_start(ids)
-    end
-  end
-
-  def stop do
-    case Poller.whereis() do
-      nil -> :ok
-      pid -> DynamicSupervisor.terminate_child(__MODULE__.Supervisor, pid)
-    end
-
+  The next tick would find no characters and clear the table on its own, but
+  that is up to a poll interval of stale numbers on screen after a reset.
+  """
+  def clear do
+    Poller.forget()
     broadcast(%{data: %{}, status: nil})
-  end
-
-  defp extract_charkeeper_ids(players) do
-    players
-    |> Enum.filter(& &1.charkeeper_id)
-    |> Enum.map(&{&1.id, &1.charkeeper_id})
-  end
-
-  defp do_start(ids) do
-    stop()
-
-    DynamicSupervisor.start_child(
-      __MODULE__.Supervisor,
-      {Poller, ids}
-    )
   end
 end

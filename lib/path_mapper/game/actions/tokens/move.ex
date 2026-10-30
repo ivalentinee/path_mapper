@@ -1,6 +1,6 @@
 defmodule PathMapper.Game.Actions.Tokens.Move do
   alias PathMapper.Game.State
-  alias PathMapper.Game.State.Scene.Token, as: GameToken
+  alias PathMapper.Game.State.Surface.Token, as: GameToken
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
 
   def drag_token(%State{} = state, %GameToken{} = game_token, x, y, %{snap: true})
@@ -30,7 +30,7 @@ defmodule PathMapper.Game.Actions.Tokens.Move do
   end
 
   defp snap_position(%State{} = state, x, y) do
-    grid_size = GeometryMapper.to_subpixels(State.scene(state).map.grid_size)
+    grid_size = GeometryMapper.to_subpixels(State.surface(state).map.grid_size)
 
     {
       round(x / grid_size) * grid_size,

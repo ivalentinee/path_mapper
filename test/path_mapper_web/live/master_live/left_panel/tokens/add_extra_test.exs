@@ -3,12 +3,11 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.AddExtraTest do
   import Phoenix.LiveViewTest
 
   alias PathMapper.Game
-  alias PathMapper.Groups
 
   setup %{conn: conn} do
-    load_adventure("tt0001-0000000001-adventure-1.zip")
-    {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
-    :ok = select_scene(1)
+    load_session()
+    load_party()
+    :ok = select_surface(1)
 
     conn = get(conn, "/master")
     assert html_response(conn, 200)
@@ -18,7 +17,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.AddExtraTest do
   end
 
   test "adds an extra token with a click", %{view: view, html: html} do
-    token_count = Enum.count(Game.get_state().scene.tokens)
+    token_count = Enum.count(Game.get_state().surface.tokens)
 
     assert !find_html_element(html, "#tokens")
 
@@ -36,12 +35,12 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.Tokens.AddExtraTest do
     |> element("#add-extra-token-player-0 .add-extra-token-player-tokens > :first-child button")
     |> render_click()
 
-    assert Enum.count(Game.get_state().scene.tokens) == token_count + 1
+    assert Enum.count(Game.get_state().surface.tokens) == token_count + 1
 
     view
     |> element("#add-extra-token-player-0 .add-extra-token-player-tokens > :first-child button")
     |> render_click()
 
-    assert Enum.count(Game.get_state().scene.tokens) == token_count + 2
+    assert Enum.count(Game.get_state().surface.tokens) == token_count + 2
   end
 end
