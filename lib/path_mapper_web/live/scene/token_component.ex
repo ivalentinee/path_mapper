@@ -3,7 +3,7 @@ defmodule PathMapperWeb.Scene.TokenComponent do
 
   alias PathMapper.Game
   alias PathMapper.Game.Palette
-  alias PathMapper.Game.State.Scene.Token, as: GameToken
+  alias PathMapper.Game.State.Surface.Token, as: GameToken
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
   alias PathMapper.Geometry.Object, as: GeometryObject
 
@@ -53,32 +53,30 @@ defmodule PathMapperWeb.Scene.TokenComponent do
     {:noreply, socket}
   end
 
+  # Where the token was let go, which the drop carries. The last `drag` the
+  # server saw is wherever the round trip had got to, which is behind the
+  # pointer by however long that took - committing that settled the token
+  # short of the drop and read as a flick.
   @impl true
-  def handle_event("dragend", _event, socket) do
-    snap_to_grid = socket.assigns.scene.snap_to_grid
-
-    Game.run_action(
-      [:tokens, socket.assigns.token.game_id, :move],
-      {socket.assigns.token.drag_x, socket.assigns.token.drag_y, %{snap: snap_to_grid}}
-    )
-
-    {:noreply, socket}
+  def handle_event("dragend", %{"x" => x, "y" => y}, socket) when is_number(x) and is_number(y) do
+    case dragged_to(socket, x, y) do
+      {:ok, {map_x, map_y}} -> move_token(socket, map_x, map_y)
+      :no_offset -> dragend_from_held(socket)
+    end
   end
 
   @impl true
+  def handle_event("dragend", _event, socket), do: dragend_from_held(socket)
+
+  @impl true
   def handle_event("drag", %{"x" => x, "y" => y, "id" => _id} = _event, socket) do
-    if socket.assigns[:mouse_offset_x] do
-      viewport_x = x - socket.assigns.mouse_offset_x
-      viewport_y = y - socket.assigns.mouse_offset_y
+    case dragged_to(socket, x, y) do
+      {:ok, {map_x, map_y}} ->
+        Game.run_action([:tokens, socket.assigns.token.game_id, :drag], {map_x, map_y, %{}})
+        {:noreply, socket}
 
-      {map_x, map_y} =
-        GeometryMapper.viewport_to_map(viewport_x, viewport_y, socket.assigns.map_geometry)
-
-      Game.run_action([:tokens, socket.assigns.token.game_id, :drag], {map_x, map_y, %{}})
-
-      {:noreply, socket}
-    else
-      {:noreply, socket}
+      :no_offset ->
+        {:noreply, socket}
     end
   end
 
@@ -129,12 +127,44 @@ defmodule PathMapperWeb.Scene.TokenComponent do
   @impl true
   def handle_event("token_select", _, socket), do: {:noreply, socket}
 
+  # A pointer position as a map position, allowing for where in the token the
+  # drag was started. Nothing to allow for means no drag is in progress.
+  defp dragged_to(socket, x, y) do
+    case socket.assigns[:mouse_offset_x] do
+      nil ->
+        :no_offset
+
+      offset_x ->
+        {:ok,
+         GeometryMapper.viewport_to_map(
+           x - offset_x,
+           y - socket.assigns.mouse_offset_y,
+           socket.assigns.map_geometry
+         )}
+    end
+  end
+
+  defp move_token(socket, map_x, map_y) do
+    Game.run_action(
+      [:tokens, socket.assigns.token.game_id, :move],
+      {map_x, map_y, %{snap: socket.assigns.scene.snap_to_grid}}
+    )
+
+    {:noreply, socket}
+  end
+
+  # A drop that said nothing about where it landed - a browser that sends no
+  # coordinates with it - still has the last drag the server was told about.
+  defp dragend_from_held(socket) do
+    move_token(socket, socket.assigns.token.drag_x, socket.assigns.token.drag_y)
+  end
+
   defp can_manage_token?(%{opts: %{manage_tokens: true}}), do: true
 
   # A placed token's owner is the player's id, which is what the group declared
   # and what the palette is keyed by. Comparing a character name here matched
   # nothing, so a player could not manage their own token.
-  defp can_manage_token?(%{my_player_id: player_id, token: token}) when is_binary(player_id) do
+  defp can_manage_token?(%{my_character_id: player_id, token: token}) when is_binary(player_id) do
     token.owner == player_id
   end
 

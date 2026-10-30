@@ -34,6 +34,31 @@ defmodule PathMapper.Api.Document do
     contract
   end
 
+  @doc """
+  The fields a declaration of this kind may carry, from the contract itself.
+
+  Read rather than restated: a second list of field names is a second thing to
+  keep in step, and the one that drifts is always the copy.
+  """
+  def declared_fields(kind) when is_binary(kind) do
+    contract()
+    |> get_in([
+      "paths",
+      "/api/entities",
+      "post",
+      "requestBody",
+      "content",
+      "application/json",
+      "schema",
+      "oneOf"
+    ])
+    |> List.wrap()
+    |> Enum.find(%{}, &(get_in(&1, ["properties", "kind", "const"]) == kind))
+    |> get_in(["properties"])
+    |> Kernel.||(%{})
+    |> Elixir.Map.keys()
+  end
+
   @doc "The operation a method and path name, or nil when the document has none."
   def operation(method, path) do
     {_contract, operations} = :persistent_term.get(@key)

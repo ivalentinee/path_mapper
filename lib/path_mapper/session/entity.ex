@@ -2,25 +2,26 @@ defmodule PathMapper.Session.Entity do
   @moduledoc """
   A thing the session is made of: an id, what kind of thing it is, and its payload.
 
-  The kinds are deliberately few. An adventure and a group are little more than a
-  name; a scene, a map and a token are what a session is actually built from.
+  Four kinds, and none of them holds another. A map is a playable surface, a token
+  stands on one, a wallpaper is what a viewer sees when none is active, and a
+  character is someone in the game. Anything that gathers these — an adventure, a
+  group — is a package, and a package is the client's.
+
+  These modules are never aliased bare: `alias PathMapper.Session` and then
+  `Session.Map`, because `Map` is Elixir's and rebinding it is a runtime error the
+  compiler only warns about.
   """
 
-  alias PathMapper.Adventures.Adventure
-  alias PathMapper.Adventures.Adventure.Scene.Map, as: SceneMap
-  alias PathMapper.Adventures.Adventure.Scene.Token
-  alias PathMapper.Groups.Group
-  alias PathMapper.Session.Scene
+  alias PathMapper.Session
 
   @enforce_keys [:id, :kind, :data]
   defstruct [:id, :kind, :data]
 
   @kinds %{
-    "adventure" => Adventure,
-    "group" => Group,
-    "scene" => Scene,
-    "map" => SceneMap,
-    "token" => Token
+    "map" => Session.Map,
+    "token" => Session.Token,
+    "wallpaper" => Session.Wallpaper,
+    "character" => Session.Character
   }
 
   def kinds, do: Elixir.Map.keys(@kinds)

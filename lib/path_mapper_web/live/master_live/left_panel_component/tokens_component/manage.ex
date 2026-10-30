@@ -9,7 +9,7 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage do
 
   alias PathMapper.Game
   alias PathMapper.Game.Palette
-  alias PathMapper.Game.State.Scene.Token, as: GameToken
+  alias PathMapper.Game.State.Surface.Token, as: GameToken
 
   embed_templates "manage_state_button*"
 
@@ -59,13 +59,13 @@ defmodule PathMapperWeb.MasterLive.LeftPanelComponent.TokensComponent.Manage do
   end
 
   def selected_tokens(game_state, %{left_panel: ["left-panel", "tokens" | [index]]}) do
-    tokens_with_index = Enum.with_index(game_state.scene.tokens)
+    tokens_with_index = Enum.with_index(game_state.surface.tokens)
     token = Enum.at(tokens_with_index, index - 1)
     if token, do: [token], else: tokens_with_index
   end
 
   def selected_tokens(game_state, _left_panel) do
-    Enum.with_index(game_state.scene.tokens)
+    Enum.with_index(game_state.surface.tokens)
   end
 
   def available_owners do

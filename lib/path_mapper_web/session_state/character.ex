@@ -1,35 +1,40 @@
 defmodule PathMapperWeb.SessionState.Character do
+  @moduledoc """
+  Which character this browser session has claimed.
+
+  A *player* is this and nothing more: a session holding a character's id. There
+  is no player entity, nothing is stored, and closing the tab unclaims it.
+  """
+
+  alias PathMapper.Session.Resolve
+
   def key, do: :character
 
   def init do
-    %{my_player: nil, my_token_on_map: false}
+    %{mine: nil, my_token_on_map: false}
   end
-
-  # claim_character is handled by PlayerLive directly (needs domain data).
-  # The plugin stores the result via set_player/recompute.
 
   def run_event(_, %{character: state}), do: state
 
-  def set_player(state, my_player, game_state) do
-    %{state | my_player: my_player, my_token_on_map: compute_on_map(game_state, my_player)}
+  def set_character(state, mine, game_state) do
+    %{state | mine: mine, my_token_on_map: on_map?(game_state, mine)}
   end
 
-  def recompute(%{my_player: nil} = state, _game_state, _group), do: state
+  def recompute(%{mine: nil} = state, _game_state), do: state
 
-  def recompute(state, game_state, group) do
-    my_player = refresh_player(state.my_player, group)
-    %{state | my_player: my_player, my_token_on_map: compute_on_map(game_state, my_player)}
+  def recompute(state, game_state) do
+    mine = refresh(state.mine)
+    %{state | mine: mine, my_token_on_map: on_map?(game_state, mine)}
   end
 
-  defp refresh_player(%{id: id}, group) when not is_nil(group) do
-    Enum.find(group.players, &(&1.id == id))
-  end
+  # A claimed character that leaves the store is unclaimed, not remembered: the
+  # claim names an id, and an id naming nothing resolves to nothing.
+  defp refresh(%{id: id}), do: Resolve.character(id)
+  defp refresh(_), do: nil
 
-  defp refresh_player(_, _), do: nil
-
-  defp compute_on_map(%{scene: %{tokens: tokens}}, %{id: id}) do
+  defp on_map?(%{surface: %{tokens: tokens}}, %{id: id}) do
     Enum.any?(tokens, &(&1.owner == id))
   end
 
-  defp compute_on_map(_, _), do: false
+  defp on_map?(_, _), do: false
 end

@@ -1,6 +1,6 @@
 <div class="map-container">
   <svg class="svg-container">
-    <%= if fow_layer = additional_map_layer(@adventure, @game_state, :fow) do %>
+    <%= if fow_layer = additional_map_layer(@game_state, :fow) do %>
       <image
         x={GeometryMapper.scale_map_pixel(fow_layer.x, @geometry)}
         y={GeometryMapper.scale_map_pixel(fow_layer.y, @geometry)}
@@ -21,7 +21,7 @@
       />
     <% end %>
 
-    <%= for {layer, layer_state} <- map_adventure_layers_to_state(@adventure, @game_state) do %>
+    <%= for {layer, layer_state} <- map_layers_to_state(@game_state) do %>
       <%= for img <- layer_images(layer) do %>
         <image
           x={GeometryMapper.scale_map_pixel(img.x, @geometry)}

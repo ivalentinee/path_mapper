@@ -37,6 +37,18 @@ defmodule PathMapper.Id do
 
   def of(_filename), do: nil
 
+  @bare ~r/^[a-z]{2}\d{#{@series_digits}}-\d{#{@entity_digits}}$/
+
+  @doc """
+  Whether a string is an id and nothing else.
+
+  `parse/1` reads an id off a filename, which always has something after it. This
+  answers for an id standing alone — one typed into a layer name, say, where there
+  is no descriptive part to follow it.
+  """
+  def valid?(value) when is_binary(value), do: Regex.match?(@bare, value)
+  def valid?(_value), do: false
+
   @doc "An id for something created at runtime rather than authored."
   def generate(prefix) when is_binary(prefix) do
     suffix = :rand.uniform(round(:math.pow(10, @entity_digits))) - 1

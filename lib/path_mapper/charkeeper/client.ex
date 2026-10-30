@@ -55,14 +55,13 @@ defmodule PathMapper.Charkeeper.Client do
     end
   end
 
+  # The document carries more than this - `race`, `main_class`, a background -
+  # and none of it is read. What is synced is what changes while the table
+  # plays.
   defp build_character_data(json) do
-    info = json["info"] || %{}
-
     %CharacterData{
       name: json["name"],
-      class: info["class"],
       level: json["level"],
-      ancestry: info["race"],
       hp_current: get_in(json, ["health", "current"]) || 0,
       hp_temp: get_in(json, ["health", "temp"]) || 0,
       hp_max: get_in(json, ["health", "max"]),

@@ -11,7 +11,7 @@
   </div>
 
   <div id="add-player-token-players">
-    <%= for {player, index} <- Enum.with_index(@group.players) do %>
+    <%= for {player, index} <- Enum.with_index(@characters) do %>
       <div class="item">
         <span class="index">{index + 1}</span>
         <button phx-click="add_token" phx-value-id={player.id} phx-target={@myself}>

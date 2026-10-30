@@ -1,0 +1,19 @@
+wallpaper:
+  title: Wallpaper
+  description: >-
+    What a viewer sees when no surface is active.
+
+    Where the session holds more than one, the first by id is shown and the rest
+    are inert. Nothing selects a wallpaper: the id is the ordering, and the id is
+    the game master's to choose.
+  type: object
+  required: ['kind', 'id', 'file']
+  additionalProperties: false
+  properties:
+    kind: { type: string, const: 'wallpaper' }
+    id:
+      type: string
+      pattern: '^[a-z]{2}[0-9]{4}-[0-9]{10}$'
+    file:
+      type: string
+      description: An image the server already holds, by its asset address.

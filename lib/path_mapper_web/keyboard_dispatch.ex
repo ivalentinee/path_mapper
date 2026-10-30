@@ -104,12 +104,12 @@ defmodule PathMapperWeb.KeyboardDispatch do
   # === 5. Scope-specific action keys (when panel is open) ===
 
   # Scene scope
-  def dispatch("u", %{left_panel: %{left_panel: ["left-panel", "scene-selector"]}}, _) do
-    {:scene_action, :unset}
+  def dispatch("u", %{left_panel: %{left_panel: ["left-panel", "surface-selector"]}}, _) do
+    {:surface_action, :unset}
   end
 
-  def dispatch("r", %{left_panel: %{left_panel: ["left-panel", "scene-selector"]}}, _) do
-    {:scene_action, :reset}
+  def dispatch("r", %{left_panel: %{left_panel: ["left-panel", "surface-selector"]}}, _) do
+    {:surface_action, :reset}
   end
 
   # Tokens scope — sub-panel navigation
@@ -220,7 +220,7 @@ defmodule PathMapperWeb.KeyboardDispatch do
   defp dispatch_global("d", _), do: {:set_pending_prefix, :d}
 
   defp dispatch_global("s", %{game_state: gs}) when gs != nil do
-    %{left_panel_select: ["left-panel", "scene-selector"]}
+    %{left_panel_select: ["left-panel", "surface-selector"]}
   end
 
   defp dispatch_global("t", %{game_state: %{scene: scene}}) when scene != nil do
@@ -240,8 +240,8 @@ defmodule PathMapperWeb.KeyboardDispatch do
   defp dispatch_global(_, _), do: nil
 
   # Digit commit: map scope path to action
-  defp commit_for_scope(["left-panel", "scene-selector"], index) do
-    {:scene_select, index}
+  defp commit_for_scope(["left-panel", "surface-selector"], index) do
+    {:surface_select, index}
   end
 
   defp commit_for_scope(["left-panel", "tokens"], index) do

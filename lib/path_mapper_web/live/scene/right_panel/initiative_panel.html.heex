@@ -1,7 +1,7 @@
 <div class="initiative-panel">
   <div class="initiative-title">{gettext("Initiative")}</div>
 
-  <%= if assigns[:my_player] do %>
+  <%= if assigns[:my_character] do %>
     <div class="initiative-input-section">
       <form phx-submit="submit_initiative" phx-target={@myself}>
         <div class="initiative-input-row">
@@ -10,7 +10,7 @@
             name="value"
             placeholder={gettext("Roll")}
             class="initiative-input"
-            value={my_initiative_value(@initiative, @my_player.id)}
+            value={my_initiative_value(@initiative, @my_character.id)}
           />
           <button type="submit" class="initiative-submit">
             {gettext("Set")}

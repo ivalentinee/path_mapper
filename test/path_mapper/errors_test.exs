@@ -3,7 +3,7 @@ defmodule PathMapper.ErrorsTest do
 
   alias Ecto.Changeset
   alias PathMapper.Errors
-  alias PathMapper.Session.Scene
+  alias PathMapper.Session
 
   describe "format_load_error/1" do
     test "changeset with flat field errors" do
@@ -19,15 +19,15 @@ defmodule PathMapper.ErrorsTest do
     end
 
     test "changeset with nested embed errors produces human-readable paths" do
-      %Scene{}
-      |> Scene.changeset(%{
-        "id" => "st0001-0000000001",
-        "tokens" => [%{"name" => "nameless"}]
+      %Session.Map{}
+      |> Session.Map.changeset(%{
+        "id" => "mt0001-0000000001",
+        "file" => "no-such-file.ora"
       })
       |> Changeset.apply_action(:insert)
       |> Errors.format_load_error()
       |> then(fn errors ->
-        assert Enum.any?(errors, &String.contains?(&1, "name"))
+        assert Enum.any?(errors, &String.contains?(&1, "file"))
       end)
     end
 

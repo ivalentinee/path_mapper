@@ -10,24 +10,24 @@ defmodule PathMapper.Game.PlacementIdentityTest do
 
   alias PathMapper.Game
   alias PathMapper.Game.GameId
-  alias PathMapper.Game.State.Scene.Token, as: GameToken
-  alias PathMapper.Groups
-  alias PathMapper.Session.Entity
-  alias PathMapper.Session.Store
+  alias PathMapper.Session.Resolve
 
   setup do
-    {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
-    load_adventure("tt0001-0000000001-adventure-1.zip")
-    :ok = select_scene(1)
-    :ok
+    load_party()
+    load_session()
+    :ok = select_surface(1)
+    %{characters: Resolve.characters()}
   end
 
-  defp placements, do: Game.get_state().scene.tokens
+  defp placements, do: Game.get_state().surface.tokens
   defp ids, do: Enum.map(placements(), & &1.game_id)
 
-  # Property 1: each placement on a scene has an id unique among that scene's.
-  test "no two placements on a scene share an id" do
-    Enum.each(0..3, fn i -> Game.run_action([:tokens, :add], i) end)
+  # Property 1: each placement on a surface has an id unique among that surface's.
+  test "no two placements on a surface share an id" do
+    Enum.each(
+      ["tk0001-0000000001", "tk0001-0000000001", "tk0001-0000000002"],
+      &Game.run_action([:tokens, :add], &1)
+    )
 
     assert ids() == Enum.uniq(ids())
     assert Enum.all?(ids(), &is_binary/1)
@@ -40,34 +40,30 @@ defmodule PathMapper.Game.PlacementIdentityTest do
     end)
   end
 
-  # Property 5: an entry may state its id; one that states none is given one.
-  test "an authored place_tokens entry keeps the id it states" do
-    assert "tk0001-0000000001-fallen" in ids()
-    assert "tk0001-0000000001-standing" in ids()
-  end
-
   test "a placement made during play is given an id" do
     before = ids()
-    :ok = Game.run_action([:tokens, :add], 0)
+    :ok = Game.run_action([:tokens, :add], "tk0001-0000000001")
 
     [minted] = ids() -- before
     assert GameId.token_id(minted) != nil
   end
 
   # Property 1 again, through the command path: the collision rule.
-  test "placing onto an id the scene already holds is dismissed and reported" do
+  test "placing onto an id the surface already holds is dismissed and reported" do
+    :ok = Game.run_action([:tokens, :add], "tk0001-0000000001")
     taken = hd(ids())
-    token = hd(Game.get_state().scene.data.tokens)
     count = length(placements())
 
     assert {:ok, [^taken]} =
-             Game.run_action([:tokens, :add], {token.id, %{game_id: taken}})
+             Game.run_action([:tokens, :add], {"tk0001-0000000001", %{game_id: taken}})
 
     assert length(placements()) == count
   end
 
   # Property 3: every operation on a placed token names it by that id.
   test "marking, moving and removing all act through the id" do
+    :ok = Game.run_action([:tokens, :add], "tk0001-0000000001")
+    :ok = Game.run_action([:tokens, :add], "tk0001-0000000002")
     target = Enum.at(ids(), 1)
 
     :ok = Game.run_action([:tokens, target, :set_state], "dead")
@@ -81,7 +77,7 @@ defmodule PathMapper.Game.PlacementIdentityTest do
   end
 
   # Property 7: a command acts on exactly the placement its id matches.
-  test "naming a placement the scene does not hold changes nothing" do
+  test "naming a placement the surface does not hold changes nothing" do
     before = placements()
 
     :ok = Game.run_action([:tokens, "tk0001-0000000001-nobody", :set_state], "dead")
@@ -106,24 +102,26 @@ defmodule PathMapper.Game.PlacementIdentityTest do
   end
 
   # Property 8: a player's own token places once; extras as often as asked.
-  test "a player's own token is placed once however often it is asked" do
-    {:ok, group} = Groups.get_loaded()
-    player = hd(group.players)
+  test "a character's own token is placed once however often it is asked", %{
+    characters: characters
+  } do
+    player = hd(characters)
 
-    :ok = Game.run_action([:tokens, :player, :add], player.id)
+    :ok = Game.run_action([:tokens, :character, :add], player.id)
     after_first = placements()
 
-    assert {:ok, _dismissed} = Game.run_action([:tokens, :player, :add], player.id)
+    assert {:ok, _dismissed} = Game.run_action([:tokens, :character, :add], player.id)
     assert placements() == after_first
   end
 
-  test "an extra token is placed as often as asked, each with its own id" do
-    {:ok, group} = Groups.get_loaded()
-    player = hd(group.players)
+  test "an extra token is placed as often as asked, each with its own id", %{
+    characters: characters
+  } do
+    player = hd(characters)
     count = length(placements())
 
-    :ok = Game.run_action([:tokens, :player, :add_extra], {player.id, 0})
-    :ok = Game.run_action([:tokens, :player, :add_extra], {player.id, 0})
+    :ok = Game.run_action([:tokens, :character, :add_extra], {player.id, 0})
+    :ok = Game.run_action([:tokens, :character, :add_extra], {player.id, 0})
 
     assert length(placements()) == count + 2
     assert ids() == Enum.uniq(ids())
@@ -131,51 +129,18 @@ defmodule PathMapper.Game.PlacementIdentityTest do
 
   # Property 6: a snapshot restores each placement under the id it was saved with.
   test "every placement comes back from a snapshot under the id it left with" do
-    :ok = Game.run_action([:tokens, :add], 0)
+    :ok = Game.run_action([:tokens, :add], "tk0001-0000000001")
     saved = ids()
 
     {:ok, manifest} = Game.dump_state()
     manifest = Jason.decode!(Jason.encode!(manifest))
 
     Game.clear()
-    {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
-    load_adventure("tt0001-0000000001-adventure-1.zip")
+    characters = load_party()
+    load_session()
     :ok = Game.restore_state(manifest)
 
     assert ids() == saved
-  end
-
-  # The copy a game master pastes into an adventure names placements the same way
-  # a snapshot does, so an arrangement can be taken out and authored back in.
-  test "the place_tokens copy writes each placement's id" do
-    copy = GameToken.to_place_records(placements(), 10)
-
-    Enum.each(ids(), fn game_id -> assert copy =~ "game_id = \"#{game_id}\"" end)
-  end
-
-  # Two entries under one id is the mistake an adventure written against the old
-  # form makes, since two entries for one token used to be ordinary.
-  test "a scene declaring one id twice places it once and reports the rest" do
-    {:ok, scene} =
-      Entity.build("scene", %{
-        "id" => "st0001-0000000009",
-        "name" => "Doubled",
-        "type" => "battle",
-        "order" => 9,
-        "tokens" => [%{"id" => "tk0001-0000000001"}],
-        "place_tokens" => [
-          %{"game_id" => "tk0001-0000000001-twice", "x" => 10, "y" => 10},
-          %{"game_id" => "tk0001-0000000001-twice", "x" => 50, "y" => 50}
-        ]
-      })
-
-    {:ok, _stored} = Store.put(scene)
-
-    assert {:ok, ["tk0001-0000000001-twice"]} = Game.reconcile()
-
-    :ok = Game.run_action([:scene, :select], "st0001-0000000009")
-
-    assert ids() == ["tk0001-0000000001-twice"]
   end
 
   defp placement(game_id), do: Enum.find(placements(), &(&1.game_id == game_id))

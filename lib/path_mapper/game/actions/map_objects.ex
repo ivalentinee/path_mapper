@@ -1,6 +1,6 @@
 defmodule PathMapper.Game.Actions.MapObjects do
   alias PathMapper.Game.State
-  alias PathMapper.Game.State.Scene.Map.MapObject
+  alias PathMapper.Game.State.Surface.Map.MapObject
   alias PathMapper.Geometry.Mapper, as: GeometryMapper
 
   def action(%State{} = state, [:map_objects, index, :drag], {x, y})
@@ -44,17 +44,17 @@ defmodule PathMapper.Game.Actions.MapObjects do
 
   def action(%State{} = state, [:map_objects, index, :reset_position], _)
       when is_integer(index) do
-    scene = State.scene(state)
+    surface = State.surface(state)
 
-    adventure_obj =
-      if scene.data, do: Enum.at(scene.data.map.map_objects, index), else: nil
+    declared =
+      if surface.data, do: Enum.at(surface.data.map_objects || [], index), else: nil
 
-    if adventure_obj do
+    if declared do
       reset = %MapObject{
         index: index,
-        layer_index: adventure_obj.layer_index,
-        x: GeometryMapper.to_subpixels(adventure_obj.x),
-        y: GeometryMapper.to_subpixels(adventure_obj.y),
+        layer_index: declared.layer_index,
+        x: GeometryMapper.to_subpixels(declared.x),
+        y: GeometryMapper.to_subpixels(declared.y),
         locked: true,
         show: true
       }
@@ -70,14 +70,14 @@ defmodule PathMapper.Game.Actions.MapObjects do
   end
 
   defp get_object(state, index) do
-    Enum.at(State.scene(state).map.map_objects, index)
+    Enum.at(State.surface(state).map.map_objects, index)
   end
 
   defp update_object(state, index, updated_object) do
-    scene = State.scene(state)
+    scene = State.surface(state)
     updated_objects = List.replace_at(scene.map.map_objects, index, updated_object)
     updated_map = Map.put(scene.map, :map_objects, updated_objects)
     updated_scene = Map.put(scene, :map, updated_map)
-    {:ok, State.put_scene(state, updated_scene)}
+    {:ok, State.put_surface(state, updated_scene)}
   end
 end

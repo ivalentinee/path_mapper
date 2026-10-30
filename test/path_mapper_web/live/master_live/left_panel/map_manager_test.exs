@@ -3,12 +3,11 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.MapManagerTest do
   import Phoenix.LiveViewTest
 
   alias PathMapper.Game
-  alias PathMapper.Groups
 
   setup %{conn: conn} do
-    load_adventure("tt0001-0000000001-adventure-1.zip")
-    {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
-    :ok = select_scene(1)
+    load_session()
+    load_party()
+    :ok = select_surface(1)
 
     conn = get(conn, "/master")
     assert html_response(conn, 200)
@@ -64,15 +63,15 @@ defmodule PathMapperWeb.MasterLive.LeftPanel.MapManagerTest do
   end
 
   test "hides/shows map grid with a click", %{view: view} do
-    assert Game.get_state().scene.map.show_grid == true
+    assert Game.get_state().surface.map.show_grid == true
 
     view |> element("#map-manager-button") |> render_click()
     view |> element("#toggle_grid") |> render_click()
-    assert Game.get_state().scene.map.show_grid == false
+    assert Game.get_state().surface.map.show_grid == false
 
     view |> element("#toggle_grid") |> render_click()
-    assert Game.get_state().scene.map.show_grid == true
+    assert Game.get_state().surface.map.show_grid == true
   end
 
-  def first_layer_state, do: Enum.find(Game.get_state().scene.map.layers, &(&1.index == 1))
+  def first_layer_state, do: Enum.find(Game.get_state().surface.map.layers, &(&1.index == 1))
 end

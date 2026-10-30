@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Upload the new PathMapper map
+Comment=Send the map that New PathMapper map last made to the running server
+Exec=path-mapper map upload
+Icon=pathmapper
+Terminal=false

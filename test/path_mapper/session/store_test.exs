@@ -3,14 +3,13 @@ defmodule PathMapper.Session.StoreTest do
 
   import PathMapperWeb.TestHelpers
 
-  alias PathMapper.Adventures
+  alias PathMapper.Api.Document
   alias PathMapper.Game
   alias PathMapper.Session.Commands
+  alias PathMapper.Session.Encode
   alias PathMapper.Session.Entity
   alias PathMapper.Session.Store
   alias PathMapper.TestClient
-
-  @adventure "test/data/adventures/tt0001-0000000001-adventure-1.zip"
 
   setup do
     Game.clear()
@@ -49,16 +48,6 @@ defmodule PathMapper.Session.StoreTest do
 
       assert Store.get("tk0001-0000000001").data.name == "Hobgoblin"
     end
-
-    test "refuses an id that holds another kind" do
-      {:ok, _} = Store.put(token("tk0001-0000000001"))
-
-      {:ok, scene} =
-        Entity.build("scene", %{"id" => "tk0001-0000000001", "name" => "Clash", "order" => 0})
-
-      assert {:error, message} = Store.put(scene)
-      assert message =~ "is a token, not a scene"
-    end
   end
 
   describe "remove" do
@@ -74,20 +63,16 @@ defmodule PathMapper.Session.StoreTest do
     end
   end
 
-  describe "hydrating an adventure" do
+  describe "hydrating a session" do
     setup do
-      apply_commands(TestClient.adventure_commands(@adventure))
+      apply_commands(TestClient.session_commands("standard"))
       :ok
     end
 
-    test "the commands make an adventure the server can report" do
-      assert {:ok, adventure} = Adventures.get_loaded()
-      assert adventure.title == "Adventure example"
-      assert adventure.id == "tt0001-0000000001"
-    end
-
-    test "its scenes arrive as entities of their own" do
-      assert length(Store.of_kind("scene")) == 2
+    test "the pieces arrive, and nothing names a package" do
+      assert Store.of_kind("map") != []
+      assert Store.of_kind("wallpaper") != []
+      assert Enum.all?(Store.all(), &(&1.kind in ~w(map token wallpaper character)))
     end
 
     test "its maps and tokens arrive as entities of their own" do
@@ -95,41 +80,44 @@ defmodule PathMapper.Session.StoreTest do
       assert length(Store.of_kind("token")) == 2
     end
 
-    test "a scene names its map and tokens rather than holding them" do
-      scene = Store.of_kind("scene") |> Enum.min_by(& &1.data.order)
-
-      assert is_binary(scene.data.map_id)
-      assert Enum.all?(scene.data.tokens, &is_binary(&1.id))
-    end
-
     test "game state follows the store" do
-      assert length(Game.get_state().scene_list) == 2
-    end
-
-    test "a scene the store loses leaves game state" do
-      [first | _] = Store.of_kind("scene")
-      :ok = Commands.remove(first.id)
-
-      refute Enum.any?(Game.get_state().scene_list, &(&1.id == first.id))
-    end
-
-    test "a scene made at the table continues the series" do
-      {:ok, created} = Commands.create_scene("Ambush")
-
-      assert created.id == "st0001-0000000003"
+      assert length(Game.get_state().surface_list) == 2
     end
   end
 
   describe "a scene made at the table" do
-    test "is refused an empty name" do
-      assert {:error, _} = Commands.create_scene("   ")
+  end
+
+  describe "what the store hands back" do
+    setup do
+      apply_commands(TestClient.session_commands("standard"))
+      :ok
     end
 
-    test "is refused a name another scene has" do
-      {:ok, _} = Commands.create_scene("Ambush")
+    # Encode's own promise: "a client saves what it is given and replays it
+    # unchanged". A dump carrying what the server derived - a map's layers, its
+    # objects, its grid - was refused by the gate it came from.
+    test "every entity it dumps is one it would accept back" do
+      for entity <- Store.all() do
+        command = Encode.command(entity)
+        kind = command["kind"]
 
-      assert {:error, message} = Commands.create_scene("Ambush")
-      assert message =~ "already exists"
+        assert {:ok, _rebuilt} = Entity.build(kind, Elixir.Map.delete(command, "kind")),
+               "#{kind} #{entity.id} did not survive its own dump"
+
+        assert Elixir.Map.keys(command) -- Document.declared_fields(kind) == [],
+               "#{kind} #{entity.id} dumped fields the contract does not declare"
+      end
+    end
+
+    test "and the declaration is still enough to rebuild it" do
+      map = Store.all() |> Enum.find(&(&1.kind == "map"))
+      command = Encode.command(map)
+
+      {:ok, rebuilt} = Entity.build("map", Elixir.Map.delete(command, "kind"))
+
+      assert rebuilt.data.width == map.data.width
+      assert length(rebuilt.data.layers) == length(map.data.layers)
     end
   end
 end

@@ -69,6 +69,15 @@
 
 /* Locale selector */
 
+/* Below .tool-buttons rather than inside it, so the locale flyout has no
+   scrolling ancestor to be clipped by. */
+.panel-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
 .locale-selector {
   position: relative;
 }

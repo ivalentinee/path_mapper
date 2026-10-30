@@ -2,9 +2,9 @@
 
 This guide covers deploying Path Mapper on a server. No Elixir knowledge is required --- the application ships as a self-contained release tarball or Docker image.
 
-The server holds nothing of its own. There are no adventure or group directories to
+The server holds nothing of its own. There are no content directories to
 populate and nothing to copy over when content changes: a session is fed to the
-running server by the [PathMapper client](../client/README.md) on your own machine,
+running server by the [PathMapper client](client.md) on your own machine,
 and the server forgets all of it when it restarts. What you deploy here is an empty
 board that a client fills.
 
@@ -147,7 +147,7 @@ instance clusters with nothing, and leaving it on starts epmd listening on port
 ## Upload size
 
 A client sends one asset per request, so requests stay small however large an
-adventure is --- the biggest single thing that crosses the wire is one map image.
+session is --- the biggest single thing that crosses the wire is one map image.
 If your reverse proxy caps request bodies, a limit of around 50 MB is comfortable.
 
 ## Reverse Proxy
@@ -203,34 +203,35 @@ Both open in a regular browser --- no client install needed. Share the player UR
 ## Content Setup
 
 Content never reaches the server as files. Install the
-[PathMapper client](../client/README.md) on the machine your adventures live on,
+[PathMapper client](client.md) on the machine your campaigns live on,
 point its config at this server, and feed a session from there:
 
 ```toml
 # ~/.config/pathmapper/config.toml
 server = "https://your-domain.com"
 token = "the API_TOKEN you set above"
-snapshots = "~/snapshots"
+library = "~/campaigns"
 ```
 
 ```bash
-path-mapper my-adventure.pmadventure my-group.pmgroup
+path-mapper ~/campaigns/the-train/*
 ```
 
-See the [Quick Start](quick-start.md) guide for creating your first adventure.
+See the [Quick Start](quick-start.md) guide for creating your first map and running a session.
 
 ## Charkeeper Integration
 
 If your players use [Charkeeper](https://charkeeper.ru/) for character sheets, Path Mapper can pull live stats (HP, AC, class, ancestry) automatically.
 
-To enable: add `charkeeper_id` to each player in the group manifest:
+To enable: give each character a `charkeeper_id` when it is declared:
 
 ```toml
-[[players]]
+[[characters]]
+id = "pg0001-0000000001"
 character_name = "Valeros"
 player_name = "Alice"
 color = "#328546"
-token = "player-1.png"
+token_id = "tk0002-0000000001"
 charkeeper_id = "uuid-from-charkeeper-url"
 ```
 
@@ -248,8 +249,9 @@ Stats are polled every 10 seconds by default. Adjust with `CHARKEEPER_POLL_INTER
 client's differs. An unset token refuses everything by design: a server that would
 accept anything is worse than one that accepts nothing.
 
-**An upload is refused naming a missing manifest** --- A `.pmadventure` must be a
-ZIP with `manifest.toml` at its root, not nested in a subdirectory.
+**An upload is refused for carrying no id** --- Every piece takes its id from
+its filename: two letters, four digits, a dash, ten digits. A file named
+anything else is not a piece.
 
 **The board is empty after a restart** --- Expected. The server keeps nothing
 between runs; upload the session again, or restore a snapshot with
@@ -258,3 +260,7 @@ between runs; upload the session again, or restore a snapshot with
 **Charkeeper shows garbled text** --- Ensure the server can reach `charkeeper.ru` (or your custom `CHARKEEPER_SERVER`) over HTTPS. If using a custom CA, set `CACERTFILE`.
 
 **Charkeeper status dot is yellow/red** --- Yellow means some characters failed to fetch; red means all failed. Check that the `charkeeper_id` values are correct UUIDs and that the server has internet access.
+
+**A map uploaded but the table did not change** --- Expected. Uploading a map adds
+a surface to the GM's list; nothing switches the table to it. Select it from the
+Scenes panel.

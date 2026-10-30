@@ -1,0 +1,45 @@
+character:
+  title: Character
+  description: >-
+    Someone in the game.
+
+    A character is declared and persists. A *player* is a browser session that
+    has claimed one, and is nothing this contract describes: there is no player
+    entity, nothing stores a claim, and closing the tab releases it.
+
+    Tokens are named by id rather than carried. A character naming a token the
+    session does not hold yet is accepted and resolves to nothing until it
+    arrives.
+  type: object
+  required: ['kind', 'id', 'color']
+  additionalProperties: false
+  properties:
+    kind: { type: string, const: 'character' }
+    id:
+      type: string
+      pattern: '^[a-z]{2}[0-9]{4}-[0-9]{10}$'
+    color:
+      type: string
+      description: What this character's marks are drawn in.
+    character_name:
+      type: string
+      description: What the table calls them. Optional, as every name is.
+    player_name:
+      type: string
+      description: >-
+        Who is playing them, for the game master's convenience. Optional, and it
+        names no entity - there is no player for it to refer to.
+    class:
+      type: string
+    token_id:
+      type: string
+      pattern: '^[a-z]{2}[0-9]{4}-[0-9]{10}$'
+      description: The token this character goes down as.
+    extra_token_ids:
+      type: array
+      description: Markings this character may place, as often as they like.
+      items:
+        type: string
+        pattern: '^[a-z]{2}[0-9]{4}-[0-9]{10}$'
+    charkeeper_id:
+      type: string

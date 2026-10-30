@@ -1,0 +1,124 @@
+defmodule PathMapper.Session.Map do
+  use Ecto.Schema
+
+  import Ecto.Changeset
+  alias PathMapper.FileStorage
+  alias PathMapper.ORAReader
+
+  @primary_key false
+  @default_grid_size 50
+
+  @doc "The grid a map is assumed to use when it declares none."
+  def default_grid_size, do: @default_grid_size
+  @grid_tag_regex ~r/grid-([0-9]+)/
+  @grid_line_tag_regex ~r/grid-line-([0-9]+)/
+
+  embedded_schema do
+    field(:id, :string)
+    field(:name, :string)
+    field(:url, :string)
+    field(:file, :string)
+    field(:width, :integer)
+    field(:height, :integer)
+    field(:grid_size, :integer)
+    field(:grid_line_width, :integer)
+    field(:show_grid, :boolean)
+    field(:floors, {:array, :integer})
+    embeds_many(:layers, __MODULE__.Layer)
+    embeds_many(:map_objects, __MODULE__.MapObject)
+    embeds_one(:grid, __MODULE__.AdditionalLayer)
+    embeds_one(:fow, __MODULE__.AdditionalLayer)
+  end
+
+  def changeset(struct, params) do
+    struct
+    |> cast(read_ora_file(params), [:id, :name, :url, :file, :width, :height])
+    |> reject_unreadable(params)
+    |> validate_required([:file, :width, :height])
+    |> cast_embed(:layers, required: true)
+    |> cast_embed(:map_objects)
+    |> cast_embed(:grid)
+    |> cast_embed(:fow)
+    |> get_grid_size()
+    |> get_grid_line_width()
+    |> get_show_grid()
+    |> cast_floors()
+    |> validate_required([:grid_size, :grid_line_width, :show_grid, :floors])
+  end
+
+  defp read_ora_file(params) when is_map(params) do
+    with filename when is_binary(filename) <- params["file"],
+         {:ok, ora_file} <- FileStorage.read_stored(filename),
+         {:ok, ora_data} <- ORAReader.read_from_file(ora_file) do
+      # The [M] layer names the map where it carries a name; the filename the
+      # client read is the fallback, never the override.
+      ora_data
+      |> Map.put(:file, params["file"])
+      |> Map.put(:id, params["id"] || params[:id])
+      |> Map.put(:name, ora_data.name || params["name"] || params[:name])
+    else
+      _ -> params
+    end
+  end
+
+  # Without this a description naming an absent map fails as three blank fields,
+  # which tells a client author nothing about what actually went wrong.
+  defp reject_unreadable(changeset, params) do
+    if is_binary(params["file"]) and is_nil(get_change(changeset, :width)) do
+      add_error(changeset, :file, "names no readable map: #{params["file"]}")
+    else
+      changeset
+    end
+  end
+
+  defp get_grid_size(changeset) do
+    with [_, grid_size_string] <- get_grid_tag(changeset, @grid_tag_regex),
+         {grid_size, _} <- Integer.parse(grid_size_string) do
+      put_change(changeset, :grid_size, grid_size)
+    else
+      _ -> put_change(changeset, :grid_size, @default_grid_size)
+    end
+  end
+
+  defp get_grid_line_width(changeset) do
+    with [_, line_width_string] <- get_grid_tag(changeset, @grid_line_tag_regex),
+         {line_width, _} <- Integer.parse(line_width_string) do
+      put_change(changeset, :grid_line_width, line_width)
+    else
+      _ -> put_change(changeset, :grid_line_width, 1)
+    end
+  end
+
+  defp get_show_grid(changeset) do
+    case get_grid_tag(changeset, ~r/grid-hide/) do
+      ["grid-hide"] -> put_change(changeset, :show_grid, false)
+      nil -> put_change(changeset, :show_grid, true)
+    end
+  end
+
+  defp get_grid_tag(changeset, regex) do
+    layers = get_embed(changeset, :layers)
+    grid = get_embed(changeset, :grid)
+    fow = get_embed(changeset, :fow)
+    all_layers = Enum.filter([grid | [fow | layers]], &(!is_nil(&1)))
+
+    Enum.find_value(all_layers, fn layer ->
+      case get_change(layer, :tags) do
+        tags when is_list(tags) -> Enum.find_value(tags, &Regex.run(regex, &1))
+        _ -> nil
+      end
+    end)
+  end
+
+  defp cast_floors(changeset) do
+    floors =
+      changeset
+      |> get_embed(:layers)
+      |> Enum.map(&get_change(&1, :floor))
+      |> Enum.uniq()
+      |> Enum.filter(&is_number/1)
+      |> Enum.sort()
+
+    put_change(changeset, :floors, floors)
+  end
+end

@@ -23,7 +23,7 @@ defmodule PathMapper.Application do
       # Start to serve requests, typically the last entry
       PathMapper.Game,
       PathMapper.MapTools,
-      PathMapper.Charkeeper.Supervisor,
+      PathMapper.Charkeeper.Poller,
       PathMapperWeb.Endpoint
     ]
 

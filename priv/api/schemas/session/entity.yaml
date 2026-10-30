@@ -1,30 +1,37 @@
 entity:
   title: Entity
   description: >-
-    One thing a session is made of. The kind says how to read the rest; the id names
-    it, uniquely everywhere rather than within a document.
+    One thing a session is made of. The kind says how to read the rest; the id
+    names it, uniquely everywhere rather than within a document.
 
-    Fields beyond id and kind belong to the kind and are validated by the server's
-    own schema, which reports a failure naming the field.
-  type: object
-  required: ['kind', 'id']
-  properties:
-    kind:
-      title: Kind
-      type: string
-      enum: ['adventure', 'group', 'scene', 'map', 'token']
-    id:
-      title: Id
-      description: Two letters, four series digits, ten entity digits.
-      type: string
-      pattern: '^[a-z]{2}[0-9]{4}-[0-9]{10}$'
+    Four kinds, and none of them holds another. A session is the set of pieces
+    it was sent, in any order: nothing has to exist before anything else, and an
+    id naming something absent is a normal state rather than a refusal.
+
+    Anything that gathers pieces - an adventure, a group, a character sheet - is
+    a package, and a package is the client's. The server never sees one.
+  oneOf:
+    - $ref: './kinds/map.yaml#/map'
+    - $ref: './kinds/token.yaml#/token'
+    - $ref: './kinds/wallpaper.yaml#/wallpaper'
+    - $ref: './kinds/character.yaml#/character'
+  discriminator:
+    propertyName: kind
+    mapping:
+      map: './kinds/map.yaml#/map'
+      token: './kinds/token.yaml#/token'
+      wallpaper: './kinds/wallpaper.yaml#/wallpaper'
+      character: './kinds/character.yaml#/character'
 
 entityList:
   title: The store
+  description: >-
+    Everything the session holds, in an order that can be replayed: a piece
+    arrives before anything that names it.
   type: object
   required: ['entities']
   properties:
     entities:
       type: array
       items:
-        type: object
+        $ref: '#/entity'

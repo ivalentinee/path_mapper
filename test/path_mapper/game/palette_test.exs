@@ -11,19 +11,19 @@ defmodule PathMapper.Game.PaletteTest do
   alias PathMapper.Game.Palette
 
   describe "build/1" do
-    test "builds defaults without group" do
+    test "builds defaults with no characters" do
       palette = Palette.build(nil)
       assert palette["enemy"] == "#db0909"
       assert palette["npc"] == "#a1a1a1"
       assert palette["none"] == nil
     end
 
-    test "merges player colors from group" do
-      {:ok, group} = load_group("tg0001-0000000001-group-1.zip")
-      palette = Palette.build(group)
+    test "merges character colours" do
+      characters = load_party()
+      palette = Palette.build(characters)
 
-      player = Enum.at(group.players, 0)
-      assert palette[player.id] == player.color
+      character = Enum.at(characters, 0)
+      assert palette[character.id] == character.color
       assert palette["enemy"] == "#db0909"
     end
   end
@@ -48,12 +48,12 @@ defmodule PathMapper.Game.PaletteTest do
       assert Palette.resolve("none") == nil
     end
 
-    test "returns player color when group is loaded" do
-      {:ok, group} = load_group("tg0001-0000000001-group-1.zip")
-      Palette.build(group) |> Palette.store()
+    test "returns a character's colour once they are declared" do
+      characters = load_party()
+      Palette.build(characters) |> Palette.store()
 
-      player = Enum.at(group.players, 0)
-      assert Palette.resolve(player.id) == player.color
+      character = Enum.at(characters, 0)
+      assert Palette.resolve(character.id) == character.color
     end
   end
 end

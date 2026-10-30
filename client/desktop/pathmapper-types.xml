@@ -9,14 +9,6 @@
   and xdg-mime then reports success having registered nothing.
 -->
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
-  <mime-type type="application/x-pathmapper-adventure">
-    <comment>PathMapper adventure</comment>
-    <glob pattern="*.pmadventure"/>
-  </mime-type>
-  <mime-type type="application/x-pathmapper-group">
-    <comment>PathMapper group</comment>
-    <glob pattern="*.pmgroup"/>
-  </mime-type>
   <mime-type type="application/x-pathmapper-token">
     <comment>PathMapper token</comment>
     <glob pattern="*.pmtoken"/>
@@ -24,6 +16,18 @@
   <mime-type type="application/x-pathmapper-map">
     <comment>PathMapper map</comment>
     <glob pattern="*.pmmap"/>
+  </mime-type>
+  <mime-type type="application/x-pathmapper-wallpaper">
+    <comment>PathMapper wallpaper</comment>
+    <glob pattern="*.pmwallpaper"/>
+  </mime-type>
+  <mime-type type="application/x-pathmapper-character">
+    <comment>PathMapper character</comment>
+    <glob pattern="*.pmcharacter"/>
+  </mime-type>
+  <mime-type type="application/x-pathmapper-load">
+    <comment>PathMapper load list</comment>
+    <glob pattern="*.pmload"/>
   </mime-type>
   <mime-type type="application/x-pathmapper-snapshot">
     <comment>PathMapper snapshot</comment>

@@ -12,9 +12,9 @@ defmodule PathMapperWeb.Scene.ObjectLightingTest do
   alias PathMapper.Game
 
   setup %{conn: conn} do
-    load_adventure("tt0001-0000000001-adventure-1.zip")
-    {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
-    :ok = select_scene(1)
+    load_session()
+    load_party()
+    :ok = select_surface(1)
 
     conn = get(conn, "/master")
     {:ok, view, _html} = live(conn)
@@ -32,7 +32,7 @@ defmodule PathMapperWeb.Scene.ObjectLightingTest do
   end
 
   defp layer_of_first_object do
-    scene = Game.get_state().scene
+    scene = Game.get_state().surface
     [object | _] = scene.map.map_objects
     object.layer_index
   end

@@ -22,9 +22,7 @@ defmodule PathMapper.Charkeeper.ClientTest do
   test "fetches and parses character data", %{server: server} do
     assert {:ok, %CharacterData{} = data} = Client.fetch(server, "test-uuid-1")
     assert data.name == "Test Hero"
-    assert data.class == "Fighter"
     assert data.level == 3
-    assert data.ancestry == "Human"
     assert data.hp_current == 10
     assert data.hp_temp == 2
     assert data.hp_max == 15
@@ -38,8 +36,18 @@ defmodule PathMapper.Charkeeper.ClientTest do
   test "handles second character", %{server: server} do
     assert {:ok, %CharacterData{} = data} = Client.fetch(server, "test-uuid-2")
     assert data.name == "Test Mage"
-    assert data.class == "Wizard"
+    assert data.level == 2
     assert data.hp_current == 6
     assert data.hp_temp == 0
+  end
+
+  # The document carries a class and an ancestry and the integration does not
+  # read them: a character's class is the game master's, declared in the
+  # `.pmcharacter`. Charkeeper is consulted for what changes during play.
+  test "takes only what changes during play", %{server: server} do
+    {:ok, data} = Client.fetch(server, "test-uuid-1")
+
+    assert Map.keys(Map.from_struct(data)) |> Enum.sort() ==
+             [:armor_class, :hp_current, :hp_max, :hp_temp, :level, :name]
   end
 end

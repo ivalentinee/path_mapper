@@ -9,18 +9,21 @@ defmodule PathMapper.Game.PlacementNameTest do
   use PathMapperWeb.ConnCase, async: false
 
   alias PathMapper.Game
-  alias PathMapper.Game.State.Scene.Token, as: GameToken
-  alias PathMapper.Session.Entity
-  alias PathMapper.Session.Store
+  alias PathMapper.Game.State.Surface.Token, as: GameToken
 
   setup do
-    {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
-    load_adventure("tt0001-0000000001-adventure-1.zip")
-    :ok = select_scene(1)
+    load_party()
+    load_session()
+    :ok = select_surface(1)
+
+    # Placements used to arrive with the scene, from `place_tokens`. They are put
+    # down here instead, which is the only way a placement happens now.
+    :ok = Game.run_action([:tokens, :add], "tk0001-0000000001")
+    :ok = Game.run_action([:tokens, :add], "tk0001-0000000002")
     :ok
   end
 
-  defp placements, do: Game.get_state().scene.tokens
+  defp placements, do: Game.get_state().surface.tokens
   defp placement(game_id), do: Enum.find(placements(), &(&1.game_id == game_id))
   defp shown(game_id), do: GameToken.displayed_name(placement(game_id))
 
@@ -53,7 +56,19 @@ defmodule PathMapper.Game.PlacementNameTest do
 
   # Property 3: naming a placement changes no declaration and no other placement.
   test "naming one placement leaves the declaration and its siblings alone" do
-    # Both of these were placed from tk0001-0000000001.
+    # Both of these are placed from tk0001-0000000001.
+    :ok =
+      Game.run_action(
+        [:tokens, :add],
+        {"tk0001-0000000001", %{game_id: "tk0001-0000000001-fallen"}}
+      )
+
+    :ok =
+      Game.run_action(
+        [:tokens, :add],
+        {"tk0001-0000000001", %{game_id: "tk0001-0000000001-standing"}}
+      )
+
     fallen = "tk0001-0000000001-fallen"
     standing = "tk0001-0000000001-standing"
     declared = placement(fallen).data.name
@@ -96,48 +111,10 @@ defmodule PathMapper.Game.PlacementNameTest do
     manifest = Jason.decode!(Jason.encode!(manifest))
 
     Game.clear()
-    {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
-    load_adventure("tt0001-0000000001-adventure-1.zip")
+    load_party()
+    load_session()
     :ok = Game.restore_state(manifest)
 
     assert shown(first) == "crooked ear"
-    assert placement("tk0001-0000000001-standing").name == nil
-  end
-
-  # The copy always states a name, resolved, so the converter reading it never
-  # needs the token roster to know what an entry is about.
-  test "the place_tokens copy states a name for every placement" do
-    [first, second | _] = Enum.map(placements(), & &1.game_id)
-    :ok = Game.run_action([:tokens, first, :set_name], "crooked ear")
-
-    lines = String.split(GameToken.to_place_records(placements(), 10), "\n")
-    named = Enum.find(lines, &String.contains?(&1, first))
-    unnamed = Enum.find(lines, &String.contains?(&1, second))
-
-    assert named =~ ~s{name = "crooked ear"}
-    assert unnamed =~ ~s{name = "#{shown(second)}"}
-  end
-
-  # Property 4: a place_tokens entry may state a name, and need not.
-  test "an authored place_tokens entry may state a name" do
-    {:ok, scene} =
-      Entity.build("scene", %{
-        "id" => "st0001-0000000008",
-        "name" => "Named",
-        "type" => "battle",
-        "order" => 8,
-        "tokens" => [%{"id" => "tk0001-0000000001"}],
-        "place_tokens" => [
-          %{"game_id" => "tk0001-0000000001-left", "x" => 10, "y" => 10, "name" => "left guard"},
-          %{"game_id" => "tk0001-0000000001-right", "x" => 50, "y" => 50}
-        ]
-      })
-
-    {:ok, _} = Store.put(scene)
-    :ok = Game.reconcile()
-    :ok = Game.run_action([:scene, :select], "st0001-0000000008")
-
-    assert shown("tk0001-0000000001-left") == "left guard"
-    assert shown("tk0001-0000000001-right") == placement("tk0001-0000000001-right").data.name
   end
 end

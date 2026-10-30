@@ -2,17 +2,15 @@ defmodule PathMapper.Session.StandaloneTokenTest do
   @moduledoc """
   A token uploaded on its own reaches the board.
 
-  Uploading a `.pmtoken` declares a token entity that no scene names. Both roster
-  sources read from scenes - the active scene's own list, and the union of every
-  scene's list - so such a token was in the store and reachable from nowhere:
-  absent from the panel, and unplaceable even by id.
+  Uploading a `.pmtoken` declares a token entity that arrived with no package
+  around it. There is no roster any more and nothing but the store to read, so
+  this is now the ordinary case rather than the exception it once was - which is
+  itself worth holding in a test.
   """
   use PathMapperWeb.ConnCase, async: false
 
-  alias PathMapper.Adventures
-  alias PathMapper.Adventures.Adventure
   alias PathMapper.Game
-  alias PathMapper.Groups
+  alias PathMapper.Game.Actions.Tokens.Find
   alias PathMapper.Session.Entity
   alias PathMapper.Session.Resolve
   alias PathMapper.Session.Store
@@ -20,17 +18,17 @@ defmodule PathMapper.Session.StandaloneTokenTest do
   @loose "tu0000-2000000001"
 
   setup do
-    {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
-    load_adventure("tt0001-0000000001-adventure-1.zip")
-    :ok = select_scene(1)
+    load_party()
+    load_session()
+    :ok = select_surface(1)
 
     {:ok, token} = Entity.build("token", declaration())
     {:ok, _} = Store.put(token)
     :ok = Game.reconcile()
-    :ok
+    %{characters: Resolve.characters()}
   end
 
-  defp placements, do: Game.get_state().scene.tokens
+  defp placements, do: Game.get_state().surface.tokens
 
   defp declaration do
     %{
@@ -49,12 +47,6 @@ defmodule PathMapper.Session.StandaloneTokenTest do
     assert "tk0001-0000000001" in ids, "declared tokens are still listed"
   end
 
-  test "no scene declares it, which is why the old roster missed it" do
-    {:ok, adventure} = Adventures.get_loaded()
-
-    refute Enum.any?(Adventure.all_tokens(adventure), &(&1.id == @loose))
-  end
-
   test "it can be placed on the active scene by its id" do
     before = length(placements())
 
@@ -67,18 +59,17 @@ defmodule PathMapper.Session.StandaloneTokenTest do
     assert placed.data.owner == "enemy"
   end
 
-  # Players' tokens are placed from their own panels, which know a character goes
-  # down once and a marking as often as asked.
-  test "the group's player tokens are not offered as general tokens" do
-    {:ok, group} = Groups.get_loaded()
-    player = hd(group.players)
-    excluded = Groups.player_token_ids()
+  # A character's tokens are placed from their own panels, which know a character
+  # goes down once and a marking as often as asked.
+  test "a character's tokens are not offered as general tokens", %{characters: characters} do
+    character = hd(characters)
+    excluded = Find.character_token_ids()
 
-    assert MapSet.member?(excluded, player.token_id)
-    assert Enum.all?(player.extra_tokens, &MapSet.member?(excluded, &1.id))
+    assert MapSet.member?(excluded, character.token_id)
+    assert Enum.all?(character.extra_token_ids, &MapSet.member?(excluded, &1))
 
-    refute MapSet.member?(excluded, @loose), "a standalone token is not a player's"
-    refute MapSet.member?(excluded, "tk0001-0000000001"), "nor is a scene's own"
+    refute MapSet.member?(excluded, @loose), "a standalone token is not a character's"
+    refute MapSet.member?(excluded, "tk0001-0000000001"), "nor is one an adventure declared"
   end
 
   # A placement of it must survive a snapshot like any other. Restore resolved a
@@ -93,8 +84,8 @@ defmodule PathMapper.Session.StandaloneTokenTest do
     manifest = Jason.decode!(Jason.encode!(manifest))
 
     Game.clear()
-    {:ok, _group} = load_group("tg0001-0000000001-group-1.zip")
-    load_adventure("tt0001-0000000001-adventure-1.zip")
+    load_party()
+    load_session()
     {:ok, token} = Entity.build("token", declaration())
     {:ok, _} = Store.put(token)
     :ok = Game.reconcile()
@@ -110,27 +101,6 @@ defmodule PathMapper.Session.StandaloneTokenTest do
 
   # An authored entry may name any token the session holds, not only the ones the
   # scene lists. An id naming nothing still places nothing.
-  test "a place_tokens entry may name it without the scene declaring it" do
-    {:ok, scene} =
-      Entity.build("scene", %{
-        "id" => "st0001-0000000099",
-        "name" => "Loose",
-        "type" => "battle",
-        "order" => 9,
-        "tokens" => [],
-        "place_tokens" => [
-          %{"game_id" => "#{@loose}-here", "x" => 2, "y" => 2},
-          %{"game_id" => "tk9999-0000000000-nobody", "x" => 3, "y" => 3}
-        ]
-      })
-
-    {:ok, _} = Store.put(scene)
-    :ok = Game.reconcile()
-    :ok = Game.run_action([:scene, :select], "st0001-0000000099")
-
-    assert Enum.map(placements(), & &1.game_id) == ["#{@loose}-here"]
-    assert hd(placements()).data.name == "Зомби-ходок"
-  end
 
   test "a scene's own roster still overrides what the store says" do
     # tk0001-0000000001 is declared by the scene, so the scene's view of it wins.

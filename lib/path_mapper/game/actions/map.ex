@@ -1,12 +1,12 @@
 defmodule PathMapper.Game.Actions.Map do
   alias PathMapper.Game.State
-  alias PathMapper.Game.State.Scene.Map.Layer
+  alias PathMapper.Game.State.Surface.Map.Layer
 
   def action(%State{} = state, [:map, :toggle_grid], _) do
-    scene = State.scene(state)
+    scene = State.surface(state)
     updated_map = Map.put(scene.map, :show_grid, !scene.map.show_grid)
     updated_scene = Map.put(scene, :map, updated_map)
-    {:ok, State.put_scene(state, updated_scene)}
+    {:ok, State.put_surface(state, updated_scene)}
   end
 
   def action(%State{} = state, [:map, :layer, :toggle_show], index) when is_number(index) do
@@ -39,11 +39,11 @@ defmodule PathMapper.Game.Actions.Map do
   end
 
   defp find_layer(state, index) do
-    Enum.find(State.scene(state).map.layers, &(&1.index == index))
+    Enum.find(State.surface(state).map.layers, &(&1.index == index))
   end
 
   defp update_layer(%State{} = state, index, %Layer{} = updated_layer) do
-    scene = State.scene(state)
+    scene = State.surface(state)
 
     updated_layers =
       Enum.map(scene.map.layers, fn layer ->
@@ -51,6 +51,6 @@ defmodule PathMapper.Game.Actions.Map do
       end)
 
     updated_map = Map.put(scene.map, :layers, updated_layers)
-    State.put_scene(state, Map.put(scene, :map, updated_map))
+    State.put_surface(state, Map.put(scene, :map, updated_map))
   end
 end

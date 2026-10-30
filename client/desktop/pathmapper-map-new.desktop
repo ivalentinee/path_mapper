@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=New PathMapper map
+Comment=Copy the map template into the library and open it in GIMP
+Exec=path-mapper map new
+Icon=pathmapper
+Terminal=false

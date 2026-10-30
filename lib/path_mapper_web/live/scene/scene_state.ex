@@ -107,16 +107,24 @@ defmodule PathMapperWeb.Scene.SceneState do
   @doc """
   The on-screen origin of one map axis.
 
-  Centers the map when it fits the viewport (pan is ignored in that case),
-  otherwise clamps pan so the map cannot be dragged past its own edges.
-  Shared with `SceneComponent.apply_axis/5` so the rendered position and the
-  zoom anchoring agree on exactly one definition.
+  Centers the map when it fits the viewport, ignoring pan; otherwise the pan
+  is the origin, unbounded. Shared with `SceneComponent.apply_axis/5` so the
+  rendered position and the zoom anchoring agree on exactly one definition.
+
+  Pan used to be clamped so a map edge could never come inside the viewport.
+  That reads as safety and costs the thing zoom is for: to put a corner of a
+  map in the middle of the screen, the two edges meeting at it have to leave
+  the screen. The clamp made the corner unreachable at any useful zoom.
+
+  Nothing is lost by dropping it, because an axis that fits is centered
+  again - so zooming out far enough always brings the map back, whatever the
+  pan - and the tool strip's 1x sets both to nothing in one click.
   """
   def rendered_origin(pan, map_size, viewport_size) do
     if map_size <= viewport_size do
       floor((viewport_size - map_size) / 2)
     else
-      pan |> max(viewport_size - map_size) |> min(0)
+      pan
     end
   end
 

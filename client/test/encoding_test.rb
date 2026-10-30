@@ -1,42 +1,21 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require 'zip'
+require 'json'
+require 'zlib'
 
 # Text that leaves the client has to be tagged as text.
 #
-# Zip entries are read as bytes, which is right for an image and wrong for a
-# manifest. Left as bytes, every string the TOML parser returns is tagged BINARY,
-# and JSON.generate warns on one that holds anything outside ASCII - then raises
+# File bytes are read as bytes, which is right for an image and wrong for
+# anything a person wrote. Left as bytes, a string is tagged BINARY, and
+# JSON.generate warns on one that holds anything outside ASCII - then raises
 # under json 3. It stays invisible until a name carries an accent.
+#
+# This used to be mostly about a package manifest. The manifests are gone; the
+# two places text still arrives from outside are a filename and a PNG's own tEXt
+# chunks, and both carry a map or a token's name to the server.
 class EncodingTest < Minitest::Test
-  TITLE = 'Гости́ница «Разби́тый меч» — да́нжен'
-  SCENE = 'Подва́л'
-
-  def manifest
-    <<~TOML
-      title = "#{TITLE}"
-
-      [[scenes]]
-      id = "st0001-0000000001"
-      name = "#{SCENE}"
-      type = "battle"
-      tokens = [
-        { name = "Гобли́н", size = 1, owner = "enemy", image = "tokens/tk0001-0000000001-g.png" }
-      ]
-    TOML
-  end
-
-  def blob(manifest_bytes = manifest)
-    path = File.join(Dir.mktmpdir, 'tt0001-0000000001-utf8.zip')
-
-    Zip::File.open(path, Zip::File::CREATE) do |zip|
-      zip.get_output_stream('manifest.toml') { |io| io.write(manifest_bytes) }
-      zip.get_output_stream('tokens/tk0001-0000000001-g.png') { |io| io.write('not a real png') }
-    end
-
-    PathMapper::Blob.open(path)
-  end
+  KEEP = 'Крепость Чёрного Камня'
 
   def binary_strings(value, path = '', found = [])
     case value
@@ -47,32 +26,19 @@ class EncodingTest < Minitest::Test
     found
   end
 
-  def test_manifest_strings_are_text_not_bytes
-    assert_empty binary_strings(blob.manifest)
-  end
+  def test_a_name_read_off_a_filename_is_text
+    name = PathMapper::Id.name_of("mt0001-0000000001-#{KEEP.tr(' ', '-')}.pmmap")
 
-  def test_manifest_text_survives_intact
-    assert_equal TITLE, blob.manifest['title']
-    assert_equal SCENE, blob.manifest['scenes'].first['name']
+    assert_equal KEEP, name
+    assert_equal Encoding::UTF_8, name.encoding
   end
 
   # The operation that warned.
-  def test_a_manifest_can_be_generated_as_json
-    assert_equal TITLE, JSON.parse(JSON.generate(blob.manifest))['title']
-  end
+  def test_a_declaration_can_be_generated_as_json
+    declaration = { 'kind' => 'map', 'id' => 'mt0001-0000000001', 'name' => name_from_disk }
 
-  def test_a_manifest_that_is_not_utf8_is_refused
-    error = assert_raises(PathMapper::Blob::Invalid) do
-      blob("title = \"\xFF\xFE broken\"\n".b).manifest
-    end
-
-    assert_includes error.message, 'not valid UTF-8'
-  end
-
-  def test_no_command_carries_bytes_where_it_means_text
-    commands = PathMapper::Commands.new(blob, FakeServer.new).adventure
-
-    assert_empty binary_strings(commands)
+    assert_empty binary_strings(declaration)
+    assert_equal KEEP, JSON.parse(JSON.generate(declaration))['name']
   end
 
   def chunk(type, data)
@@ -97,5 +63,18 @@ class EncodingTest < Minitest::Test
           chunk('IEND', '')
 
     assert_equal 'Гоблин', PathMapper::Png.text(png)['Title']
+  end
+
+  private
+
+  # Through a real file, because a path read off a directory listing is where a
+  # BINARY string would come from if one did.
+  def name_from_disk
+    Dir.mktmpdir do |directory|
+      path = File.join(directory, "mt0001-0000000001-#{KEEP.tr(' ', '-')}.pmmap")
+      File.binwrite(path, 'bytes')
+
+      PathMapper::Id.name_of(Dir.glob(File.join(directory, '*')).first)
+    end
   end
 end

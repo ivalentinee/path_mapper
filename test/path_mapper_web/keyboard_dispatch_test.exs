@@ -165,7 +165,7 @@ defmodule PathMapperWeb.KeyboardDispatchTest do
 
   describe "panel scope keys" do
     test "s opens scene selector" do
-      assert %{left_panel_select: ["left-panel", "scene-selector"]} =
+      assert %{left_panel_select: ["left-panel", "surface-selector"]} =
                KeyboardDispatch.dispatch("s", assigns())
     end
 
@@ -203,29 +203,29 @@ defmodule PathMapperWeb.KeyboardDispatchTest do
                KeyboardDispatch.dispatch(
                  "3",
                  assigns(%{
-                   left_panel: %LeftPanelState{left_panel: ["left-panel", "scene-selector"]}
+                   left_panel: %LeftPanelState{left_panel: ["left-panel", "surface-selector"]}
                  })
                )
     end
 
     test "Enter commits digit buffer" do
-      assert {:scene_select, 3} =
+      assert {:surface_select, 3} =
                KeyboardDispatch.dispatch(
                  "Enter",
                  assigns(%{
                    scene: %SceneState{digit_buffer: "3"},
-                   left_panel: %LeftPanelState{left_panel: ["left-panel", "scene-selector"]}
+                   left_panel: %LeftPanelState{left_panel: ["left-panel", "surface-selector"]}
                  })
                )
     end
 
     test "Enter with multi-digit buffer" do
-      assert {:scene_select, 12} =
+      assert {:surface_select, 12} =
                KeyboardDispatch.dispatch(
                  "Enter",
                  assigns(%{
                    scene: %SceneState{digit_buffer: "12"},
-                   left_panel: %LeftPanelState{left_panel: ["left-panel", "scene-selector"]}
+                   left_panel: %LeftPanelState{left_panel: ["left-panel", "surface-selector"]}
                  })
                )
     end
@@ -263,11 +263,11 @@ defmodule PathMapperWeb.KeyboardDispatchTest do
 
   describe "scope action keys" do
     test "u in scene scope unsets scene" do
-      assert {:scene_action, :unset} =
+      assert {:surface_action, :unset} =
                KeyboardDispatch.dispatch(
                  "u",
                  assigns(%{
-                   left_panel: %LeftPanelState{left_panel: ["left-panel", "scene-selector"]}
+                   left_panel: %LeftPanelState{left_panel: ["left-panel", "surface-selector"]}
                  })
                )
     end

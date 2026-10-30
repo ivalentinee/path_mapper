@@ -1,10 +1,9 @@
 <div id="scene" class="scene" phx-hook="Geometry" phx-target={@myself}>
   <%= if has_geometry?(assigns) do %>
-    <div style={map_style(@map_geometry)}>
+    <div class="pan-layer" style={map_style(@map_geometry)}>
       <.live_component
         module={PathMapperWeb.Scene.MapComponent}
         id="map"
-        adventure={@adventure}
         game_state={@game_state}
         geometry={@map_geometry}
         opts={@opts}
@@ -12,18 +11,18 @@
       />
     </div>
 
-    <div style={map_style(@map_geometry)}>
+    <div class="pan-layer" style={map_style(@map_geometry)}>
       <.live_component
         module={PathMapperWeb.Scene.DrawnMapComponent}
         id="drawn-map"
-        drawn_elements={@game_state.scene.drawn_elements}
+        drawn_elements={@game_state.surface.drawn_elements}
         geometry={@map_geometry}
-        grid_size={@game_state.scene.map.grid_size}
+        grid_size={@game_state.surface.map.grid_size}
       />
     </div>
 
-    <div class="objects-container" style={map_style(@map_geometry)}>
-      <%= for {obj, obj_state, layer_state} <- visible_objects(@adventure, @game_state, @opts) do %>
+    <div class="objects-container pan-layer" style={map_style(@map_geometry)}>
+      <%= for {obj, obj_state, layer_state} <- visible_objects(@game_state, @opts) do %>
         <div
           id={"map-object-#{obj_state.index}"}
           phx-hook={if @opts[:manage_objects], do: "PointerDrag"}
@@ -31,7 +30,8 @@
           data-object-index={obj_state.index}
           data-locked={to_string(obj_state.locked)}
           style={object_style(obj, obj_state, layer_state, @map_geometry, @opts)}
-          class={"map-object #{object_light_class(layer_state)}"}
+          class={"map-object #{object_light_class(layer_state)} #{if drawn_link(obj, @opts), do: "link"}"}
+          title={drawn_link(obj, @opts) && drawn_link(obj, @opts).title}
         >
           <img
             src={obj.image}
@@ -42,18 +42,9 @@
       <% end %>
     </div>
 
-    <%= if @game_state.scene.custom and is_nil(@game_state.scene.data) and @game_state.scene.map.show_grid do %>
-      <GridComponent.svg_grid
-        width={@game_state.scene.map.width}
-        height={@game_state.scene.map.height}
-        grid_size={@game_state.scene.map.grid_size}
-        grid_line_width={@game_state.scene.map.grid_line_width}
-        geometry={@map_geometry}
-        style={map_style(@map_geometry)}
-      />
-    <% else %>
-      <%= if grid_layer = MapComponent.additional_map_layer(@adventure, @game_state, :grid, @scene.grid_override) do %>
-        <div class="grid-container" style={map_style(@map_geometry)}>
+    <%= case grid_source(@game_state, @scene) do %>
+      <% {:painted, grid_layer} -> %>
+        <div class="grid-container pan-layer" style={map_style(@map_geometry)}>
           <svg style="width: 100%; height: 100%;">
             <image
               x={GeometryMapper.scale_map_pixel(grid_layer.x, @map_geometry)}
@@ -74,10 +65,19 @@
             />
           </svg>
         </div>
-      <% end %>
+      <% :generated -> %>
+        <GridComponent.svg_grid
+          width={@game_state.surface.map.width}
+          height={@game_state.surface.map.height}
+          grid_size={@game_state.surface.map.grid_size}
+          grid_line_width={@game_state.surface.map.grid_line_width}
+          geometry={@map_geometry}
+          style={map_style(@map_geometry)}
+        />
+      <% :none -> %>
     <% end %>
 
-    <div class="tokens-container" style={map_style(@map_geometry)}>
+    <div class="tokens-container pan-layer" style={map_style(@map_geometry)}>
       <%= for {token, index} <- visible_tokens(@game_state, @opts) do %>
         <.live_component
           module={PathMapperWeb.Scene.TokenComponent}
@@ -85,11 +85,11 @@
           token={token}
           index={index}
           map_geometry={@map_geometry}
-          grid_line_width={@game_state.scene.map.grid_line_width}
+          grid_line_width={@game_state.surface.map.grid_line_width}
           opts={@opts}
           selected_token_index={@selected_token_index}
           scene={@scene}
-          my_player_id={@opts[:my_player_id]}
+          my_character_id={@opts[:my_character_id]}
         />
       <% end %>
     </div>
@@ -99,47 +99,83 @@
       id="tool-overlay"
       tool_draws={assigns[:tool_draws] || %{}}
       map_geometry={@map_geometry}
-      grid_size={@game_state.scene.map.grid_size}
+      grid_size={@game_state.surface.map.grid_size}
       active_tool={@scene.active_tool}
       snap_to_grid={@scene.snap_to_grid}
       tool_color={tool_color(assigns)}
       draw_color={@scene.draw_color}
       draw_owner={assigns[:draw_owner]}
       draw_width={@scene.draw_width}
-      drawn_elements={@game_state.scene.drawn_elements}
+      drawn_elements={@game_state.surface.drawn_elements}
       overlay_style={map_style(@map_geometry)}
       session_id={@session_id}
     />
 
     <%= if assigns[:object_context_menu] do %>
       <div
-        class="token-context-menu"
+        class="token-context-menu object-menu"
         style={"left: #{@object_context_menu.x}px; top: #{@object_context_menu.y}px;"}
         phx-click-away="close_object_context_menu"
         phx-target={@myself}
       >
-        <% obj_state = Enum.at(@game_state.scene.map.map_objects, @object_context_menu.index) %>
-        <button
-          phx-click="object_toggle_lock"
-          phx-value-index={@object_context_menu.index}
-          phx-target={@myself}
-        >
-          {if obj_state && obj_state.locked, do: "🔒", else: "🔓"}
-        </button>
-        <button
-          phx-click="object_toggle_show"
-          phx-value-index={@object_context_menu.index}
-          phx-target={@myself}
-        >
-          {if obj_state && obj_state.show, do: "👁", else: "👀"}
-        </button>
-        <button
-          phx-click="object_reset_position"
-          phx-value-index={@object_context_menu.index}
-          phx-target={@myself}
-        >
-          ↩
-        </button>
+        <% obj_state = Enum.at(@game_state.surface.map.map_objects, @object_context_menu.index) %>
+        <% target = @object_context_menu.target %>
+        <%= if target do %>
+          <div class="menu-row">
+            <%= if target.url do %>
+              <a
+                class="pure-button url"
+                href={target.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                ≡
+              </a>
+            <% end %>
+            <a
+              class="pure-button preview"
+              href={"/master/#{target.id}"}
+              target={@opts[:table_view] && "_blank"}
+            >
+              ⇢
+            </a>
+            <button
+              class="go"
+              phx-click="object_follow_link"
+              phx-value-index={@object_context_menu.index}
+              phx-target={@myself}
+            >
+              ▶︎
+            </button>
+          </div>
+        <% end %>
+        <%= if target && target.name do %>
+          <div class="menu-name" title={target.name}>{target.name}</div>
+        <% end %>
+        <div class="menu-row">
+          <button
+            phx-click="object_toggle_lock"
+            phx-value-index={@object_context_menu.index}
+            phx-target={@myself}
+          >
+            {if obj_state && obj_state.locked, do: "🔒", else: "🔓"}
+          </button>
+          <button
+            phx-click="object_toggle_show"
+            phx-value-index={@object_context_menu.index}
+            phx-target={@myself}
+          >
+            {if obj_state && obj_state.show, do: "👁", else: "👀"}
+          </button>
+          <button
+            phx-click="object_reset_position"
+            phx-value-index={@object_context_menu.index}
+            phx-target={@myself}
+            title={gettext("Put it back where the map draws it")}
+          >
+            🔄
+          </button>
+        </div>
       </div>
     <% end %>
   <% end %>

@@ -75,10 +75,6 @@ module PathMapper
       send_request(json('/api/state', state))
     end
 
-    def set_scene_map(name, bytes)
-      send_request(multipart('/api/scenes/map', 'file' => [name, bytes]))
-    end
-
     def reset
       send_request(json('/api/reset', {}))
     end

@@ -2,29 +2,28 @@ defmodule PathMapperWeb.MasterLive do
   require Logger
   use PathMapperWeb, :live_view
 
-  alias PathMapper.Adventures
   alias PathMapper.Game
-  alias PathMapper.Groups
+  alias PathMapper.Session.Resolve
   alias PathMapperWeb.Scene.ContextMenuHelper
   alias PathMapperWeb.SessionState
   alias PathMapperWeb.SessionState.Language
   alias PathMapperWeb.SessionState.LeftPanel
   alias PathMapperWeb.SessionState.RightPanel
   alias PathMapperWeb.SessionState.Scene
+  alias PathMapperWeb.ViewedSurface
 
   @plugins [LeftPanel, RightPanel, Scene, Language]
 
   @impl true
-  def mount(_params, session, socket) do
+  def mount(params, session, socket) do
     connect_locale = get_connect_params(socket)["locale"]
     locale = session["locale"] || connect_locale || "en"
     Gettext.put_locale(PathMapperWeb.Gettext, locale)
 
-    adventure = get_selected_adventure()
-    group = get_selected_group()
-    game_state = Game.get_state()
-    Adventures.subscribe()
-    Groups.subscribe()
+    viewed = params["surface_id"]
+    :ok = ViewedSurface.check!(viewed)
+    game_state = Game.get_state(viewed)
+
     Game.subscribe()
     PathMapper.MapTools.subscribe()
     PathMapper.Charkeeper.subscribe()
@@ -41,8 +40,9 @@ defmodule PathMapperWeb.MasterLive do
     socket =
       socket
       |> assign(:page_title, gettext("GM"))
-      |> assign(:adventure, adventure)
-      |> assign(:group, group)
+      |> assign(:characters, Resolve.characters())
+      |> assign(:viewed_surface_id, viewed)
+      |> assign(:pushable, ViewedSurface.pushable?(game_state, viewed))
       |> assign(:game_state, game_state)
       |> assign(:session_state, session_state)
       |> assign(:session_id, session_id)
@@ -73,6 +73,16 @@ defmodule PathMapperWeb.MasterLive do
 
   def selected_token_index(_), do: nil
 
+  # The one thing a page showing somebody else's surface may do: make it the
+  # table's. It does not act on the surface - it changes which surface is acted
+  # on - and the broadcast that follows makes the button disappear, because the
+  # page and the table now name the same thing.
+  @impl true
+  def handle_event("push_to_table", _params, socket) do
+    Game.run_action([:surface, :select], socket.assigns.viewed_surface_id)
+    {:noreply, socket}
+  end
+
   @impl true
   def handle_event("keydown", %{"key" => key}, socket) do
     key
@@ -87,8 +97,8 @@ defmodule PathMapperWeb.MasterLive do
   end
 
   @impl true
-  def handle_event("open_scene_selector", _, socket) do
-    send(self(), %{session_event: %{left_panel_select: ["left-panel", "scene-selector"]}})
+  def handle_event("open_surface_selector", _, socket) do
+    send(self(), %{session_event: %{left_panel_select: ["left-panel", "surface-selector"]}})
     {:noreply, socket}
   end
 
@@ -114,13 +124,13 @@ defmodule PathMapperWeb.MasterLive do
     handle_arrow_pan(socket, direction)
   end
 
-  defp apply_keyboard_action({:scene_select, index}, socket) do
-    Game.run_action([:scene, :select], index - 1)
+  defp apply_keyboard_action({:surface_select, position}, socket) do
+    Game.run_action([:surface, :select], Game.surface_id_at(position))
     {:noreply, clear_keyboard_state(socket)}
   end
 
-  defp apply_keyboard_action({:scene_action, action}, socket) do
-    Game.run_action([:scene, action], nil)
+  defp apply_keyboard_action({:surface_action, action}, socket) do
+    Game.run_action([:surface, action], nil)
     {:noreply, clear_keyboard_state(socket)}
   end
 
@@ -149,7 +159,7 @@ defmodule PathMapperWeb.MasterLive do
   end
 
   defp apply_keyboard_action({:add_player_by_index, index}, socket) do
-    Game.run_action([:tokens, :player, :add], index - 1)
+    Game.run_action([:tokens, :character, :add], index - 1)
     {:noreply, update_scene(socket, digit_buffer: "")}
   end
 
@@ -159,7 +169,7 @@ defmodule PathMapperWeb.MasterLive do
   end
 
   defp apply_keyboard_action({:player_action, :add_all}, socket) do
-    Game.run_action([:tokens, :player, :add_all], nil)
+    Game.run_action([:tokens, :character, :add_all], nil)
     {:noreply, socket}
   end
 
@@ -185,7 +195,7 @@ defmodule PathMapperWeb.MasterLive do
   end
 
   defp apply_keyboard_action({:add_extra_by_index, player_index, token_index}, socket) do
-    Game.run_action([:tokens, :player, :add_extra], {player_index, token_index - 1})
+    Game.run_action([:tokens, :character, :add_extra], {player_index, token_index - 1})
     {:noreply, update_scene(socket, digit_buffer: "")}
   end
 
@@ -234,7 +244,7 @@ defmodule PathMapperWeb.MasterLive do
     end
   end
 
-  defp scope_name(["left-panel", "scene-selector"]), do: "[Scenes]"
+  defp scope_name(["left-panel", "surface-selector"]), do: "[Maps]"
   defp scope_name(["left-panel", "tokens"]), do: "[Tokens]"
   defp scope_name(["left-panel", "tokens", "add-token"]), do: "[Tokens > Add]"
   defp scope_name(["left-panel", "tokens", "add-player-token"]), do: "[Tokens > Players]"
@@ -250,7 +260,8 @@ defmodule PathMapperWeb.MasterLive do
   defp scope_name(_), do: "[...]"
 
   defp handle_arrow_pan(socket, direction) do
-    grid_size = socket.assigns.game_state[:scene] && socket.assigns.game_state.scene.map.grid_size
+    grid_size =
+      socket.assigns.game_state[:scene] && socket.assigns.game_state.surface.map.grid_size
 
     if grid_size do
       {dx, dy} =
@@ -268,19 +279,14 @@ defmodule PathMapperWeb.MasterLive do
   end
 
   # Domain state broadcasts
-  @impl true
-  def handle_info(%{adventure_loaded: adventure}, socket) do
-    {:noreply, assign(socket, :adventure, adventure)}
-  end
-
-  @impl true
-  def handle_info(%{group_loaded: group}, socket) do
-    {:noreply, assign(socket, :group, group)}
-  end
 
   @impl true
   def handle_info(%{game_update: game_state}, socket) do
-    {:noreply, assign(socket, :game_state, game_state)}
+    {:noreply,
+     socket
+     |> assign(:game_state, ViewedSurface.rendered(game_state, socket.assigns.viewed_surface_id))
+     |> assign(:pushable, ViewedSurface.pushable?(game_state, socket.assigns.viewed_surface_id))
+     |> assign(:characters, Resolve.characters())}
   end
 
   # Charkeeper broadcasts
@@ -333,19 +339,5 @@ defmodule PathMapperWeb.MasterLive do
   def terminate(_reason, socket) do
     PathMapper.MapTools.clear(socket.assigns[:session_id])
     :ok
-  end
-
-  defp get_selected_adventure do
-    case Adventures.get_loaded() do
-      {:ok, adventure} -> adventure
-      _ -> nil
-    end
-  end
-
-  defp get_selected_group do
-    case Groups.get_loaded() do
-      {:ok, group} -> group
-      _ -> nil
-    end
   end
 end

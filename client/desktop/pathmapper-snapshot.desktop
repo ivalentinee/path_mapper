@@ -3,4 +3,5 @@ Type=Application
 Name=Fetch PathMapper snapshot
 Comment=Download the current session into the configured snapshot directory
 Exec=path-mapper snapshot
+Icon=pathmapper
 Terminal=false
